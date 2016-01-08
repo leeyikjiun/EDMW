@@ -29,8 +29,14 @@ public class PostsResponseBodyConverter implements Converter<ResponseBody, List<
         for (Element row : rows) {
             String author = row.select("div.author a").first().text().trim();
             String timestamp = row.select("div.b-post__timestamp").text().trim();
+            String postNum = row.select("a.b-post__count").first().text().trim();
             String message = row.select("div.js-post__content-text").first().html();
-            posts.add(new Post(author, timestamp, message));
+            posts.add(new Post.Builder()
+                    .author(author)
+                    .timestamp(timestamp)
+                    .postNum(postNum)
+                    .message(message)
+                    .build());
         }
         return posts;
     }

@@ -26,30 +26,28 @@ public class PostFragment extends ListFragment {
     }
 
     @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
-        if (isVisibleToUser) {
-            Bundle args = getArguments();
-            String path = args.getString(ARG_PATH);
-            int page = args.getInt(ARG_PAGE);
+        Bundle args = getArguments();
+        String path = args.getString(ARG_PATH);
+        int page = args.getInt(ARG_PAGE);
 
-            Call<List<Post>> calls = RestClient.getService().getPosts(path, page);
-            calls.enqueue(new Callback<List<Post>>() {
-                @Override
-                public void onResponse(Response<List<Post>> response, Retrofit retrofit) {
-                    if (response.isSuccess()) {
-                        posts = response.body();
-                        setListAdapter(new PostAdapter(getContext(), posts));
-                    }
+        Call<List<Post>> calls = RestClient.getService().getPosts(path, page);
+        calls.enqueue(new Callback<List<Post>>() {
+            @Override
+            public void onResponse(Response<List<Post>> response, Retrofit retrofit) {
+                if (response.isSuccess()) {
+                    posts = response.body();
+                    setListAdapter(new PostAdapter(getContext(), posts));
                 }
+            }
 
-                @Override
-                public void onFailure(Throwable t) {
-                    t.printStackTrace();
-                    posts = null;
-                }
-            });
-        }
+            @Override
+            public void onFailure(Throwable t) {
+                t.printStackTrace();
+                posts = null;
+            }
+        });
     }
 }
