@@ -9,7 +9,6 @@ import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -42,6 +41,8 @@ public class Message {
     }
 
     public void setMessage(String message) {
+        this.message.removeAllViews();
+
         Element body = Jsoup.parseBodyFragment(message).body();
         for (Node node : body.childNodes()) {
             if (node instanceof TextNode) {

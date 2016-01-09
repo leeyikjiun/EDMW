@@ -12,8 +12,6 @@ import xyz.edmw.Message;
 import xyz.edmw.R;
 
 public class QuoteViewHolder {
-    @Bind(R.id.linear_layout)
-    LinearLayout layout;
     @Bind(R.id.quote_posted_by)
     TextView postedBy;
     @Bind(R.id.quote_message)
@@ -28,7 +26,7 @@ public class QuoteViewHolder {
 
     public void setQuote(Quote quote) {
         if (quote.getPostedBy() == null) {
-            layout.removeView(postedBy);
+            postedBy.setVisibility(View.GONE);
         } else {
             postedBy.setText(Html.fromHtml(quote.getPostedBy()));
         }

@@ -3,12 +3,9 @@ package xyz.edmw.thread;
 import android.text.Html;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.koushikdutta.ion.Ion;
-
-import org.w3c.dom.Text;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;

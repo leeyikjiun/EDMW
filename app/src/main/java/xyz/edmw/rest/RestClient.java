@@ -3,6 +3,9 @@ package xyz.edmw.rest;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.logging.HttpLoggingInterceptor;
 
+import java.net.CookieManager;
+import java.net.CookiePolicy;
+
 import retrofit.Retrofit;
 
 public class RestClient {
@@ -20,6 +23,10 @@ public class RestClient {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BASIC);
         client.interceptors().add(interceptor);
+
+        CookieManager cookieManager = new CookieManager();
+        cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+        client.setCookieHandler(cookieManager);
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
