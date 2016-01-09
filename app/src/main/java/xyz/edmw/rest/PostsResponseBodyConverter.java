@@ -31,10 +31,15 @@ public class PostsResponseBodyConverter implements Converter<ResponseBody, List<
             String timestamp = row.select("div.b-post__timestamp").text().trim();
             String postNum = row.select("a.b-post__count").first().text().trim();
             String message = row.select("div.js-post__content-text").first().html();
+            String authorAvatar = row.select("a.b-avatar").first().getElementsByTag("img").attr("src");
+            String userTitle = row.select("div.usertitle").first().text().trim();
+
             posts.add(new Post.Builder()
                     .author(author)
                     .timestamp(timestamp)
                     .postNum(postNum)
+                    .userTitle(userTitle)
+                    .authorAvatar(authorAvatar)
                     .message(message)
                     .build());
         }

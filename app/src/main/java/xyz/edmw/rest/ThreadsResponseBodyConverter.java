@@ -33,8 +33,11 @@ public class ThreadsResponseBodyConverter implements Converter<ResponseBody, Lis
             String title = anchor.text().trim();
             String path = anchor.attr("href").substring(RestClient.baseUrl.length());
             String lastPost = row.select("td.cell-lastpost").first().text().trim();
+            String avatar = row.select("div.topic-avatar").first().getElementsByTag("img").attr("src");
+            String startedBy = row.select("div.topic-info").first().text().trim();
+            Boolean isSticky = row.hasClass("sticky");
 
-            threads.add(new Thread(title, path, lastPost));
+            threads.add(new Thread(title, path, startedBy, lastPost, avatar, isSticky));
         }
         return threads;
     }

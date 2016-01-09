@@ -5,6 +5,8 @@ public class Post {
     private String timestamp;
     private String postNum;
     private String message;
+    private String authorAvatar;
+    private String userTitle;
 
     private Post() {
 
@@ -26,11 +28,20 @@ public class Post {
         return postNum;
     }
 
+    public String getAuthorAvatar() {
+        return authorAvatar;
+    }
+
+    public String getUserTitle() {
+        return userTitle;
+    }
     public static class Builder {
         private String author;
         private String timestamp;
         private String postNum;
         private String message;
+        private String authorAvatar;
+        private String userTitle;
 
         public Builder author(String author) {
             this.author = author;
@@ -52,12 +63,24 @@ public class Post {
             return this;
         }
 
+        public Builder authorAvatar(String authorAvatar) {
+            this.authorAvatar = authorAvatar;
+            return this;
+        }
+
+        public Builder userTitle(String userTitle) {
+            this.userTitle = userTitle;
+            return this;
+        }
+
         public Post build() {
             Post post = new Post();
             post.author = author;
             post.timestamp = timestamp;
             post.postNum = postNum;
             post.message = message;
+            post.authorAvatar = authorAvatar;
+            post.userTitle = userTitle;
             return post;
         }
     }

@@ -1,6 +1,8 @@
 package xyz.edmw;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
@@ -8,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -15,13 +18,16 @@ import android.widget.TextView;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
+import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
+import com.koushikdutta.ion.builder.AnimateGifMode;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 
+import xyz.edmw.image.ImageDialogFragment;
 import xyz.edmw.quote.Quote;
 import xyz.edmw.quote.QuoteViewHolder;
 
@@ -105,8 +111,8 @@ public class Message {
         }
     }
 
-    private void setImage(String source) {
-        final ImageView imageView = new ImageView(context);
+    private void setImage(final String source) {
+        /*final ImageView imageView = new ImageView(context);
         imageView.setAdjustViewBounds(true);
         imageView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         message.addView(imageView);
@@ -115,10 +121,65 @@ public class Message {
                 .placeholder(R.drawable.progress_animation)
                 .error(R.drawable.ic_error)
                 .load(source);
+        */
+
+        final ImageView imageView = new ImageView(context);
+        if(source.contains("www.edmw.xyz")) {
+
+            Ion.with(imageView)
+                    .animateGif(AnimateGifMode.ANIMATE)
+                    .placeholder(R.drawable.progress_animation)
+                    .error(R.drawable.ic_error)
+                    .load(source)
+                    .setCallback(new FutureCallback<ImageView>() {
+
+                        @SuppressLint("NewApi")
+                        @Override
+                        public void onCompleted(Exception arg0,
+                                                ImageView arg1) {
+
+                            imageView.getViewTreeObserver().addOnPreDrawListener(
+                                    new ViewTreeObserver.OnPreDrawListener() {
+                                        public boolean onPreDraw() {
+
+                                            imageView.getViewTreeObserver()
+                                                    .removeOnPreDrawListener(this);
+
+                                            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                                            imageView.setAdjustViewBounds(true);
+                                            imageView.getLayoutParams().width = imageView.getDrawable().getIntrinsicWidth()*4;
+                                            return true;
+                                        }
+                                    });
+                        }
+                    });
+            message.addView(imageView);
+
+        } else {
+            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            imageView.setAdjustViewBounds(true);
+
+            Ion.with(imageView)
+                    .placeholder(R.drawable.progress_animation)
+                    .error(R.drawable.ic_error)
+                    .load(source);
+            message.addView(imageView);
+
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    FragmentManager fm = ((MainActivity) context).getSupportFragmentManager();
+                    ImageDialogFragment a = new ImageDialogFragment();
+                    a.newInstance(source);
+                    a.show(fm, "dialog_image");
+                }
+            });
+        }
     }
 
     // TODO replace with developer key
-    private static final String DeveloperKey = null;
+    private static final String DeveloperKey = "AIzaSyBLNaMGJ_BSO_agGM7VzHAMvqfx91PNcgY";
     private void setYoutube(final String videoID) {
         YouTubePlayerSupportFragment youTubePlayerSupportFragment = YouTubePlayerSupportFragment.newInstance();
         youTubePlayerSupportFragment.initialize(DeveloperKey, new YouTubePlayer.OnInitializedListener() {

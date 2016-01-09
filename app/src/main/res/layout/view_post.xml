@@ -12,14 +12,42 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:id="@+id/post_avatar"/>
+
             <TextView
                 android:id="@+id/post_author"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
                 android:textStyle="bold"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"/>
+                android:textSize="16sp"
+                android:textColor="@color/thread_text_color"
+                android:text="Author"
+                android:layout_alignParentTop="true"
+                android:layout_toRightOf="@+id/post_avatar"
+                android:layout_toEndOf="@+id/post_avatar" />
+
+            <TextView
+                android:id="@+id/post_user_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="User Title"
+                android:layout_below="@+id/post_num"
+                android:layout_alignLeft="@+id/post_author"
+                android:layout_alignStart="@+id/post_author" />
+
+            <TextView
+                android:id="@+id/post_timestamp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Timestamp"
+                android:layout_below="@+id/post_user_title"
+                android:layout_alignLeft="@+id/post_user_title"
+                android:layout_alignStart="@+id/post_user_title" />
 
             <TextView
                 android:id="@+id/post_num"
@@ -27,10 +55,12 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"/>
+                android:layout_alignParentTop="true"
+                android:text="#1"/>
         </RelativeLayout>
 
         <LinearLayout
+            android:layout_marginTop="10dp"
             android:id="@+id/post_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -3,22 +3,66 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="8dp">
 
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/threadstarter_avatar"/>
+
         <TextView
             android:id="@+id/thread_title"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textStyle="bold" />
+            android:layout_marginLeft="5dp"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="@color/thread_text_color"
+            android:text="Title"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/sticky_label"
+            android:layout_toEndOf="@+id/sticky_label" />
+
+
+        <TextView
+            android:id="@+id/thread_started_by"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="Started by"
+            android:layout_below="@+id/thread_title"
+            android:layout_toRightOf="@+id/threadstarter_avatar"
+            android:layout_toEndOf="@+id/threadstarter_avatar" />
+
 
         <TextView
             android:id="@+id/thread_last_post"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Last Post by"
+            android:layout_below="@+id/thread_started_by"
+            android:layout_alignLeft="@+id/thread_started_by"
+            android:layout_alignStart="@+id/thread_started_by" />
 
-    </LinearLayout>
+
+        <TextView
+            android:id="@+id/sticky_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:background="#42b18f"
+            android:text="Sticky"
+            android:gravity="center_vertical"
+            android:paddingRight="5dp"
+            android:paddingLeft="5dp"
+            android:textColor="#FFFFFF"
+            android:layout_alignBaseline="@+id/thread_title"
+            android:layout_alignBottom="@+id/thread_title"
+            android:layout_toRightOf="@+id/threadstarter_avatar"
+            android:layout_toEndOf="@+id/threadstarter_avatar" />
+    </RelativeLayout>
 </android.support.v7.widget.CardView>

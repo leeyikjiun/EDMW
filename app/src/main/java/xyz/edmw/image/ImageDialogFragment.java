@@ -7,7 +7,9 @@ import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
+import com.koushikdutta.ion.Ion;
 import com.ortiz.touch.TouchImageView;
 
 import butterknife.Bind;
@@ -18,14 +20,14 @@ public class ImageDialogFragment extends DialogFragment {
     @Bind(R.id.image_view)
     TouchImageView imageView;
 
-    public static final String tag = "ImageDialogFragment";
-    private static final String ARG_BITMAP = "arg_bitmap";
+    public static String source;
 
-    public static ImageDialogFragment newInstance(Bitmap bitmap) {
+    public static final String tag = "ImageDialogFragment";
+
+    public static ImageDialogFragment newInstance(String source) {
         ImageDialogFragment fragment = new ImageDialogFragment();
-        Bundle args = new Bundle();
-        args.putParcelable(ARG_BITMAP, bitmap);
-        fragment.setArguments(args);
+
+        fragment.setSource(source);
         return fragment;
     }
 
@@ -51,8 +53,23 @@ public class ImageDialogFragment extends DialogFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        String source = getSource();
+        System.out.println(source);
+        imageView.setAdjustViewBounds(true);
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        Ion.with(imageView)
+                .placeholder(R.drawable.progress_animation)
+                .error(R.drawable.ic_error)
+                .load(source);
 
-        Bitmap bitmap = getArguments().getParcelable(ARG_BITMAP);
-        imageView.setImageBitmap(bitmap);
+        imageView.setZoom(1, 1, 1, ImageView.ScaleType.FIT_CENTER);
+    }
+
+    public static String getSource() {
+        return source;
+    }
+
+    public static void setSource(String source) {
+        ImageDialogFragment.source = source;
     }
 }
