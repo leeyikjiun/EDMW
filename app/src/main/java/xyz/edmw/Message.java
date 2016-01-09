@@ -15,7 +15,7 @@ import android.widget.TextView;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
-import com.squareup.picasso.Picasso;
+import com.koushikdutta.ion.Ion;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
@@ -111,11 +111,10 @@ public class Message {
         imageView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         message.addView(imageView);
 
-        Picasso.with(context)
-                .load(source)
+        Ion.with(imageView)
                 .placeholder(R.drawable.progress_animation)
                 .error(R.drawable.ic_error)
-                .into(imageView);
+                .load(source);
     }
 
     // TODO replace with developer key
