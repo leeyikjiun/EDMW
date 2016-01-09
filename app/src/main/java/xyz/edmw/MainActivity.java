@@ -1,14 +1,19 @@
 package xyz.edmw;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -60,11 +65,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
+            case (R.id.nav_login):
+                LoginFragment fragment = LoginFragment.newInstance();
+                FragmentManager fm = getSupportFragmentManager();
+                fm.beginTransaction()
+                        .replace(R.id.container, fragment)
+                        .commit();
+                break;
             case (R.id.nav_edmw):
                 onForumSelected("EDMW", "main-forum", numPages);
                 break;
             case R.id.nav_nsfw:
-                onForumSelected("nsfw", "main-forum/nsfw", numPages);
+                onForumSelected("NSFW", "main-forum/nsfw", numPages);
                 break;
         }
 
@@ -91,5 +103,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .replace(R.id.container, PostPagerFragment.newInstance(thread.getPath(), thread.getNumPages()))
                 .addToBackStack(null)
                 .commit();
+    }
+
+    public void onLogin() {
+        onForumSelected("EDMW", "main-forum", numPages);
     }
 }

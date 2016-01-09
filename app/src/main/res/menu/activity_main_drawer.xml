@@ -4,6 +4,9 @@
     <item android:title="Forum">
         <menu>
             <item
+                android:id="@+id/nav_login"
+                android:title="Login" />
+            <item
                 android:id="@+id/nav_edmw"
                 android:title="EDMW" />
             <item
