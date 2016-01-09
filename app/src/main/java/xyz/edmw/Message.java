@@ -179,7 +179,7 @@ public class Message {
     }
 
     // TODO replace with developer key
-    private static final String DeveloperKey = "AIzaSyBLNaMGJ_BSO_agGM7VzHAMvqfx91PNcgY";
+    private static final String DeveloperKey = null;
     private void setYoutube(final String videoID) {
         YouTubePlayerSupportFragment youTubePlayerSupportFragment = YouTubePlayerSupportFragment.newInstance();
         youTubePlayerSupportFragment.initialize(DeveloperKey, new YouTubePlayer.OnInitializedListener() {
