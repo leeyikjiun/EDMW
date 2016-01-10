@@ -1,5 +1,6 @@
 package xyz.edmw.thread;
 
+import android.content.Context;
 import android.text.Html;
 import android.view.View;
 import android.widget.ImageView;
@@ -9,6 +10,7 @@ import com.koushikdutta.ion.Ion;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import xyz.edmw.MainActivity;
 import xyz.edmw.R;
 
 public class ThreadViewHolder {
@@ -23,11 +25,15 @@ public class ThreadViewHolder {
     @Bind(R.id.sticky_label)
     TextView stickyLabel;
 
-    public ThreadViewHolder(View view) {
+    private final Context context;
+
+    public ThreadViewHolder(Context context, View view) {
+        this.context = context;
         ButterKnife.bind(this, view);
+
     }
 
-    public void setThread(Thread thread) {
+    public void setThread(final Thread thread) {
         title.setText(Html.fromHtml(thread.getTitle()));
         startedBy.setText(thread.getStartedBy());
         lastPost.setText(Html.fromHtml(thread.getLastPost()));
@@ -39,5 +45,12 @@ public class ThreadViewHolder {
         } else {
             stickyLabel.setVisibility(View.VISIBLE);
         }
+
+        lastPost.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((MainActivity) context).onThreadSelected(thread, thread.getNumPages());
+            }
+        });
     }
 }

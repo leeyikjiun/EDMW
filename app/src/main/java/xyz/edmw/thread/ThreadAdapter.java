@@ -39,7 +39,7 @@ public class ThreadAdapter extends BaseAdapter {
         ThreadViewHolder holder;
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.view_thread, null);
-            holder = new ThreadViewHolder(convertView);
+            holder = new ThreadViewHolder(context, convertView);
             convertView.setTag(holder);
         } else {
             holder = (ThreadViewHolder) convertView.getTag();

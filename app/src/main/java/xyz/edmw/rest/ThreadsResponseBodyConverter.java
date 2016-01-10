@@ -11,14 +11,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit.Call;
-import retrofit.Callback;
 import retrofit.Converter;
-import retrofit.Response;
-import retrofit.Retrofit;
 import xyz.edmw.thread.Thread;
 
 public class ThreadsResponseBodyConverter implements Converter<ResponseBody, List<Thread>> {
+    private static final int responsesPerPage = 15;
+
 
     @Override
     public List<Thread> convert(ResponseBody body) throws IOException {
@@ -41,32 +39,25 @@ public class ThreadsResponseBodyConverter implements Converter<ResponseBody, Lis
             String startedBy = row.select("div.topic-info").first().text().trim();
             boolean isSticky = row.hasClass("sticky");
 
-            final Thread thread = new Thread(title, path, startedBy, lastPost, avatar, isSticky);
-            threads.add(thread);
+            // TODO
+            // estimate number of pages using number of responses
+            // might screw up if there's user settings
+            String postsCounts = row.select("div.posts-count").first().text().trim();
+            postsCounts = postsCounts.substring(0, postsCounts.indexOf(' '));
+            postsCounts = postsCounts.replace(",", "");
+            int numResponses = Integer.parseInt(postsCounts);
+            int numPages = (int) Math.ceil((double) numResponses / responsesPerPage);
 
-            String lastPostPath = row.select("a.go-to-last-post").first().attr("href");
-            lastPostPath = lastPostPath.substring(RestClient.baseUrl.length());
-            Call<Void> call = RestClient.getService().getNumPages(lastPostPath);
-            call.enqueue(new Callback<Void>() {
-                @Override
-                public void onResponse(Response<Void> response, Retrofit retrofit) {
-                    String url = response.raw().request().urlString();
-                    int index = url.lastIndexOf("/page");
-                    int numPages = 1;
-                    if (index >= 0) {
-                        url = url.substring(index + 5, url.lastIndexOf("#post"));
-                        numPages = Integer.parseInt(url);
-                    }
-                    thread.setNumPages(numPages);
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                    t.printStackTrace();
-                    thread.setNumPages(15);
-                }
-            });
-
+            threads.add(new Thread.Builder()
+                            .title(title)
+                            .path(path)
+                            .lastPost(lastPost)
+                            .threadstarterAvatar(avatar)
+                            .startedBy(startedBy)
+                            .isSticky(isSticky)
+                            .numPages(numPages)
+                            .build()
+            );
 
         }
         return threads;

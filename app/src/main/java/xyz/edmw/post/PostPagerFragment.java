@@ -15,15 +15,17 @@ import xyz.edmw.R;
 public class PostPagerFragment extends Fragment {
     private static final String ARG_PATH = "arg_path";
     private static final String ARG_PAGES = "arg_num_pages";
+    private static final String ARG_PAGE_NUM = "arg_page_num";
 
     @Bind(R.id.view_pager)
     ViewPager viewPager;
 
-    public static PostPagerFragment newInstance(String path, int numPages) {
+    public static PostPagerFragment newInstance(String path, int numPages, int pageNum) {
         PostPagerFragment fragment = new PostPagerFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PATH, path);
         args.putInt(ARG_PAGES, numPages);
+        args.putInt(ARG_PAGE_NUM, pageNum);
         fragment.setArguments(args);
         return fragment;
     }
@@ -48,7 +50,9 @@ public class PostPagerFragment extends Fragment {
         Bundle args = getArguments();
         String path = args.getString(ARG_PATH);
         int numPages = args.getInt(ARG_PAGES);
+        int pageNum = args.getInt(ARG_PAGE_NUM);
 
         viewPager.setAdapter(new PostPagerAdapter(getChildFragmentManager(), path, numPages));
+        viewPager.setCurrentItem(pageNum - 1);
     }
 }

@@ -1,19 +1,14 @@
 package xyz.edmw;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -96,11 +91,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onThreadSelected(Thread thread) {
+        onThreadSelected(thread, 1);
+    }
+
+    @Override
+    public void onThreadSelected(Thread thread, int pageNum) {
         toolbar.setTitle(thread.getTitle()); // TODO fix action bar truncating long thread titles
 
+        PostPagerFragment fragment = PostPagerFragment.newInstance(thread.getPath(), thread.getNumPages(), pageNum);
         FragmentManager fm = getSupportFragmentManager();
         fm.beginTransaction()
-                .replace(R.id.container, PostPagerFragment.newInstance(thread.getPath(), thread.getNumPages()))
+                .replace(R.id.container, fragment)
                 .addToBackStack(null)
                 .commit();
     }

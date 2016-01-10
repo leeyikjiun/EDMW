@@ -127,5 +127,7 @@ public class ThreadFragment extends ListFragment implements SwipeRefreshLayout.O
 
     public interface OnThreadSelectedListener {
         void onThreadSelected(Thread thread);
+
+        void onThreadSelected(Thread thread, int pageNum);
     }
 }
