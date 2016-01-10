@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.util.Iterator;
 import java.util.List;
 
 import butterknife.Bind;
@@ -59,7 +60,7 @@ public class ThreadFragment extends ListFragment implements SwipeRefreshLayout.O
     private void loadThreads() {
         Bundle args = getArguments();
         String forum = args.getString(ARG_FORUM);
-        int page = args.getInt(ARG_PAGE);
+        final int page = args.getInt(ARG_PAGE);
 
         Call<List<Thread>> calls = RestClient.getService().getThreads(forum, page);
         calls.enqueue(new Callback<List<Thread>>() {
@@ -67,6 +68,14 @@ public class ThreadFragment extends ListFragment implements SwipeRefreshLayout.O
             public void onResponse(Response<List<Thread>> response, Retrofit retrofit) {
                 if (response.isSuccess()) {
                     threads = response.body();
+                    if (page > 1) {
+                        for (Iterator<Thread> it = threads.iterator(); it.hasNext(); ) {
+                            Thread thread = it.next();
+                            if (thread.isSticky()) {
+                                it.remove();
+                            }
+                        }
+                    }
                     setListAdapter(new ThreadAdapter(getContext(), threads));
                 } else {
                     showErrorMessage();

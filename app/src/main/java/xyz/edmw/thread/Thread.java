@@ -6,10 +6,10 @@ public class Thread {
     private final String startedBy;
     private final String lastPost;
     private final String threadstarterAvatar;
-    private final Boolean isSticky;
+    private final boolean isSticky;
     private int numPages = 15; //TODO
 
-    public Thread(String title, String path, String startedBy, String lastPost, String threadstarterAvatar, Boolean isSticky) {
+    public Thread(String title, String path, String startedBy, String lastPost, String threadstarterAvatar, boolean isSticky) {
         this.title = title;
         this.path = path;
         this.startedBy = startedBy;
@@ -38,7 +38,7 @@ public class Thread {
         return threadstarterAvatar;
     }
 
-    public Boolean getIsSticky() {
+    public Boolean isSticky() {
         return isSticky;
     }
 

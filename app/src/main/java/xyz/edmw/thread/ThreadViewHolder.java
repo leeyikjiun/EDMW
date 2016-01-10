@@ -34,7 +34,7 @@ public class ThreadViewHolder {
         Ion.with(threadstarterAvatar)
                 .load(thread.getThreadstarterAvatar());
 
-        if(!thread.getIsSticky()) {
+        if(!thread.isSticky()) {
             stickyLabel.setVisibility(View.GONE);
         } else {
             stickyLabel.setVisibility(View.VISIBLE);
