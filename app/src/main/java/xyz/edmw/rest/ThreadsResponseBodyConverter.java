@@ -1,5 +1,7 @@
 package xyz.edmw.rest;
 
+import android.util.Log;
+
 import com.squareup.okhttp.ResponseBody;
 
 import org.jsoup.Jsoup;
@@ -42,11 +44,17 @@ public class ThreadsResponseBodyConverter implements Converter<ResponseBody, Lis
             // TODO
             // estimate number of pages using number of responses
             // might screw up if there's user settings
-            String postsCounts = row.select("div.posts-count").first().text().trim();
-            postsCounts = postsCounts.substring(0, postsCounts.indexOf(' '));
-            postsCounts = postsCounts.replace(",", "");
-            int numResponses = Integer.parseInt(postsCounts);
-            int numPages = (int) Math.ceil((double) numResponses / responsesPerPage);
+            Element div = row.select("div.posts-count").first();
+            int numPages = 15;
+
+            // some weird bug where the div is missing
+            if (div != null) {
+                String postsCounts = div.text().trim();
+                postsCounts = postsCounts.substring(0, postsCounts.indexOf(' '));
+                postsCounts = postsCounts.replace(",", "");
+                int numResponses = Integer.parseInt(postsCounts);
+                numPages = (int) Math.ceil((double) numResponses / responsesPerPage);
+            }
 
             threads.add(new Thread.Builder()
                             .title(title)
