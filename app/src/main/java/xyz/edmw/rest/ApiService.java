@@ -6,6 +6,7 @@ import retrofit.Call;
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
 import retrofit.http.GET;
+import retrofit.http.HEAD;
 import retrofit.http.Multipart;
 import retrofit.http.POST;
 import retrofit.http.Part;
@@ -27,4 +28,9 @@ public interface ApiService {
 
     @GET("/{path}/page{page}")
     Call<List<Post>> getPosts(@Path("path") String path, @Path("page") int page);
+
+    // use re-written URL to get number of pages
+    // TODO use a better method
+    @HEAD("/{path}")
+    Call<Void> getNumPages(@Path("path") String path);
 }

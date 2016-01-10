@@ -11,7 +11,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit.Call;
+import retrofit.Callback;
 import retrofit.Converter;
+import retrofit.Response;
+import retrofit.Retrofit;
 import xyz.edmw.thread.Thread;
 
 public class ThreadsResponseBodyConverter implements Converter<ResponseBody, List<Thread>> {
@@ -37,7 +41,33 @@ public class ThreadsResponseBodyConverter implements Converter<ResponseBody, Lis
             String startedBy = row.select("div.topic-info").first().text().trim();
             boolean isSticky = row.hasClass("sticky");
 
-            threads.add(new Thread(title, path, startedBy, lastPost, avatar, isSticky));
+            final Thread thread = new Thread(title, path, startedBy, lastPost, avatar, isSticky);
+            threads.add(thread);
+
+            String lastPostPath = row.select("a.go-to-last-post").first().attr("href");
+            lastPostPath = lastPostPath.substring(RestClient.baseUrl.length());
+            Call<Void> call = RestClient.getService().getNumPages(lastPostPath);
+            call.enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Response<Void> response, Retrofit retrofit) {
+                    String url = response.raw().request().urlString();
+                    int index = url.lastIndexOf("/page");
+                    int numPages = 1;
+                    if (index >= 0) {
+                        url = url.substring(index + 5, url.lastIndexOf("#post"));
+                        numPages = Integer.parseInt(url);
+                    }
+                    thread.setNumPages(numPages);
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    t.printStackTrace();
+                    thread.setNumPages(15);
+                }
+            });
+
+
         }
         return threads;
     }

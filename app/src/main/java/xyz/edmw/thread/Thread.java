@@ -7,7 +7,7 @@ public class Thread {
     private final String lastPost;
     private final String threadstarterAvatar;
     private final boolean isSticky;
-    private int numPages = 15; //TODO
+    private int numPages;
 
     public Thread(String title, String path, String startedBy, String lastPost, String threadstarterAvatar, boolean isSticky) {
         this.title = title;
@@ -44,5 +44,9 @@ public class Thread {
 
     public int getNumPages() {
         return numPages;
+    }
+
+    public void setNumPages(int numPages) {
+        this.numPages = numPages;
     }
 }
