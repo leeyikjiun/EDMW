@@ -5,8 +5,10 @@ import com.squareup.okhttp.logging.HttpLoggingInterceptor;
 
 import java.net.CookieManager;
 import java.net.CookiePolicy;
+import java.net.CookieStore;
 
 import retrofit.Retrofit;
+import xyz.edmw.MainApplication;
 
 public class RestClient {
     public static final String baseUrl = "http://www.edmw.xyz";
@@ -24,8 +26,8 @@ public class RestClient {
         interceptor.setLevel(HttpLoggingInterceptor.Level.BASIC);
         client.interceptors().add(interceptor);
 
-        CookieManager cookieManager = new CookieManager();
-        cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+        CookieStore cookieStore = new PersistentCookieStore(MainApplication.getContext());
+        CookieManager cookieManager = new CookieManager(cookieStore, CookiePolicy.ACCEPT_ALL);
         client.setCookieHandler(cookieManager);
 
         Retrofit retrofit = new Retrofit.Builder()

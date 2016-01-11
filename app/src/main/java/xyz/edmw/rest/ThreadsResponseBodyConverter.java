@@ -1,7 +1,5 @@
 package xyz.edmw.rest;
 
-import android.util.Log;
-
 import com.squareup.okhttp.ResponseBody;
 
 import org.jsoup.Jsoup;
