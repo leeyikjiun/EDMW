@@ -16,6 +16,7 @@
             android:id="@+id/quote_posted_by"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/font_color_black"
             android:textStyle="bold" />
 
         <LinearLayout

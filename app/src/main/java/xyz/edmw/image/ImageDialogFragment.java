@@ -1,14 +1,21 @@
 package xyz.edmw.image;
 
+import android.annotation.SuppressLint;
+import android.support.v4.app.DialogFragment;
+
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
+import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
+import com.koushikdutta.ion.builder.AnimateGifMode;
 import com.ortiz.touch.TouchImageView;
 
 import butterknife.Bind;
@@ -18,6 +25,8 @@ import xyz.edmw.R;
 public class ImageDialogFragment extends DialogFragment {
     @Bind(R.id.image_view)
     TouchImageView imageView;
+    @Bind(R.id.progressBar)
+    ProgressBar progressBar;
 
     public static String source;
 
@@ -56,10 +65,21 @@ public class ImageDialogFragment extends DialogFragment {
         System.out.println(source);
         imageView.setAdjustViewBounds(true);
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
         Ion.with(imageView)
-                .placeholder(R.drawable.progress_animation)
+                .animateGif(AnimateGifMode.ANIMATE)
                 .error(R.drawable.ic_error)
-                .load(source);
+                .load(source)
+                .setCallback(new FutureCallback<ImageView>() {
+
+                    @SuppressLint("NewApi")
+                    @Override
+                    public void onCompleted(Exception arg0,
+                                            ImageView arg1) {
+
+                        progressBar.setVisibility(View.GONE);
+                    }
+                });
 
         imageView.setZoom(1, 1, 1, ImageView.ScaleType.FIT_CENTER);
     }

@@ -27,8 +27,10 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 
 import xyz.edmw.image.ImageDialogFragment;
+import xyz.edmw.post.PostActivity;
 import xyz.edmw.quote.Quote;
 import xyz.edmw.quote.QuoteViewHolder;
+import xyz.edmw.sharedpreferences.MySharedPreferences;
 
 public class Message {
     private static final String tag = "Message";
@@ -57,6 +59,7 @@ public class Message {
 
     private void setTextNode(TextNode node) {
         TextView view = new TextView(context);
+        view.setTextColor(context.getResources().getColor(R.color.font_color_black));
         String text = node.text().trim();
         if (!text.isEmpty()) {
             view.setText(Html.fromHtml(text));
@@ -72,8 +75,10 @@ public class Message {
                 break;
             case "img":
                 String source = element.attr("src");
-                Log.d(tag, source);
-                setImage(source);
+
+                // Prevent image from loading
+                if(MySharedPreferences.getLoadImageAutomatically())
+                    setImage(source);
                 break;
             case "div":
                 String className = element.className();
@@ -99,6 +104,7 @@ public class Message {
                 } else if (className.equals("videocontainer")) {
                     final String videoId = element.select("a.video-frame").first().attr("data-vcode");
                     setYoutube(videoId);
+                    Log.d(tag, "Setting youtube up");
                     break;
                 }
                 // fall through
@@ -106,6 +112,7 @@ public class Message {
                 Log.i("a", element.outerHtml());
             default:
                 TextView view = new TextView(context);
+                view.setTextColor(context.getResources().getColor(R.color.font_color_black));
                 view.setMovementMethod(LinkMovementMethod.getInstance());
                 view.setText(Html.fromHtml(element.html()));
                 message.addView(view);
@@ -113,23 +120,15 @@ public class Message {
     }
 
     private void setImage(final String source) {
-        /*final ImageView imageView = new ImageView(context);
-        imageView.setAdjustViewBounds(true);
-        imageView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        message.addView(imageView);
-
-        Ion.with(imageView)
-                .placeholder(R.drawable.progress_animation)
-                .error(R.drawable.ic_error)
-                .load(source);
-        */
-
         final ImageView imageView = new ImageView(context);
-        if(source.contains("www.edmw.xyz") || source.contains("www.hardwarezone.com.sg/img/forums/hwz/smilies")) {
+        if(source.contains("www.edmw.xyz/core/images/smilies")
+                || source.contains("www.hardwarezone.com.sg/img/forums/hwz/smilies")
+                || source.contains("forum.lowyat.net/style_emoticons/")
+                || source.contains("illiweb.com/fa/i/smiles")) {
 
             Ion.with(imageView)
                     .animateGif(AnimateGifMode.ANIMATE)
-                    .placeholder(R.drawable.progress_animation)
+                    //.placeholder(R.drawable.progress_animation)
                     .error(R.drawable.ic_error)
                     .load(source)
                     .setCallback(new FutureCallback<ImageView>() {
@@ -161,7 +160,7 @@ public class Message {
             imageView.setAdjustViewBounds(true);
 
             Ion.with(imageView)
-                    .placeholder(R.drawable.progress_animation)
+                  //.placeholder(R.drawable.progress_animation)
                     .error(R.drawable.ic_error)
                     .load(source);
             message.addView(imageView);
@@ -170,7 +169,7 @@ public class Message {
                 @Override
                 public void onClick(View v) {
 
-                    FragmentManager fm = ((MainActivity) context).getSupportFragmentManager();
+                    FragmentManager fm = ((PostActivity) context).getSupportFragmentManager();
                     ImageDialogFragment a = new ImageDialogFragment();
                     a.newInstance(source);
                     a.show(fm, "dialog_image");
@@ -185,8 +184,23 @@ public class Message {
         YouTubePlayerSupportFragment youTubePlayerSupportFragment = YouTubePlayerSupportFragment.newInstance();
         youTubePlayerSupportFragment.initialize(DeveloperKey, new YouTubePlayer.OnInitializedListener() {
             @Override
-            public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean b) {
-                youTubePlayer.cueVideo(videoID);
+            public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean wasRestored) {
+                youTubePlayer.addFullscreenControlFlag(YouTubePlayer.FULLSCREEN_FLAG_ALWAYS_FULLSCREEN_IN_LANDSCAPE);
+                youTubePlayer.addFullscreenControlFlag(YouTubePlayer.FULLSCREEN_FLAG_CONTROL_ORIENTATION);
+                youTubePlayer.addFullscreenControlFlag(YouTubePlayer.FULLSCREEN_FLAG_CONTROL_SYSTEM_UI);
+
+                if (!wasRestored) {
+                    PostActivity.youTubePlayer = youTubePlayer;
+
+                    youTubePlayer.setOnFullscreenListener(new YouTubePlayer.OnFullscreenListener() {
+
+                        @Override
+                        public void onFullscreen(boolean _isFullScreen) {
+                            PostActivity.fullScreen = _isFullScreen;
+                        }
+                    });
+                    PostActivity.youTubePlayer.cueVideo(videoID);
+                }
             }
 
             @Override

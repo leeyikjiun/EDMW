@@ -8,24 +8,27 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Random;
 
 import retrofit.Converter;
+import xyz.edmw.generic.GenericMap;
 import xyz.edmw.post.Post;
+import xyz.edmw.post.PostActivity;
 
-public class PostsResponseBodyConverter implements Converter<ResponseBody, List<Post>> {
+public class PostsResponseBodyConverter implements Converter<ResponseBody, GenericMap<Integer, Post>> {
     @Override
-    public List<Post> convert(ResponseBody responseBody) throws IOException {
+    public GenericMap<Integer, Post> convert(ResponseBody responseBody) throws IOException {
         String html = responseBody.string();
         return getPosts(html);
     }
 
-    public List<Post> getPosts(String html) {
+    public GenericMap<Integer, Post> getPosts(String html) {
         Document doc = Jsoup.parse(html);
         Element threadViewTab = doc.getElementById("thread-view-tab");
         Elements rows = threadViewTab.select("li.b-post");
-        List<Post> posts = new ArrayList<>(rows.size());
+
+        GenericMap<Integer, Post> postMap = new GenericMap<>();
+
         for (Element row : rows) {
             String author = row.select("div.author a").first().text().trim();
             String timestamp = row.select("div.b-post__timestamp").text().trim();
@@ -34,15 +37,22 @@ public class PostsResponseBodyConverter implements Converter<ResponseBody, List<
             String authorAvatar = row.select("a.b-avatar").first().getElementsByTag("img").attr("src");
             String userTitle = row.select("div.usertitle").first().text().trim();
 
-            posts.add(new Post.Builder()
-                    .author(author)
-                    .timestamp(timestamp)
-                    .postNum(postNum)
-                    .userTitle(userTitle)
-                    .authorAvatar(authorAvatar)
-                    .message(message)
-                    .build());
+            String id = row.attr("data-node-id");
+
+            postMap.put(Integer.parseInt(id), new Post(author, timestamp, postNum, message, authorAvatar, userTitle));
+
         }
-        return posts;
+        // Check if there are more to load
+        Elements nextElements = doc.getElementsByAttributeValue("rel", "next");
+        if (nextElements.size() == 2) {
+            Element next = nextElements.last();
+            PostActivity.pageNo = Integer.parseInt(next.attr("data-page"));
+            PostActivity.hasNextPage = true;
+        } else {
+            PostActivity.hasNextPage = false;
+        }
+        return postMap;
     }
+
+
 }

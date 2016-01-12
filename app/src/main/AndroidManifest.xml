@@ -3,6 +3,7 @@
     package="xyz.edmw" >
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:name=".MainApplication"
@@ -15,13 +16,29 @@
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar"
-            android:configChanges="orientation|screenSize">
+            android:configChanges="orientation|screenSize"
+            android:launchMode= "singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="xyz.edmw.post.PostActivity"
+            android:label="@string/title_post_activity"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize">
+        </activity>
+        <activity
+            android:name="xyz.edmw.LoginActivity"
+            android:label="@string/title_login_activity"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation|screenSize">
+        </activity>
+
     </application>
 
 </manifest>

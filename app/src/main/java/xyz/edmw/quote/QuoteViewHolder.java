@@ -28,7 +28,7 @@ public class QuoteViewHolder {
         if (quote.getPostedBy() == null) {
             postedBy.setVisibility(View.GONE);
         } else {
-            postedBy.setText(Html.fromHtml(quote.getPostedBy()));
+            postedBy.setText(Html.fromHtml(quote.getPostedBy().replace(" View Post", "")));
         }
         Message message = new Message(context, this.message);
         message.setMessage(quote.getMessage());

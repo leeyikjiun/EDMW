@@ -8,64 +8,52 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import retrofit.Converter;
+import xyz.edmw.MainActivity;
+import xyz.edmw.generic.GenericMap;
 import xyz.edmw.thread.Thread;
 
-public class ThreadsResponseBodyConverter implements Converter<ResponseBody, List<Thread>> {
-    private static final int responsesPerPage = 15;
 
+public class ThreadsResponseBodyConverter implements Converter<ResponseBody, GenericMap<Integer, Thread>> {
 
     @Override
-    public List<Thread> convert(ResponseBody body) throws IOException {
+    public GenericMap<Integer, Thread> convert(ResponseBody body) throws IOException {
         String html = body.string();
         return getThreads(html);
     }
 
-    private List<Thread> getThreads(String html) {
+    private GenericMap<Integer, Thread> getThreads(String html) {
         Document doc = Jsoup.parse(html);
         Element topicTab = doc.getElementById("topic-tab");
         Elements rows = topicTab.select("tr.topic-item");
 
-        List<Thread> threads = new ArrayList<>(rows.size());
+        GenericMap<Integer, Thread> threads = new GenericMap<>();
+
         for (Element row : rows) {
             Element anchor = row.select("a.topic-title").first();
+            Boolean isSticky = row.hasClass("sticky");
             String title = anchor.text().trim();
             String path = anchor.attr("href").substring(RestClient.baseUrl.length());
             String lastPost = row.select("td.cell-lastpost").first().text().trim();
             String avatar = row.select("div.topic-avatar").first().getElementsByTag("img").attr("src");
             String startedBy = row.select("div.topic-info").first().text().trim();
-            boolean isSticky = row.hasClass("sticky");
+            String id = row.attr("data-node-id");
 
-            // TODO
-            // estimate number of pages using number of responses
-            // might screw up if there's user settings
-            Element div = row.select("div.posts-count").first();
-            int numPages = 15;
-
-            // some weird bug where the div is missing
-            if (div != null) {
-                String postsCounts = div.text().trim();
-                postsCounts = postsCounts.substring(0, postsCounts.indexOf(' '));
-                postsCounts = postsCounts.replace(",", "");
-                int numResponses = Integer.parseInt(postsCounts);
-                numPages = (int) Math.ceil((double) numResponses / responsesPerPage);
-            }
-
-            threads.add(new Thread.Builder()
-                            .title(title)
-                            .path(path)
-                            .lastPost(lastPost)
-                            .threadstarterAvatar(avatar)
-                            .startedBy(startedBy)
-                            .isSticky(isSticky)
-                            .numPages(numPages)
-                            .build()
-            );
-
+            threads.put(Integer.parseInt(id), new Thread(title, path, startedBy, lastPost, avatar, isSticky));
         }
+
+        // Check if there are more to load
+        Elements nextElements = doc.getElementsByAttributeValue("rel", "next");
+        if (nextElements.size() == 3) {
+            Element next = nextElements.last();
+            MainActivity.pageNo = Integer.parseInt(next.attr("data-page"));
+            MainActivity.hasNextPage = true;
+        } else {
+            MainActivity.hasNextPage = false;
+        }
+
+
         return threads;
     }
 }

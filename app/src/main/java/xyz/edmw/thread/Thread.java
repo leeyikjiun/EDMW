@@ -1,16 +1,22 @@
 package xyz.edmw.thread;
 
-public class Thread {
-    private String title;
-    private  String path;
-    private  String startedBy;
-    private  String lastPost;
-    private  String threadstarterAvatar;
-    private  boolean isSticky;
-    private int numPages;
+import java.io.Serializable;
 
-    private Thread() {
+public class Thread implements Serializable{
+    private final String title;
+    private final String path;
+    private final String startedBy;
+    private final String lastPost;
+    private final String threadstarterAvatar;
+    private final Boolean isSticky;
 
+    public Thread(String title, String path, String startedBy, String lastPost, String threadstarterAvatar, Boolean isSticky) {
+        this.title = title;
+        this.path = path;
+        this.startedBy = startedBy;
+        this.lastPost = lastPost;
+        this.threadstarterAvatar = threadstarterAvatar;
+        this.isSticky = isSticky;
     }
 
     public String getTitle() {
@@ -33,72 +39,7 @@ public class Thread {
         return threadstarterAvatar;
     }
 
-    public Boolean isSticky() {
+    public Boolean getIsSticky() {
         return isSticky;
-    }
-
-    public int getNumPages() {
-        return numPages;
-    }
-
-    public void setNumPages(int numPages) {
-        this.numPages = numPages;
-    }
-
-    public static class Builder {
-        private  String title;
-        private String path;
-        private  String startedBy;
-        private  String lastPost;
-        private  String threadstarterAvatar;
-        private  boolean isSticky;
-        private int numPages;
-
-        public Builder title(String title) {
-            this.title = title;
-            return this;
-        }
-
-        public Builder path(String path) {
-            this.path = path;
-            return this;
-        }
-
-        public Builder startedBy(String startedBy) {
-            this.startedBy = startedBy;
-            return this;
-        }
-
-        public Builder lastPost(String lastPost) {
-            this.lastPost = lastPost;
-            return this;
-        }
-
-        public Builder threadstarterAvatar(String threadstarterAvatar) {
-            this.threadstarterAvatar = threadstarterAvatar;
-            return this;
-        }
-
-        public Builder isSticky(boolean isSticky) {
-            this.isSticky = isSticky;
-            return this;
-        }
-
-        public Builder numPages(int numPages) {
-            this.numPages = numPages;
-            return this;
-        }
-
-        public Thread build() {
-            Thread thread = new Thread();
-            thread.title = title;
-            thread.path = path;
-            thread.startedBy = startedBy;
-            thread.lastPost = lastPost;
-            thread.threadstarterAvatar = threadstarterAvatar;
-            thread.isSticky = isSticky;
-            thread.numPages = numPages;
-            return thread;
-        }
     }
 }

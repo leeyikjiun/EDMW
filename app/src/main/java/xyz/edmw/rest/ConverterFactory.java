@@ -12,9 +12,9 @@ public class ConverterFactory extends Converter.Factory {
     @Override
     public Converter<ResponseBody, ?> fromResponseBody(Type type, Annotation[] annotations) {
         switch (type.toString()) {
-            case "java.util.List<xyz.edmw.thread.Thread>":
+            case "xyz.edmw.generic.GenericMap<java.lang.Integer, xyz.edmw.thread.Thread>":
                 return new ThreadsResponseBodyConverter();
-            case "java.util.List<xyz.edmw.post.Post>":
+            case "xyz.edmw.generic.GenericMap<java.lang.Integer, xyz.edmw.post.Post>":
                 return new PostsResponseBodyConverter();
         }
         return super.fromResponseBody(type, annotations);
