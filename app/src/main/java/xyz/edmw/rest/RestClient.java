@@ -8,6 +8,7 @@ import java.net.CookiePolicy;
 import java.net.CookieStore;
 
 import retrofit.Retrofit;
+import retrofit2.ScalarsConverterFactory;
 import xyz.edmw.MainApplication;
 
 public class RestClient {
@@ -33,6 +34,7 @@ public class RestClient {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .addConverterFactory(new ConverterFactory())
+                .addConverterFactory(ScalarsConverterFactory.create())
                 .client(client)
                 .build();
         service = retrofit.create(ApiService.class);

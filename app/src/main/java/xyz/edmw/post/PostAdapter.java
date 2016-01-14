@@ -2,50 +2,21 @@ package xyz.edmw.post;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
-import com.koushikdutta.ion.Ion;
+import java.util.List;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import xyz.edmw.Message;
 import xyz.edmw.R;
-import xyz.edmw.generic.GenericMap;
-import xyz.edmw.sharedpreferences.MySharedPreferences;
 
-public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder>{
+public class PostAdapter extends RecyclerView.Adapter<PostViewHolder>{
+    private final Context context;
+    private final List<Post> posts;
 
-    GenericMap<Integer, Post> posts;
-    Context context;
-
-    public PostAdapter(Context context, GenericMap<Integer, Post> posts){
+    public PostAdapter(Context context, List<Post> posts){
         this.posts = posts;
         this.context = context;
-    }
-    public static class PostViewHolder extends RecyclerView.ViewHolder {
-        @Bind(R.id.post_author)
-        TextView author;
-        @Bind(R.id.post_timestamp)
-        TextView timestamp;
-        @Bind(R.id.post_num)
-        TextView postNum;
-        @Bind(R.id.post_message)
-        LinearLayout message;
-        @Bind(R.id.post_avatar)
-        ImageView authorAvatar;
-        @Bind(R.id.post_user_title)
-        TextView userTitle;
-
-        PostViewHolder(View itemView) {
-            super(itemView);
-            ButterKnife.bind(this, itemView);
-        }
     }
 
     @Override
@@ -55,28 +26,14 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
     @Override
     public PostViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.view_post, viewGroup, false);
-        PostViewHolder view = new PostViewHolder(v);
-        return view;
+        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.view_post, viewGroup, false);
+        PostViewHolder viewHolder = new PostViewHolder(context, view);
+        return viewHolder;
     }
 
     @Override
-    public void onBindViewHolder(PostViewHolder postViewHolder, int position) {
-        postViewHolder.message.removeAllViews();
-        postViewHolder.author.setText(Html.fromHtml(posts.getValue(position).getAuthor()));
-        postViewHolder.timestamp.setText(Html.fromHtml(posts.getValue(position).getTimestamp()));
-        postViewHolder.postNum.setText(posts.getValue(position).getPostNum());
-        postViewHolder.userTitle.setText(posts.getValue(position).getUserTitle());
-
-        Message message = new Message(context, postViewHolder.message);
-        message.setMessage(posts.getValue(position).getMessage());
-
-        if(MySharedPreferences.getLoadImageAutomatically()) {
-            postViewHolder.authorAvatar.setVisibility(View.VISIBLE);
-            Ion.with(postViewHolder.authorAvatar).load(posts.getValue(position).getAuthorAvatar());
-        } else {
-            postViewHolder.authorAvatar.setVisibility(View.GONE);
-        }
+    public void onBindViewHolder(PostViewHolder viewHolder, int position) {
+        viewHolder.setPost(posts.get(position));
     }
 
     @Override

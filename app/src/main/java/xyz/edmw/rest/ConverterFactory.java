@@ -7,17 +7,18 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
 import retrofit.Converter;
+import xyz.edmw.thread.Thread;
 
 public class ConverterFactory extends Converter.Factory {
     @Override
     public Converter<ResponseBody, ?> fromResponseBody(Type type, Annotation[] annotations) {
-        switch (type.toString()) {
-            case "xyz.edmw.generic.GenericMap<java.lang.Integer, xyz.edmw.thread.Thread>":
-                return new ThreadsResponseBodyConverter();
-            case "xyz.edmw.generic.GenericMap<java.lang.Integer, xyz.edmw.post.Post>":
-                return new PostsResponseBodyConverter();
+        if (type == Thread.class) {
+            return new ThreadResponseBodyConverter();
+        } else if (type.toString().equals("java.util.List<xyz.edmw.topic.Topic>")) {
+            return new TopicsResponseBodyConverter();
+        } else {
+            return super.fromResponseBody(type, annotations);
         }
-        return super.fromResponseBody(type, annotations);
     }
 
     @Override

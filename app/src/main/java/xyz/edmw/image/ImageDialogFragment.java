@@ -1,15 +1,12 @@
 package xyz.edmw.image;
 
 import android.annotation.SuppressLint;
-import android.support.v4.app.DialogFragment;
-
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 

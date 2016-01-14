@@ -8,28 +8,28 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import retrofit.Converter;
 import xyz.edmw.MainActivity;
-import xyz.edmw.generic.GenericMap;
-import xyz.edmw.thread.Thread;
+import xyz.edmw.topic.Topic;
 
-
-public class ThreadsResponseBodyConverter implements Converter<ResponseBody, GenericMap<Integer, Thread>> {
+public class TopicsResponseBodyConverter implements Converter<ResponseBody, List<Topic>> {
+    private static final int responsesPerPage = 15;
 
     @Override
-    public GenericMap<Integer, Thread> convert(ResponseBody body) throws IOException {
-        String html = body.string();
-        return getThreads(html);
+    public List<Topic> convert(ResponseBody value) throws IOException {
+        String html = value.string();
+        return getTopics(html);
     }
 
-    private GenericMap<Integer, Thread> getThreads(String html) {
+    private List<Topic> getTopics(String html) {
         Document doc = Jsoup.parse(html);
         Element topicTab = doc.getElementById("topic-tab");
         Elements rows = topicTab.select("tr.topic-item");
 
-        GenericMap<Integer, Thread> threads = new GenericMap<>();
-
+        List<Topic> topics = new ArrayList<>(rows.size());
         for (Element row : rows) {
             Element anchor = row.select("a.topic-title").first();
             Boolean isSticky = row.hasClass("sticky");
@@ -40,7 +40,15 @@ public class ThreadsResponseBodyConverter implements Converter<ResponseBody, Gen
             String startedBy = row.select("div.topic-info").first().text().trim();
             String id = row.attr("data-node-id");
 
-            threads.put(Integer.parseInt(id), new Thread(title, path, startedBy, lastPost, avatar, isSticky));
+            topics.add(new Topic.Builder()
+                            .title(title)
+                            .path(path)
+                            .lastPost(lastPost)
+                            .threadstarterAvatar(avatar)
+                            .startedBy(startedBy)
+                            .isSticky(isSticky)
+                            .build()
+            );
         }
 
         // Check if there are more to load
@@ -53,7 +61,6 @@ public class ThreadsResponseBodyConverter implements Converter<ResponseBody, Gen
             MainActivity.hasNextPage = false;
         }
 
-
-        return threads;
+        return topics;
     }
 }

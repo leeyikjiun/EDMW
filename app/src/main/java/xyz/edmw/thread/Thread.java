@@ -1,45 +1,101 @@
 package xyz.edmw.thread;
 
-import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-public class Thread implements Serializable{
-    private final String title;
-    private final String path;
-    private final String startedBy;
-    private final String lastPost;
-    private final String threadstarterAvatar;
-    private final Boolean isSticky;
+import xyz.edmw.post.Post;
 
-    public Thread(String title, String path, String startedBy, String lastPost, String threadstarterAvatar, Boolean isSticky) {
-        this.title = title;
-        this.path = path;
-        this.startedBy = startedBy;
-        this.lastPost = lastPost;
-        this.threadstarterAvatar = threadstarterAvatar;
-        this.isSticky = isSticky;
+public class Thread {
+    private String path;
+    private String title;
+    private String securityToken;
+    private int channelId;
+    private int parentId;
+    private List<Post> posts;
+
+    private Thread() {
+
     }
 
-    public String getTitle() {
-        return title;
+    public void addPost(Post post) {
+        if (posts == null) {
+            posts = new ArrayList<>();
+        }
+        posts.add(post);
+    }
+
+    public void addPosts(List<Post> posts) {
+        if (posts == null) {
+            posts = new ArrayList<>();
+        }
+        posts.addAll(posts);
+    }
+
+    public List<Post> getPosts() {
+        return posts == null ? Collections.<Post>emptyList() : posts;
     }
 
     public String getPath() {
         return path;
     }
 
-    public String getStartedBy() {
-        return startedBy;
+    public String getTitle() {
+        return title;
     }
 
-    public String getLastPost() {
-        return lastPost;
+    public String getSecurityToken() {
+        return securityToken;
     }
 
-    public String getThreadstarterAvatar() {
-        return threadstarterAvatar;
+    public int getChannelId() {
+        return channelId;
     }
 
-    public Boolean getIsSticky() {
-        return isSticky;
+    public int getParentId() {
+        return parentId;
+    }
+
+    public static class Builder {
+        private String path;
+        private String title;
+        private String securityToken;
+        private int channelId;
+        private int parentId;
+
+        public Builder title(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public Builder path(String path) {
+            this.path = path;
+            return this;
+        }
+
+        public Builder securityToken(String securityToken) {
+            this.securityToken = securityToken;
+            return this;
+        }
+
+        public Builder channelId(int channelId) {
+            this.channelId = channelId;
+            return this;
+        }
+
+        public Builder parentId(int parentId) {
+            this.parentId = parentId;
+            return this;
+        }
+
+        public Thread build() {
+            Thread thread = new Thread();
+            thread.securityToken = securityToken;
+            thread.channelId = channelId;
+            thread.parentId = parentId;
+            thread.title = title;
+            thread.path = path;
+            return thread;
+        }
     }
 }

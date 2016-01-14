@@ -8,7 +8,6 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -20,12 +19,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewTreeObserver;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.marshalchen.ultimaterecyclerview.RecyclerItemClickListener;
 import com.marshalchen.ultimaterecyclerview.UltimateRecyclerView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -33,19 +33,14 @@ import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
-import xyz.edmw.generic.GenericMap;
 import xyz.edmw.post.PostActivity;
 import xyz.edmw.recyclerview.RecyclerViewDisabler;
 import xyz.edmw.rest.RestClient;
-import xyz.edmw.sharedpreferences.MySharedPreferences;
-import xyz.edmw.thread.ThreadAdapter;
-import xyz.edmw.thread.Thread;
+import xyz.edmw.sharedpreferences.MainSharedPreferences;
+import xyz.edmw.topic.Topic;
+import xyz.edmw.topic.TopicAdapter;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-    private static final String tag = "MainActivity";
-
-    private final int MY_LOGIN_ACTIVITY = 1;
-
     @Bind(R.id.toolbar)
     Toolbar toolbar;
     @Bind(R.id.drawer_layout)
@@ -55,18 +50,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Bind(R.id.list)
     UltimateRecyclerView ultimateRecyclerView;
 
+    private static final String tag = "MainActivity";
+    private static final int MY_LOGIN_ACTIVITY = 1;
     public static int pageNo = 1;
     public static Boolean hasNextPage = false;
-    private String title;
     private static String currentForum;
     private static String currentName;
+    private String title;
 
-    ThreadAdapter adapter;
-    LinearLayoutManager llm;
-    GenericMap<Integer, Thread> threadMap;
+    private TopicAdapter adapter;
+    private List<Topic> topics;
+    private LinearLayoutManager layoutManager;
 
     // SharedPreferences
-    public static MySharedPreferences preferences;
+    public static MainSharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
 
-        preferences = new MySharedPreferences(PreferenceManager.getDefaultSharedPreferences(this));
+        preferences = new MainSharedPreferences(PreferenceManager.getDefaultSharedPreferences(this));
 
         // TODO CHECK IF USER IS LOGIN, SET AVATAR, USERNAME, MEMBER TITLE, HIDE LOGIN BUTTON (MIGHT WANT TO USE SHAREDPREFERENCES)
 
@@ -84,20 +81,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        threadMap = new GenericMap<>();
+        topics = new ArrayList<>();
 
         navigationView.setNavigationItemSelectedListener(this);
 
-        llm = new LinearLayoutManager(getApplicationContext());
+        layoutManager = new LinearLayoutManager(getApplicationContext());
         ultimateRecyclerView.addItemDividerDecoration(getApplicationContext());
-        ultimateRecyclerView.setLayoutManager(llm);
+        ultimateRecyclerView.setLayoutManager(layoutManager);
         ultimateRecyclerView.addOnItemTouchListener(
                 new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
                         Intent intent = new Intent(getApplicationContext(), PostActivity.class);
-                        intent.putExtra("Thread", threadMap.getValue(position));
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.putExtra("Topic", topics.get(position));
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
                         getApplicationContext().startActivity(intent);
                     }
@@ -127,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getMenuInflater().inflate(R.menu.main, menu);
 
         MenuItem image_load_toggle = (MenuItem) menu.findItem(R.id.action_hide_image);
-        if (MySharedPreferences.getLoadImageAutomatically()) {
+        if (MainSharedPreferences.getLoadImageAutomatically()) {
             image_load_toggle.setChecked(true);
         } else {
             image_load_toggle.setChecked(false);
@@ -164,8 +161,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 MainActivity.currentForum = "main-forum";
                 MainActivity.pageNo = 1;
                 MainActivity.hasNextPage = false;
-                if (threadMap != null)
-                    threadMap.clear();
+                if (topics != null)
+                    topics.clear();
                 if (adapter != null)
                     adapter.notifyDataSetChanged();
                 onForumSelected(MainActivity.currentName, MainActivity.currentForum, MainActivity.pageNo);
@@ -175,8 +172,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 MainActivity.currentForum = "main-forum/nsfw";
                 MainActivity.pageNo = 1;
                 MainActivity.hasNextPage = false;
-                if (threadMap != null)
-                    threadMap.clear();
+                if (topics != null)
+                    topics.clear();
                 if (adapter != null)
                     adapter.notifyDataSetChanged();
                 onForumSelected(MainActivity.currentName, MainActivity.currentForum, MainActivity.pageNo);
@@ -186,8 +183,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 MainActivity.currentForum = "metaphysics";
                 MainActivity.pageNo = 1;
                 MainActivity.hasNextPage = false;
-                if (threadMap != null)
-                    threadMap.clear();
+                if (topics != null)
+                    topics.clear();
                 if (adapter != null)
                     adapter.notifyDataSetChanged();
                 onForumSelected(MainActivity.currentName, MainActivity.currentForum, MainActivity.pageNo);
@@ -197,8 +194,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 MainActivity.currentForum = "feedback";
                 MainActivity.pageNo = 1;
                 MainActivity.hasNextPage = false;
-                if (threadMap != null)
-                    threadMap.clear();
+                if (topics != null)
+                    topics.clear();
                 if (adapter != null)
                     adapter.notifyDataSetChanged();
                 onForumSelected(MainActivity.currentName, MainActivity.currentForum, MainActivity.pageNo);
@@ -214,15 +211,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolbar.setTitle(title);
 
         ultimateRecyclerView.showEmptyView();
-        Call<GenericMap<Integer, Thread>> calls = RestClient.getService().getThreads(forum, pageNo);
+        Call<List<Topic>> calls = RestClient.getService().getThreads(forum, pageNo);
 
-        calls.enqueue(new Callback<GenericMap<Integer, Thread>>() {
+        calls.enqueue(new Callback<List<Topic>>() {
 
             @Override
-            public void onResponse(Response<GenericMap<Integer, Thread>> response, Retrofit retrofit) {
+            public void onResponse(Response<List<Topic>> response, Retrofit retrofit) {
                 if (response.isSuccess()) {
-                    threadMap = response.body();
-                    adapter = new ThreadAdapter(threadMap);
+                    topics = response.body();
+                    adapter = new TopicAdapter(MainActivity.this, topics);
                     ultimateRecyclerView.hideEmptyView();
                     ultimateRecyclerView.setAdapter(adapter);
 
@@ -236,22 +233,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                                 ultimateRecyclerView.addOnItemTouchListener(disabler);        // disables scolling
 
-                                Call<GenericMap<Integer, Thread>> calls = RestClient.getService().getThreads(forum, MainActivity.pageNo);
-                                calls.enqueue(new Callback<GenericMap<Integer, Thread>>() {
+                                Call<List<Topic>> calls = RestClient.getService().getThreads(forum, MainActivity.pageNo);
+                                calls.enqueue(new Callback<List<Topic>>() {
 
                                     @Override
-                                    public void onResponse(Response<GenericMap<Integer, Thread>> response, Retrofit retrofit) {
+                                    public void onResponse(Response<List<Topic>> response, Retrofit retrofit) {
                                         if (response.isSuccess()) {
                                             if (hasNextPage)
                                                 getSupportActionBar().setSubtitle("Page " + (MainActivity.pageNo - 1));
                                             else
                                                 getSupportActionBar().setSubtitle("Page " + (MainActivity.pageNo));
 
-                                            int itemStartRange = threadMap.size();
-                                            threadMap.putAll(response.body());
-                                            int itemEndRange = threadMap.size();
+                                            int itemStartRange = topics.size();
+                                            topics.addAll(response.body());
+                                            int itemEndRange = topics.size();
                                             adapter.notifyItemRangeInserted(itemStartRange, itemEndRange);
-                                            llm.scrollToPosition(maxLastVisiblePosition + 1);
+                                            layoutManager.scrollToPosition(maxLastVisiblePosition + 1);
 
                                             ultimateRecyclerView.removeOnItemTouchListener(disabler);     // scrolling is enabled again
 
@@ -291,8 +288,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MainActivity.currentForum = "main-forum";
         MainActivity.pageNo = 1;
         MainActivity.hasNextPage = false;
-        if (threadMap != null)
-            threadMap.clear();
+        if (topics != null)
+            topics.clear();
         if (adapter != null)
             adapter.notifyDataSetChanged();
         onForumSelected(MainActivity.currentName, MainActivity.currentForum, MainActivity.pageNo);
@@ -316,8 +313,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void refreshThreads() {
         MainActivity.pageNo = 1;
         MainActivity.hasNextPage = false;
-        if (threadMap != null)
-            threadMap.clear();
+        if (topics != null)
+            topics.clear();
         if (adapter != null)
             adapter.notifyDataSetChanged();
 

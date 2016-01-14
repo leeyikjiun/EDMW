@@ -1,19 +1,13 @@
 package xyz.edmw.post;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.design.widget.NavigationView;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import com.google.android.youtube.player.YouTubePlayer;
@@ -29,9 +23,7 @@ import xyz.edmw.R;
 import xyz.edmw.generic.GenericMap;
 import xyz.edmw.recyclerview.RecyclerViewDisabler;
 import xyz.edmw.rest.RestClient;
-import xyz.edmw.sharedpreferences.MySharedPreferences;
 import xyz.edmw.thread.Thread;
-import xyz.edmw.thread.ThreadAdapter;
 
 public class PostActivity extends AppCompatActivity {
     private static final String tag = "PostActivity";
@@ -49,7 +41,7 @@ public class PostActivity extends AppCompatActivity {
 
     private PostAdapter adapter;
     private LinearLayoutManager llm;
-    private GenericMap<Integer, Post> postMap;
+    private Thread thread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,14 +71,14 @@ public class PostActivity extends AppCompatActivity {
 
         ultimateRecyclerView.showEmptyView();
 
-        Call<GenericMap<Integer, Post>> calls = RestClient.getService().getPosts(path, pageNo);
-        calls.enqueue(new Callback<GenericMap<Integer, Post>>() {
+        Call<Thread> calls = RestClient.getService().getThread(path, pageNo);
+        calls.enqueue(new Callback<Thread>() {
 
             @Override
-            public void onResponse(Response<GenericMap<Integer, Post>> response, Retrofit retrofit) {
+            public void onResponse(Response<Thread> response, Retrofit retrofit) {
                 if (response.isSuccess()) {
-                    postMap = response.body();
-                    adapter = new PostAdapter(PostActivity.this, postMap);
+                    thread = response.body();
+                    adapter = new PostAdapter(PostActivity.this, thread.getPosts());
                     ultimateRecyclerView.hideEmptyView();
                     ultimateRecyclerView.setAdapter(adapter);
 
@@ -100,21 +92,20 @@ public class PostActivity extends AppCompatActivity {
 
                                 ultimateRecyclerView.addOnItemTouchListener(disabler);        // disables scolling
 
-                                Call<GenericMap<Integer, Post>> calls = RestClient.getService().getPosts(path, PostActivity.pageNo);
-                                calls.enqueue(new Callback<GenericMap<Integer, Post>>() {
+                                Call<Thread> calls = RestClient.getService().getThread(path, PostActivity.pageNo);
+                                calls.enqueue(new Callback<Thread>() {
 
                                     @Override
-                                    public void onResponse(Response<GenericMap<Integer, Post>> response, Retrofit retrofit) {
+                                    public void onResponse(Response<Thread> response, Retrofit retrofit) {
                                         if (response.isSuccess()) {
-                                            System.out.println(postMap.size());
                                             if (hasNextPage)
                                                 getSupportActionBar().setSubtitle("Page " + (PostActivity.pageNo - 1));
                                             else
                                                 getSupportActionBar().setSubtitle("Page " + (PostActivity.pageNo));
 
-                                            int itemStartRange = postMap.size();
-                                            postMap.putAll(response.body());
-                                            int itemEndRange = postMap.size();
+                                            int itemStartRange = thread.getPosts().size();
+                                            thread.addPosts(response.body().getPosts());
+                                            int itemEndRange = thread.getPosts().size();
                                             adapter.notifyItemRangeInserted(itemStartRange, itemEndRange);
                                             llm.scrollToPosition(maxLastVisiblePosition + 1);
                                             ultimateRecyclerView.removeOnItemTouchListener(disabler);        // disables scolling
@@ -193,8 +184,8 @@ public class PostActivity extends AppCompatActivity {
             case R.id.action_refresh:
                 PostActivity.pageNo = 1;
                 PostActivity.hasNextPage = false;
-                if(postMap != null)
-                    postMap.clear();
+                if(thread.getPosts() != null)
+                    thread.getPosts().clear();
                 if(adapter != null)
                     adapter.notifyDataSetChanged();
                 getSupportActionBar().setSubtitle("Page " + PostActivity.pageNo);

@@ -30,7 +30,7 @@ import xyz.edmw.image.ImageDialogFragment;
 import xyz.edmw.post.PostActivity;
 import xyz.edmw.quote.Quote;
 import xyz.edmw.quote.QuoteViewHolder;
-import xyz.edmw.sharedpreferences.MySharedPreferences;
+import xyz.edmw.sharedpreferences.MainSharedPreferences;
 
 public class Message {
     private static final String tag = "Message";
@@ -77,7 +77,7 @@ public class Message {
                 String source = element.attr("src");
 
                 // Prevent image from loading
-                if(MySharedPreferences.getLoadImageAutomatically())
+                if(MainSharedPreferences.getLoadImageAutomatically())
                     setImage(source);
                 break;
             case "div":

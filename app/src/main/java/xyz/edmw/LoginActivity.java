@@ -4,19 +4,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
-
-import com.google.android.youtube.player.YouTubePlayer;
-import com.marshalchen.ultimaterecyclerview.UltimateRecyclerView;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -24,12 +16,7 @@ import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
-import xyz.edmw.generic.GenericMap;
-import xyz.edmw.post.Post;
-import xyz.edmw.post.PostAdapter;
-import xyz.edmw.recyclerview.RecyclerViewDisabler;
 import xyz.edmw.rest.RestClient;
-import xyz.edmw.thread.Thread;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String tag = "LoginActivity";

@@ -1,20 +1,17 @@
 package xyz.edmw.sharedpreferences;
 
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-
-import xyz.edmw.MainActivity;
 
 /**
  * Created by Jun Qin on 10/1/2016.
  */
-public class MySharedPreferences {
+public class MainSharedPreferences {
 
     private SharedPreferences preferences;
 
     private static Boolean loadImageAutomatically;
 
-    public MySharedPreferences(SharedPreferences preferences) {
+    public MainSharedPreferences(SharedPreferences preferences) {
         this.preferences = preferences;
         loadImageAutomatically = preferences.getBoolean("image_load_check", true);
     }

@@ -1,20 +1,15 @@
 package xyz.edmw.post;
 
 public class Post {
-    private final String author;
-    private final String timestamp;
-    private final String postNum;
-    private final String message;
-    private final String authorAvatar;
-    private final String userTitle;
+    private String author;
+    private String authorAvatar;
+    private String userTitle;
+    private String timestamp;
+    private String postNum;
+    private String message;
 
-    public Post(String author, String timestamp, String postNum, String message, String authorAvatar, String userTitle) {
-        this.author = author;
-        this.timestamp = timestamp;
-        this.postNum = postNum;
-        this.message = message;
-        this.authorAvatar = authorAvatar;
-        this.userTitle = userTitle;
+    private Post() {
+
     }
 
     public String getMessage() {
@@ -33,11 +28,61 @@ public class Post {
         return postNum;
     }
 
+    public String getUserTitle() {
+        return userTitle;
+    }
+
     public String getAuthorAvatar() {
         return authorAvatar;
     }
 
-    public String getUserTitle() {
-        return userTitle;
+    public static class Builder {
+        private String author;
+        private String authorAvatar;
+        private String userTitle;
+        private String timestamp;
+        private String postNum;
+        private String message;
+
+        public Builder author(String author) {
+            this.author = author;
+            return this;
+        }
+
+        public Builder timestamp(String timestamp) {
+            this.timestamp = timestamp;
+            return this;
+        }
+
+        public Builder postNum(String postNUm) {
+            this.postNum = postNUm;
+            return this;
+        }
+
+        public Builder message(String message) {
+            this.message = message;
+            return this;
+        }
+
+        public Builder userTitle(String userTitle) {
+            this.userTitle = userTitle;
+            return this;
+        }
+
+        public Builder authorAvatar(String authorAvatar) {
+            this.authorAvatar = authorAvatar;
+            return this;
+        }
+
+        public Post build() {
+            Post post = new Post();
+            post.author = author;
+            post.timestamp = timestamp;
+            post.postNum = postNum;
+            post.message = message;
+            post.userTitle = userTitle;
+            post.authorAvatar = authorAvatar;
+            return post;
+        }
     }
 }
