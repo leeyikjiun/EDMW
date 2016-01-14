@@ -24,6 +24,7 @@ import xyz.edmw.generic.GenericMap;
 import xyz.edmw.recyclerview.RecyclerViewDisabler;
 import xyz.edmw.rest.RestClient;
 import xyz.edmw.thread.Thread;
+import xyz.edmw.topic.Topic;
 
 public class PostActivity extends AppCompatActivity {
     private static final String tag = "PostActivity";
@@ -52,10 +53,10 @@ public class PostActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent i = getIntent();
-        Thread thread = (Thread) i.getSerializableExtra("Thread");
-        path = thread.getPath();
+        Topic topic = i.getParcelableExtra("Topic");
+        path = topic.getPath();
 
-        getSupportActionBar().setTitle(thread.getTitle());
+        getSupportActionBar().setTitle(topic.getTitle());
 
         llm = new LinearLayoutManager(getApplicationContext());
         ultimateRecyclerView.addItemDividerDecoration(getApplicationContext());

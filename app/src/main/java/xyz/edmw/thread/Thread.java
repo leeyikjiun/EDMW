@@ -1,14 +1,15 @@
 package xyz.edmw.thread;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import xyz.edmw.post.Post;
 
-public class Thread {
-    private String path;
-    private String title;
+public class Thread implements Parcelable {
     private String securityToken;
     private int channelId;
     private int parentId;
@@ -17,6 +18,24 @@ public class Thread {
     private Thread() {
 
     }
+
+    protected Thread(Parcel in) {
+        securityToken = in.readString();
+        channelId = in.readInt();
+        parentId = in.readInt();
+    }
+
+    public static final Creator<Thread> CREATOR = new Creator<Thread>() {
+        @Override
+        public Thread createFromParcel(Parcel in) {
+            return new Thread(in);
+        }
+
+        @Override
+        public Thread[] newArray(int size) {
+            return new Thread[size];
+        }
+    };
 
     public void addPost(Post post) {
         if (posts == null) {
@@ -36,14 +55,6 @@ public class Thread {
         return posts == null ? Collections.<Post>emptyList() : posts;
     }
 
-    public String getPath() {
-        return path;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
     public String getSecurityToken() {
         return securityToken;
     }
@@ -54,6 +65,18 @@ public class Thread {
 
     public int getParentId() {
         return parentId;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(securityToken);
+        dest.writeInt(channelId);
+        dest.writeInt(parentId);
     }
 
     public static class Builder {
@@ -93,8 +116,6 @@ public class Thread {
             thread.securityToken = securityToken;
             thread.channelId = channelId;
             thread.parentId = parentId;
-            thread.title = title;
-            thread.path = path;
             return thread;
         }
     }

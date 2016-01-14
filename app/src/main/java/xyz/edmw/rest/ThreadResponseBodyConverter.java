@@ -24,17 +24,19 @@ public class ThreadResponseBodyConverter implements Converter<ResponseBody, Thre
     public Thread getThread(String html) {
         Document doc = Jsoup.parse(html);
         Element threadViewTab = doc.getElementById("thread-view-tab");
+        Thread.Builder builder = new Thread.Builder();
 
         Element form = doc.select("div.b-content-entry").first();
-        String securityToken = form.select("input[name=securitytoken]").first().val();
-        String channelId = form.select("input[name=channelid]").first().val();
-        String parentId = form.select("input[name=parentid]").first().val();
+        if (form != null) {
+            String securityToken = form.select("input[name=securitytoken]").first().val();
+            String channelId = form.select("input[name=channelid]").first().val();
+            String parentId = form.select("input[name=parentid]").first().val();
 
-        Thread thread = new Thread.Builder()
-                .securityToken(securityToken)
-                .channelId(Integer.parseInt(channelId))
-                .parentId(Integer.parseInt(parentId))
-                .build();
+            builder = builder.securityToken(securityToken)
+                    .channelId(Integer.parseInt(channelId))
+                    .parentId(Integer.parseInt(parentId));
+        }
+        Thread thread = builder.build();
 
         Elements rows = threadViewTab.select("li.b-post");
         for (Element row : rows) {
