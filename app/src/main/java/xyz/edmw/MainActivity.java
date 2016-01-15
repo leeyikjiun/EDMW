@@ -52,11 +52,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private static final String tag = "MainActivity";
     private static final int MY_LOGIN_ACTIVITY = 1;
-    public static int pageNo = 1;
-    public static Boolean hasNextPage = false;
-    private static String currentForum;
-    private static String currentName;
     private String title;
+    private Forum forum;
 
     private TopicAdapter adapter;
     private List<Topic> topics;
@@ -94,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     public void onItemClick(View view, int position) {
                         Intent intent = new Intent(getApplicationContext(), PostActivity.class);
                         intent.putExtra("Topic", topics.get(position));
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
                         getApplicationContext().startActivity(intent);
                     }
@@ -107,13 +104,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
         ultimateRecyclerView.setEmptyView(R.layout.empty_progress);
-        currentName = "EDMW";
-        currentForum = "main-forum";
+        forum = Forum.edmw;
 
         if (isOnline()) {
-            getSupportActionBar().setSubtitle("Page " + (MainActivity.pageNo));
+            getSupportActionBar().setSubtitle("Page " + forum.getPageNum());
 
-            onForumSelected(currentName, currentForum, pageNo);
+            onForumSelected(forum);
         } else {
             Toast.makeText(getApplicationContext(), "No network connected", Toast.LENGTH_SHORT).show();
         }
@@ -138,10 +134,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            MainActivity.currentName = "EDMW";
-            MainActivity.currentForum = "main-forum";
-            MainActivity.pageNo = 1;
-            MainActivity.hasNextPage = false;
+            forum = Forum.edmw;
             toolbar.setTitle(title);
             super.onBackPressed();
         }
@@ -157,48 +150,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 break;
             case (R.id.nav_edmw):
-                MainActivity.currentName = "EDMW";
-                MainActivity.currentForum = "main-forum";
-                MainActivity.pageNo = 1;
-                MainActivity.hasNextPage = false;
-                if (topics != null)
-                    topics.clear();
-                if (adapter != null)
+                forum = Forum.edmw;
+                forum.clear();
+                if (adapter != null) {
                     adapter.notifyDataSetChanged();
-                onForumSelected(MainActivity.currentName, MainActivity.currentForum, MainActivity.pageNo);
+                }
+                onForumSelected(forum);
                 break;
             case R.id.nav_nsfw:
-                MainActivity.currentName = "nsfw";
-                MainActivity.currentForum = "main-forum/nsfw";
-                MainActivity.pageNo = 1;
-                MainActivity.hasNextPage = false;
-                if (topics != null)
-                    topics.clear();
-                if (adapter != null)
+                forum = Forum.nsfw;
+                forum.clear();
+                if (adapter != null) {
                     adapter.notifyDataSetChanged();
-                onForumSelected(MainActivity.currentName, MainActivity.currentForum, MainActivity.pageNo);
+                }
+                onForumSelected(forum);
                 break;
             case R.id.nav_metaphysics:
-                MainActivity.currentName = "Metaphysics";
-                MainActivity.currentForum = "metaphysics";
-                MainActivity.pageNo = 1;
-                MainActivity.hasNextPage = false;
-                if (topics != null)
-                    topics.clear();
-                if (adapter != null)
+                forum = Forum.metaphysics;
+                forum.clear();
+                if (adapter != null) {
                     adapter.notifyDataSetChanged();
-                onForumSelected(MainActivity.currentName, MainActivity.currentForum, MainActivity.pageNo);
+                }
+                onForumSelected(forum);
                 break;
             case R.id.nav_feedback:
-                MainActivity.currentName = "Feedback";
-                MainActivity.currentForum = "feedback";
-                MainActivity.pageNo = 1;
-                MainActivity.hasNextPage = false;
-                if (topics != null)
-                    topics.clear();
-                if (adapter != null)
+                forum = Forum.edmw;
+                forum.clear();
+                if (adapter != null) {
                     adapter.notifyDataSetChanged();
-                onForumSelected(MainActivity.currentName, MainActivity.currentForum, MainActivity.pageNo);
+                }
+                onForumSelected(forum);
                 break;
         }
 
@@ -206,12 +187,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    private void onForumSelected(String name, final String forum, final int pageNo) {
-        title = name;
+    private void onForumSelected(final Forum forum) {
+        title = forum.getTitle();
         toolbar.setTitle(title);
 
         ultimateRecyclerView.showEmptyView();
-        Call<List<Topic>> calls = RestClient.getService().getThreads(forum, pageNo);
+        Call<List<Topic>> calls = RestClient.getService().getThreads(forum.getPath(), forum.getPageNum());
 
         calls.enqueue(new Callback<List<Topic>>() {
 
@@ -228,21 +209,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         @Override
                         public void loadMore(int itemsCount, final int maxLastVisiblePosition) {
 
-                            if (hasNextPage) {
+                            if (forum.hasNextPage()) {
                                 final RecyclerView.OnItemTouchListener disabler = new RecyclerViewDisabler();
 
                                 ultimateRecyclerView.addOnItemTouchListener(disabler);        // disables scolling
 
-                                Call<List<Topic>> calls = RestClient.getService().getThreads(forum, MainActivity.pageNo);
+                                Call<List<Topic>> calls = RestClient.getService().getThreads(forum.getPath(), forum.getPageNum());
                                 calls.enqueue(new Callback<List<Topic>>() {
 
                                     @Override
                                     public void onResponse(Response<List<Topic>> response, Retrofit retrofit) {
                                         if (response.isSuccess()) {
-                                            if (hasNextPage)
-                                                getSupportActionBar().setSubtitle("Page " + (MainActivity.pageNo - 1));
+                                            if (forum.hasNextPage())
+                                                getSupportActionBar().setSubtitle("Page " + (forum.getPageNum() - 1));
                                             else
-                                                getSupportActionBar().setSubtitle("Page " + (MainActivity.pageNo));
+                                                getSupportActionBar().setSubtitle("Page " + forum.getPageNum());
 
                                             int itemStartRange = topics.size();
                                             topics.addAll(response.body());
@@ -284,15 +265,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void onLogin() {
-        MainActivity.currentName = "EDMW";
-        MainActivity.currentForum = "main-forum";
-        MainActivity.pageNo = 1;
-        MainActivity.hasNextPage = false;
-        if (topics != null)
-            topics.clear();
-        if (adapter != null)
+        forum = Forum.edmw;
+        forum.clear();
+        if (adapter != null) {
             adapter.notifyDataSetChanged();
-        onForumSelected(MainActivity.currentName, MainActivity.currentForum, MainActivity.pageNo);
+        }
+        onForumSelected(forum);
 
         // TODO GET USER AVATAR URL, USERNAME, MEMBER TITLE AND SET TO DRAWER
         // TODO HIDE LOGIN BUTTON.
@@ -311,15 +289,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     private void refreshThreads() {
-        MainActivity.pageNo = 1;
-        MainActivity.hasNextPage = false;
-        if (topics != null)
-            topics.clear();
+        forum.clear();
         if (adapter != null)
             adapter.notifyDataSetChanged();
 
-        getSupportActionBar().setSubtitle("Page " + MainActivity.pageNo);
-        onForumSelected(MainActivity.currentName, MainActivity.currentForum, MainActivity.pageNo);
+        getSupportActionBar().setSubtitle("Page " + forum.getPageNum());
+        onForumSelected(forum);
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
