@@ -27,10 +27,10 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 
 import xyz.edmw.image.ImageDialogFragment;
-import xyz.edmw.post.PostActivity;
 import xyz.edmw.quote.Quote;
 import xyz.edmw.quote.QuoteViewHolder;
 import xyz.edmw.sharedpreferences.MainSharedPreferences;
+import xyz.edmw.thread.ThreadActivity;
 
 public class Message {
     private static final String tag = "Message";
@@ -169,7 +169,7 @@ public class Message {
                 @Override
                 public void onClick(View v) {
 
-                    FragmentManager fm = ((PostActivity) context).getSupportFragmentManager();
+                    FragmentManager fm = ((ThreadActivity) context).getSupportFragmentManager();
                     ImageDialogFragment a = new ImageDialogFragment();
                     a.newInstance(source);
                     a.show(fm, "dialog_image");
@@ -190,16 +190,16 @@ public class Message {
                 youTubePlayer.addFullscreenControlFlag(YouTubePlayer.FULLSCREEN_FLAG_CONTROL_SYSTEM_UI);
 
                 if (!wasRestored) {
-                    PostActivity.youTubePlayer = youTubePlayer;
+                    ThreadActivity.youTubePlayer = youTubePlayer;
 
                     youTubePlayer.setOnFullscreenListener(new YouTubePlayer.OnFullscreenListener() {
 
                         @Override
                         public void onFullscreen(boolean _isFullScreen) {
-                            PostActivity.fullScreen = _isFullScreen;
+                            ThreadActivity.isFullscreen = _isFullScreen;
                         }
                     });
-                    PostActivity.youTubePlayer.cueVideo(videoID);
+                    ThreadActivity.youTubePlayer.cueVideo(videoID);
                 }
             }
 

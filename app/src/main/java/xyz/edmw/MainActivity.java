@@ -30,13 +30,13 @@ import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
-import xyz.edmw.post.PostActivity;
 import xyz.edmw.recyclerview.RecyclerViewDisabler;
 import xyz.edmw.rest.RestClient;
 import xyz.edmw.sharedpreferences.MainSharedPreferences;
+import xyz.edmw.thread.ThreadActivity;
 import xyz.edmw.topic.TopicAdapter;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, UltimateRecyclerView.OnLoadMoreListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, UltimateRecyclerView.OnLoadMoreListener, SwipeRefreshLayout.OnRefreshListener {
     @Bind(R.id.toolbar)
     Toolbar toolbar;
     @Bind(R.id.drawer_layout)
@@ -82,23 +82,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ultimateRecyclerView.addItemDividerDecoration(getApplicationContext());
         ultimateRecyclerView.enableLoadmore();
         ultimateRecyclerView.setOnLoadMoreListener(this);
+        ultimateRecyclerView.setDefaultOnRefreshListener(this);
         ultimateRecyclerView.addOnItemTouchListener(
                 new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
-                        Intent intent = new Intent(getApplicationContext(), PostActivity.class);
+                        Intent intent = new Intent(getApplicationContext(), ThreadActivity.class);
                         intent.putExtra("Topic", adapter.getTopic(position));
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         getApplicationContext().startActivity(intent);
                     }
                 })
         );
-        ultimateRecyclerView.setDefaultOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                refreshThreads();
-            }
-        });
 
         forum = Forum.edmw;
 
@@ -131,8 +126,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            forum = Forum.edmw;
-            toolbar.setTitle(title);
             super.onBackPressed();
         }
     }
@@ -148,34 +141,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case (R.id.nav_edmw):
                 forum = Forum.edmw;
-                forum.clear();
-                if (adapter != null) {
-                    adapter.notifyDataSetChanged();
-                }
+                forum.setPageNum(1);
+                adapter = null;
                 onForumSelected(forum);
                 break;
             case R.id.nav_nsfw:
                 forum = Forum.nsfw;
-                forum.clear();
-                if (adapter != null) {
-                    adapter.notifyDataSetChanged();
-                }
+                forum.setPageNum(1);
+                adapter = null;
                 onForumSelected(forum);
                 break;
             case R.id.nav_metaphysics:
                 forum = Forum.metaphysics;
-                forum.clear();
-                if (adapter != null) {
-                    adapter.notifyDataSetChanged();
-                }
+                forum.setPageNum(1);
+                adapter = null;
                 onForumSelected(forum);
                 break;
             case R.id.nav_feedback:
-                forum = Forum.edmw;
-                forum.clear();
-                if (adapter != null) {
-                    adapter.notifyDataSetChanged();
-                }
+                forum = Forum.feedback;
+                forum.setPageNum(1);
+                adapter = null;
                 onForumSelected(forum);
                 break;
         }
@@ -275,14 +260,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
          */
     }
 
-
-
-    private void refreshThreads() {
-        forum.clear();
-        if (adapter != null)
-            adapter.notifyDataSetChanged();
-
-        getSupportActionBar().setSubtitle("Page " + forum.getPageNum());
+    @Override
+    public void onRefresh() {
+        forum.setPageNum(1);
+        adapter = null;
         onForumSelected(forum);
     }
 
@@ -290,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         switch (item.getItemId()) {
             case R.id.action_refresh:
-                refreshThreads();
+                onRefresh();
                 return true;
             case R.id.action_hide_image:
 

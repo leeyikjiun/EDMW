@@ -11,8 +11,8 @@ import java.io.IOException;
 
 import retrofit.Converter;
 import xyz.edmw.post.Post;
-import xyz.edmw.post.PostActivity;
 import xyz.edmw.thread.Thread;
+import xyz.edmw.thread.ThreadActivity;
 
 public class ThreadResponseBodyConverter implements Converter<ResponseBody, Thread> {
     @Override
@@ -32,10 +32,21 @@ public class ThreadResponseBodyConverter implements Converter<ResponseBody, Thre
             String channelId = form.select("input[name=channelid]").first().val();
             String parentId = form.select("input[name=parentid]").first().val();
 
-            builder = builder.securityToken(securityToken)
+            builder = builder
+                    .securityToken(securityToken)
                     .channelId(Integer.parseInt(channelId))
                     .parentId(Integer.parseInt(parentId));
         }
+
+        Element pageNav = threadViewTab.select("div.pagenav").first();
+        if (pageNav != null) {
+            int pageNum = Integer.parseInt(threadViewTab.select("a.primary.page").first().text().trim());
+            boolean hasNextPage = !threadViewTab.select("a.js-pagenav-next-button").first().attr("data-page").equals("0");
+            builder = builder
+                    .pageNum(pageNum)
+                    .hasNextPage(hasNextPage);
+        }
+
         Thread thread = builder.build();
 
         Elements rows = threadViewTab.select("li.b-post");
@@ -57,16 +68,6 @@ public class ThreadResponseBodyConverter implements Converter<ResponseBody, Thre
                     .message(message)
                     .build();
             thread.addPost(post);
-        }
-
-        // Check if there are more to load
-        Elements nextElements = doc.getElementsByAttributeValue("rel", "next");
-        if (nextElements.size() == 2) {
-            Element next = nextElements.last();
-            PostActivity.pageNo = Integer.parseInt(next.attr("data-page"));
-            PostActivity.hasNextPage = true;
-        } else {
-            PostActivity.hasNextPage = false;
         }
         return thread;
     }

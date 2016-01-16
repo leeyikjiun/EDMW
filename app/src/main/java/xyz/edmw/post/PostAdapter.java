@@ -6,11 +6,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.marshalchen.ultimaterecyclerview.UltimateViewAdapter;
+
 import java.util.List;
 
 import xyz.edmw.R;
 
-public class PostAdapter extends RecyclerView.Adapter<PostViewHolder>{
+public class PostAdapter extends UltimateViewAdapter<PostViewHolder> {
     private final Context context;
     private final List<Post> posts;
 
@@ -20,15 +22,34 @@ public class PostAdapter extends RecyclerView.Adapter<PostViewHolder>{
     }
 
     @Override
-    public int getItemCount() {
+    public RecyclerView.ViewHolder onCreateHeaderViewHolder(ViewGroup parent) {
+        return null;
+    }
+
+    @Override
+    public void onBindHeaderViewHolder(RecyclerView.ViewHolder holder, int position) {
+
+    }
+
+    @Override
+    public int getAdapterItemCount() {
         return posts.size();
     }
 
     @Override
-    public PostViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.view_post, viewGroup, false);
-        PostViewHolder viewHolder = new PostViewHolder(context, view);
-        return viewHolder;
+    public long generateHeaderId(int position) {
+        return 0;
+    }
+
+    @Override
+    public PostViewHolder getViewHolder(View view) {
+        return new PostViewHolder(context, view, false);
+    }
+
+    @Override
+    public PostViewHolder onCreateViewHolder(ViewGroup parent) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_post, parent, false);
+        return new PostViewHolder(context, view, true);
     }
 
     @Override
@@ -36,10 +57,14 @@ public class PostAdapter extends RecyclerView.Adapter<PostViewHolder>{
         viewHolder.setPost(posts.get(position));
     }
 
-    @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
+    public Post getPost(int position) {
+        return posts.get(position);
     }
 
-
+    public void insertPosts(List<Post> posts) {
+        int positionStart = this.posts.size();
+        int itemCount = posts.size();
+        this.posts.addAll(posts);
+        notifyItemRangeInserted(positionStart, itemCount);
+    }
 }

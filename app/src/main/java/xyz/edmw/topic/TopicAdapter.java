@@ -64,16 +64,17 @@ public class TopicAdapter extends UltimateViewAdapter<TopicViewHolder> {
     }
 
     public void insertTopics(List<Topic> topics) {
-        int itemStartRange = this.topics.size();
+        int positionStart = this.topics.size();
+        int itemCount = 0;
 
         // loop to find duplicates rather than maintaining a separate set
         // uses more cpu than memory
         for (Topic topic : topics) {
             if (!this.topics.contains(topic)) {
                 this.topics.add(topic);
+                ++itemCount;
             }
         }
-        int itemEndRange = this.topics.size();
-        notifyItemRangeInserted(itemStartRange, itemEndRange);
+        notifyItemRangeInserted(positionStart, itemCount);
     }
 }

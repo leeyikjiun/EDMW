@@ -32,10 +32,12 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
 
     private final Context context;
 
-    public PostViewHolder(Context context, View view) {
+    public PostViewHolder(Context context, View view, boolean isItem) {
         super(view);
-        ButterKnife.bind(this, view);
         this.context = context;
+        if (isItem) {
+            ButterKnife.bind(this, view);
+        }
     }
 
     public void setPost(Post post) {
