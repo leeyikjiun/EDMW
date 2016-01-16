@@ -2,15 +2,18 @@ package xyz.edmw.topic;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.marshalchen.ultimaterecyclerview.UltimateViewAdapter;
 
 import java.util.List;
 
 import xyz.edmw.R;
 
-public class TopicAdapter extends RecyclerView.Adapter<TopicViewHolder>{
+public class TopicAdapter extends UltimateViewAdapter<TopicViewHolder> {
     private final Context context;
     private final List<Topic> topics;
 
@@ -20,24 +23,51 @@ public class TopicAdapter extends RecyclerView.Adapter<TopicViewHolder>{
     }
 
     @Override
-    public int getItemCount() {
+    public TopicViewHolder getViewHolder(View view) {
+        return new TopicViewHolder(context, view, false);
+    }
+
+    @Override
+    public TopicViewHolder onCreateViewHolder(ViewGroup parent) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_thread, parent, false);
+        return new TopicViewHolder(context, view, true);
+    }
+
+    @Override
+    public void onBindViewHolder(TopicViewHolder holder, int position) {
+        if (!topics.isEmpty()) {
+            holder.setTopic(topics.get(position));
+        }
+    }
+
+    @Override
+    public RecyclerView.ViewHolder onCreateHeaderViewHolder(ViewGroup parent) {
+        return null;
+    }
+
+    @Override
+    public void onBindHeaderViewHolder(RecyclerView.ViewHolder holder, int position) {
+
+    }
+
+    @Override
+    public int getAdapterItemCount() {
         return topics.size();
     }
 
     @Override
-    public TopicViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.view_thread, viewGroup, false);
-        TopicViewHolder viewHolder = new TopicViewHolder(context, view);
-        return viewHolder;
+    public long generateHeaderId(int position) {
+        return 0;
     }
 
-    @Override
-    public void onBindViewHolder(TopicViewHolder viewHolder, int position) {
-        viewHolder.setTopic(topics.get(position));
+    public Topic getTopic(int position) {
+        return topics.get(position);
     }
 
-    @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
+    public void insertTopics(List<Topic> topics) {
+        int itemStartRange = this.topics.size();
+        this.topics.addAll(topics);
+        int itemEndRange = this.topics.size();
+        notifyItemRangeInserted(itemStartRange, itemEndRange);
     }
 }

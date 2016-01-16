@@ -7,6 +7,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -24,9 +25,6 @@ import android.widget.Toast;
 import com.marshalchen.ultimaterecyclerview.RecyclerItemClickListener;
 import com.marshalchen.ultimaterecyclerview.UltimateRecyclerView;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import retrofit.Call;
@@ -37,10 +35,9 @@ import xyz.edmw.post.PostActivity;
 import xyz.edmw.recyclerview.RecyclerViewDisabler;
 import xyz.edmw.rest.RestClient;
 import xyz.edmw.sharedpreferences.MainSharedPreferences;
-import xyz.edmw.topic.Topic;
 import xyz.edmw.topic.TopicAdapter;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, UltimateRecyclerView.OnLoadMoreListener {
     @Bind(R.id.toolbar)
     Toolbar toolbar;
     @Bind(R.id.drawer_layout)
@@ -52,11 +49,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private static final String tag = "MainActivity";
     private static final int MY_LOGIN_ACTIVITY = 1;
+    private static final RecyclerView.OnItemTouchListener disabler = new RecyclerViewDisabler();
     private String title;
     private Forum forum;
 
     private TopicAdapter adapter;
-    private List<Topic> topics;
     private LinearLayoutManager layoutManager;
 
     // SharedPreferences
@@ -78,21 +75,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        topics = new ArrayList<>();
-
         navigationView.setNavigationItemSelectedListener(this);
 
         layoutManager = new LinearLayoutManager(getApplicationContext());
-        ultimateRecyclerView.addItemDividerDecoration(getApplicationContext());
         ultimateRecyclerView.setLayoutManager(layoutManager);
+
+        ultimateRecyclerView.addItemDividerDecoration(getApplicationContext());
+        ultimateRecyclerView.enableLoadmore();
+        ultimateRecyclerView.setOnLoadMoreListener(this);
         ultimateRecyclerView.addOnItemTouchListener(
                 new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
                         Intent intent = new Intent(getApplicationContext(), PostActivity.class);
-                        intent.putExtra("Topic", topics.get(position));
+                        intent.putExtra("Topic", adapter.getTopic(position));
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
                         getApplicationContext().startActivity(intent);
                     }
                 })
@@ -103,17 +100,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 refreshThreads();
             }
         });
-        ultimateRecyclerView.setEmptyView(R.layout.empty_progress);
+
         forum = Forum.edmw;
 
         if (isOnline()) {
-            getSupportActionBar().setSubtitle("Page " + forum.getPageNum());
-
+            toolbar.setSubtitle("Page " + forum.getPageNum());
             onForumSelected(forum);
         } else {
             Toast.makeText(getApplicationContext(), "No network connected", Toast.LENGTH_SHORT).show();
         }
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -192,63 +190,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolbar.setTitle(title);
 
         ultimateRecyclerView.showEmptyView();
-        Call<List<Topic>> calls = RestClient.getService().getThreads(forum.getPath(), forum.getPageNum());
-
-        calls.enqueue(new Callback<List<Topic>>() {
-
+        Call<Forum> calls = RestClient.getService().getForum(forum.getPath(), forum.getPageNum());
+        calls.enqueue(new Callback<Forum>() {
             @Override
-            public void onResponse(Response<List<Topic>> response, Retrofit retrofit) {
+            public void onResponse(Response<Forum> response, Retrofit retrofit) {
                 if (response.isSuccess()) {
-                    topics = response.body();
-                    adapter = new TopicAdapter(MainActivity.this, topics);
-                    ultimateRecyclerView.hideEmptyView();
-                    ultimateRecyclerView.setAdapter(adapter);
-
-                    ultimateRecyclerView.enableLoadmore();
-                    ultimateRecyclerView.setOnLoadMoreListener(new UltimateRecyclerView.OnLoadMoreListener() {
-                        @Override
-                        public void loadMore(int itemsCount, final int maxLastVisiblePosition) {
-
-                            if (forum.hasNextPage()) {
-                                final RecyclerView.OnItemTouchListener disabler = new RecyclerViewDisabler();
-
-                                ultimateRecyclerView.addOnItemTouchListener(disabler);        // disables scolling
-
-                                Call<List<Topic>> calls = RestClient.getService().getThreads(forum.getPath(), forum.getPageNum());
-                                calls.enqueue(new Callback<List<Topic>>() {
-
-                                    @Override
-                                    public void onResponse(Response<List<Topic>> response, Retrofit retrofit) {
-                                        if (response.isSuccess()) {
-                                            if (forum.hasNextPage())
-                                                getSupportActionBar().setSubtitle("Page " + (forum.getPageNum() - 1));
-                                            else
-                                                getSupportActionBar().setSubtitle("Page " + forum.getPageNum());
-
-                                            int itemStartRange = topics.size();
-                                            topics.addAll(response.body());
-                                            int itemEndRange = topics.size();
-                                            adapter.notifyItemRangeInserted(itemStartRange, itemEndRange);
-                                            layoutManager.scrollToPosition(maxLastVisiblePosition + 1);
-
-                                            ultimateRecyclerView.removeOnItemTouchListener(disabler);     // scrolling is enabled again
-
-                                        } else {
-                                            Toast.makeText(getApplicationContext(), "Fail to retrieve threads", Toast.LENGTH_SHORT).show();
-                                            ultimateRecyclerView.hideEmptyView();
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onFailure(Throwable t) {
-                                        t.printStackTrace();
-                                        Toast.makeText(getApplicationContext(), "Fail to retrieve threads", Toast.LENGTH_SHORT).show();
-                                        ultimateRecyclerView.hideEmptyView();
-                                    }
-                                });
-                            }
-                        }
-                    });
+                    onForumLoaded(response.body());
                 } else {
                     Toast.makeText(getApplicationContext(), "Fail to retrieve threads", Toast.LENGTH_SHORT).show();
                     ultimateRecyclerView.hideEmptyView();
@@ -262,6 +209,49 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 ultimateRecyclerView.hideEmptyView();
             }
         });
+    }
+
+    private void onForumLoaded(Forum forum) {
+        toolbar.setSubtitle("Page " + forum.getPageNum());
+        if (adapter == null) {
+            adapter = new TopicAdapter(this, forum.getTopics());
+            ultimateRecyclerView.setAdapter(adapter);
+        } else {
+            adapter.insertTopics(forum.getTopics());
+        }
+        ultimateRecyclerView.hideEmptyView();
+        this.forum.setPageNum(forum.getPageNum());
+        this.forum.hasNextPage(forum.hasNextPage());
+    }
+
+    @Override
+    public void loadMore(int itemsCount, final int maxLastVisiblePosition) {
+        if (forum.hasNextPage()) {
+            ultimateRecyclerView.addOnItemTouchListener(disabler);        // disables scolling
+            ultimateRecyclerView.showEmptyView();
+
+            Call<Forum> calls = RestClient.getService().getForum(forum.getPath(), forum.getPageNum() + 1);
+            calls.enqueue(new Callback<Forum>() {
+                @Override
+                public void onResponse(Response<Forum> response, Retrofit retrofit) {
+                    if (response.isSuccess()) {
+                        onForumLoaded(response.body());
+                        layoutManager.scrollToPosition(maxLastVisiblePosition + 1);
+                        ultimateRecyclerView.removeOnItemTouchListener(disabler);     // scrolling is enabled again
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Fail to retrieve threads", Toast.LENGTH_SHORT).show();
+                        ultimateRecyclerView.hideEmptyView();
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    t.printStackTrace();
+                    Toast.makeText(getApplicationContext(), "Fail to retrieve threads", Toast.LENGTH_SHORT).show();
+                    ultimateRecyclerView.hideEmptyView();
+                }
+            });
+        }
     }
 
     public void onLogin() {

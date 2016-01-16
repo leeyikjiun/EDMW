@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.koushikdutta.ion.Ion;
+import com.marshalchen.ultimaterecyclerview.UltimateRecyclerviewViewHolder;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -15,7 +16,7 @@ import xyz.edmw.MainActivity;
 import xyz.edmw.R;
 import xyz.edmw.sharedpreferences.MainSharedPreferences;
 
-public class TopicViewHolder extends RecyclerView.ViewHolder {
+public class TopicViewHolder extends UltimateRecyclerviewViewHolder {
     @Bind(R.id.thread_title)
     TextView title;
     @Bind(R.id.thread_started_by)
@@ -29,10 +30,13 @@ public class TopicViewHolder extends RecyclerView.ViewHolder {
 
     private final Context context;
 
-    public TopicViewHolder(Context context, View view) {
+    public TopicViewHolder(Context context, View view, boolean isItem) {
         super(view);
-        ButterKnife.bind(this, view);
         this.context = context;
+
+        if (isItem) {
+            ButterKnife.bind(this, view);
+        }
 
     }
 

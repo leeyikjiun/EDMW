@@ -10,6 +10,7 @@ import retrofit.http.Multipart;
 import retrofit.http.POST;
 import retrofit.http.Part;
 import retrofit.http.Path;
+import xyz.edmw.Forum;
 import xyz.edmw.thread.Thread;
 import xyz.edmw.topic.Topic;
 
@@ -23,7 +24,7 @@ public interface ApiService {
     Call<Void> reply(@Part("securitytoken") String securityToken, @Part("channelid") int channelId, @Part("parentid") int parentId, @Part("text") String text);
 
     @GET("/forum/{forum}/page{page}")
-    Call<List<Topic>> getThreads(@Path("forum") String forum, @Path("page") int page);
+    Call<Forum> getForum(@Path("forum") String forum, @Path("page") int page);
 
     @GET("/{path}/page{page}")
     Call<Thread> getThread(@Path("path") String path, @Path("page") int page);

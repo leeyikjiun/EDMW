@@ -7,6 +7,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
 import retrofit.Converter;
+import xyz.edmw.Forum;
 import xyz.edmw.thread.Thread;
 
 public class ConverterFactory extends Converter.Factory {
@@ -14,8 +15,8 @@ public class ConverterFactory extends Converter.Factory {
     public Converter<ResponseBody, ?> fromResponseBody(Type type, Annotation[] annotations) {
         if (type == Thread.class) {
             return new ThreadResponseBodyConverter();
-        } else if (type.toString().equals("java.util.List<xyz.edmw.topic.Topic>")) {
-            return new TopicsResponseBodyConverter();
+        } else if (type == Forum.class) {
+            return new ForumResponseBodyConverter();
         } else {
             return super.fromResponseBody(type, annotations);
         }

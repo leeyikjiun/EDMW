@@ -12,24 +12,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 import retrofit.Converter;
+import xyz.edmw.Forum;
 import xyz.edmw.MainActivity;
 import xyz.edmw.topic.Topic;
 
-public class TopicsResponseBodyConverter implements Converter<ResponseBody, List<Topic>> {
-    private static final int responsesPerPage = 15;
-
+public class ForumResponseBodyConverter implements Converter<ResponseBody, Forum> {
     @Override
-    public List<Topic> convert(ResponseBody value) throws IOException {
+    public Forum convert(ResponseBody value) throws IOException {
         String html = value.string();
-        return getTopics(html);
+        return getForum(html);
     }
 
-    private List<Topic> getTopics(String html) {
+    private Forum getForum(String html) {
         Document doc = Jsoup.parse(html);
         Element topicTab = doc.getElementById("topic-tab");
-        Elements rows = topicTab.select("tr.topic-item");
 
-        List<Topic> topics = new ArrayList<>(rows.size());
+        int pageNum = Integer.parseInt(topicTab.select("a.primary.page").first().text().trim());
+        boolean hasNextPage = !topicTab.select("a.js-pagenav-next-button").first().attr("data-page").equals("0");
+        Forum forum = new Forum.Builder()
+                .pageNum(pageNum)
+                .hasNextPage(hasNextPage)
+                .build();
+
+        Elements rows = topicTab.select("tr.topic-item");
         for (Element row : rows) {
             Element anchor = row.select("a.topic-title").first();
             Boolean isSticky = row.hasClass("sticky");
@@ -40,7 +45,7 @@ public class TopicsResponseBodyConverter implements Converter<ResponseBody, List
             String startedBy = row.select("div.topic-info").first().text().trim();
             String id = row.attr("data-node-id");
 
-            topics.add(new Topic.Builder()
+            forum.addTopic(new Topic.Builder()
                             .title(title)
                             .path(path)
                             .lastPost(lastPost)
@@ -51,16 +56,6 @@ public class TopicsResponseBodyConverter implements Converter<ResponseBody, List
             );
         }
 
-        // Check if there are more to load
-        Elements nextElements = doc.getElementsByAttributeValue("rel", "next");
-        if (nextElements.size() == 3) {
-            Element next = nextElements.last();
-            MainActivity.pageNo = Integer.parseInt(next.attr("data-page"));
-            MainActivity.hasNextPage = true;
-        } else {
-            MainActivity.hasNextPage = false;
-        }
-
-        return topics;
+        return forum;
     }
 }

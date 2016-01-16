@@ -16,10 +16,9 @@
         android:layout_height="match_parent"/>-->
 
     <com.marshalchen.ultimaterecyclerview.UltimateRecyclerView
+        android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/list"
-        >
-    </com.marshalchen.ultimaterecyclerview.UltimateRecyclerView>
+        app:recyclerviewEmptyView="@layout/empty_progress" />
 
 </FrameLayout>

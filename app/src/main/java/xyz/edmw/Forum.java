@@ -1,5 +1,7 @@
 package xyz.edmw;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import xyz.edmw.topic.Topic;
@@ -63,6 +65,25 @@ public class Forum {
 
     public boolean hasNextPage() {
         return hasNextPage;
+    }
+
+    public void addTopic(Topic topic) {
+        if (topics == null) {
+            topics = new ArrayList<>();
+        }
+        topics.add(topic);
+    }
+
+    public List<Topic> getTopics() {
+        return topics == null ? Collections.<Topic>emptyList() : topics;
+    }
+
+    public void setPageNum(int pageNum) {
+        this.pageNum = pageNum;
+    }
+
+    public void hasNextPage(boolean hasNextPage) {
+        this.hasNextPage = hasNextPage;
     }
 
     public static class Builder {

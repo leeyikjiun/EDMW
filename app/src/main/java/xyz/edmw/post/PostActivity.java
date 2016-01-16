@@ -2,6 +2,7 @@ package xyz.edmw.post;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -56,7 +57,7 @@ public class PostActivity extends AppCompatActivity {
         Topic topic = i.getParcelableExtra("Topic");
         path = topic.getPath();
 
-        getSupportActionBar().setTitle(topic.getTitle());
+        toolbar.setTitle(topic.getTitle());
 
         llm = new LinearLayoutManager(getApplicationContext());
         ultimateRecyclerView.addItemDividerDecoration(getApplicationContext());
@@ -64,7 +65,7 @@ public class PostActivity extends AppCompatActivity {
         ultimateRecyclerView.setHasFixedSize(false);
         ultimateRecyclerView.setEmptyView(R.layout.empty_progress);
 
-        getSupportActionBar().setSubtitle("Page " + (PostActivity.pageNo));
+        toolbar.setSubtitle("Page " + (PostActivity.pageNo));
         onThreadSelected(path, pageNo);
     }
 
@@ -87,7 +88,6 @@ public class PostActivity extends AppCompatActivity {
                     ultimateRecyclerView.setOnLoadMoreListener(new UltimateRecyclerView.OnLoadMoreListener() {
                         @Override
                         public void loadMore(int itemsCount, final int maxLastVisiblePosition) {
-
                             if (hasNextPage) {
                                 final RecyclerView.OnItemTouchListener disabler = new RecyclerViewDisabler();
 
@@ -100,9 +100,9 @@ public class PostActivity extends AppCompatActivity {
                                     public void onResponse(Response<Thread> response, Retrofit retrofit) {
                                         if (response.isSuccess()) {
                                             if (hasNextPage)
-                                                getSupportActionBar().setSubtitle("Page " + (PostActivity.pageNo - 1));
+                                                toolbar.setSubtitle("Page " + (PostActivity.pageNo - 1));
                                             else
-                                                getSupportActionBar().setSubtitle("Page " + (PostActivity.pageNo));
+                                                toolbar.setSubtitle("Page " + (PostActivity.pageNo));
 
                                             int itemStartRange = thread.getPosts().size();
                                             thread.addPosts(response.body().getPosts());
@@ -189,7 +189,7 @@ public class PostActivity extends AppCompatActivity {
                     thread.getPosts().clear();
                 if(adapter != null)
                     adapter.notifyDataSetChanged();
-                getSupportActionBar().setSubtitle("Page " + PostActivity.pageNo);
+                toolbar.setSubtitle("Page " + PostActivity.pageNo);
                 onThreadSelected(this.path, PostActivity.pageNo);
                 return true;
             default:
