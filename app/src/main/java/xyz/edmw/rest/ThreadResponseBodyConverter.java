@@ -1,5 +1,7 @@
 package xyz.edmw.rest;
 
+import android.util.Log;
+
 import com.squareup.okhttp.ResponseBody;
 
 import org.jsoup.Jsoup;
@@ -26,7 +28,7 @@ public class ThreadResponseBodyConverter implements Converter<ResponseBody, Thre
         Element threadViewTab = doc.getElementById("thread-view-tab");
         Thread.Builder builder = new Thread.Builder();
 
-        Element form = doc.select("div.b-content-entry").first();
+        Element form = doc.select("form[data-message-type=reply]").first();
         if (form != null) {
             String securityToken = form.select("input[name=securitytoken]").first().val();
             String channelId = form.select("input[name=channelid]").first().val();
@@ -38,16 +40,22 @@ public class ThreadResponseBodyConverter implements Converter<ResponseBody, Thre
                     .parentId(Integer.parseInt(parentId));
         }
 
-        Element pageNav = threadViewTab.select("div.pagenav").first();
-        if (pageNav != null) {
-            int pageNum = Integer.parseInt(threadViewTab.select("a.primary.page").first().text().trim());
+        Element primaryPage = threadViewTab.select("a.primary.page").first();
+        if (primaryPage != null) {
+            int pageNum = Integer.parseInt(primaryPage.text().trim());
             boolean hasNextPage = !threadViewTab.select("a.js-pagenav-next-button").first().attr("data-page").equals("0");
             builder = builder
                     .pageNum(pageNum)
                     .hasNextPage(hasNextPage);
         }
 
-        Thread thread = builder.build();
+        String title = doc.select("h1.main-title").first().text().trim();
+        String path = doc.head().select("link[rel=canonical]").attr("href");
+        path = path.substring(RestClient.baseUrl.length());
+        Thread thread = builder
+                .title(title)
+                .path(path)
+                .build();
 
         Elements rows = threadViewTab.select("li.b-post");
         for (Element row : rows) {

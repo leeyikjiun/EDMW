@@ -34,7 +34,7 @@ public class Forum {
 
     private String title;
     private String path;
-    private int pageNum;
+    private int pageNum = 1;
     private boolean hasNextPage;
     private List<Topic> topics;
 

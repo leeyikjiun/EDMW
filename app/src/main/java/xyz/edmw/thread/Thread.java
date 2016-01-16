@@ -104,17 +104,13 @@ public class Thread implements Parcelable {
         this.pageNum = pageNum;
     }
 
-    public void hasNextPage(boolean hasNextPage) {
-        this.hasNextPage = hasNextPage;
-    }
-
     public static class Builder {
         private String path;
         private String title;
         private String securityToken;
         private int channelId;
         private int parentId;
-        private int pageNum;
+        private int pageNum = 1;
         private boolean hasNextPage;
 
         public Builder title(String title) {

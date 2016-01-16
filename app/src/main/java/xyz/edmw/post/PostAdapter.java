@@ -57,14 +57,15 @@ public class PostAdapter extends UltimateViewAdapter<PostViewHolder> {
         viewHolder.setPost(posts.get(position));
     }
 
-    public Post getPost(int position) {
-        return posts.get(position);
-    }
-
     public void insertPosts(List<Post> posts) {
         int positionStart = this.posts.size();
-        int itemCount = posts.size();
-        this.posts.addAll(posts);
+        int itemCount = 0;
+        for (Post post : posts) {
+            if (!this.posts.contains(post)) {
+                this.posts.add(post);
+                ++itemCount;
+            }
+        }
         notifyItemRangeInserted(positionStart, itemCount);
     }
 }
