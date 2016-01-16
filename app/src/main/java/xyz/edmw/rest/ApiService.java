@@ -1,7 +1,5 @@
 package xyz.edmw.rest;
 
-import java.util.List;
-
 import retrofit.Call;
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
@@ -12,7 +10,6 @@ import retrofit.http.Part;
 import retrofit.http.Path;
 import xyz.edmw.Forum;
 import xyz.edmw.thread.Thread;
-import xyz.edmw.topic.Topic;
 
 public interface ApiService {
     @FormUrlEncoded

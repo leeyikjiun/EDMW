@@ -8,12 +8,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import retrofit.Converter;
 import xyz.edmw.Forum;
-import xyz.edmw.MainActivity;
 import xyz.edmw.topic.Topic;
 
 public class ForumResponseBodyConverter implements Converter<ResponseBody, Forum> {
@@ -46,13 +43,14 @@ public class ForumResponseBodyConverter implements Converter<ResponseBody, Forum
             String id = row.attr("data-node-id");
 
             forum.addTopic(new Topic.Builder()
-                            .title(title)
-                            .path(path)
-                            .lastPost(lastPost)
-                            .threadstarterAvatar(avatar)
-                            .startedBy(startedBy)
-                            .isSticky(isSticky)
-                            .build()
+                    .id(id)
+                    .title(title)
+                    .path(path)
+                    .lastPost(lastPost)
+                    .threadstarterAvatar(avatar)
+                    .startedBy(startedBy)
+                    .isSticky(isSticky)
+                    .build()
             );
         }
 

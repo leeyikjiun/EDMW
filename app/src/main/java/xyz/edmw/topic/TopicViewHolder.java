@@ -1,7 +1,6 @@
 package xyz.edmw.topic;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.View;
 import android.widget.ImageView;
@@ -12,7 +11,6 @@ import com.marshalchen.ultimaterecyclerview.UltimateRecyclerviewViewHolder;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import xyz.edmw.MainActivity;
 import xyz.edmw.R;
 import xyz.edmw.sharedpreferences.MainSharedPreferences;
 

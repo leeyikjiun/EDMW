@@ -2,7 +2,6 @@ package xyz.edmw.topic;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -66,7 +65,14 @@ public class TopicAdapter extends UltimateViewAdapter<TopicViewHolder> {
 
     public void insertTopics(List<Topic> topics) {
         int itemStartRange = this.topics.size();
-        this.topics.addAll(topics);
+
+        // loop to find duplicates rather than maintaining a separate set
+        // uses more cpu than memory
+        for (Topic topic : topics) {
+            if (!this.topics.contains(topic)) {
+                this.topics.add(topic);
+            }
+        }
         int itemEndRange = this.topics.size();
         notifyItemRangeInserted(itemStartRange, itemEndRange);
     }

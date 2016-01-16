@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Topic implements Parcelable {
+    private String id;
     private String title;
     private  String path;
     private  String startedBy;
@@ -16,6 +17,7 @@ public class Topic implements Parcelable {
     }
 
     protected Topic(Parcel in) {
+        id = in.readString();
         title = in.readString();
         path = in.readString();
         startedBy = in.readString();
@@ -67,6 +69,7 @@ public class Topic implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
         dest.writeString(title);
         dest.writeString(path);
         dest.writeString(startedBy);
@@ -75,7 +78,24 @@ public class Topic implements Parcelable {
         dest.writeByte((byte) (isSticky ? 1 : 0));
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Topic topic = (Topic) o;
+
+        return id.equals(topic.id);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
     public static class Builder {
+        private String id;
         private  String title;
         private String path;
         private  String startedBy;
@@ -83,6 +103,11 @@ public class Topic implements Parcelable {
         private  String threadstarterAvatar;
         private  boolean isSticky;
         private int numPages;
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
 
         public Builder title(String title) {
             this.title = title;
@@ -121,6 +146,7 @@ public class Topic implements Parcelable {
 
         public Topic build() {
             Topic topic = new Topic();
+            topic.id = id;
             topic.title = title;
             topic.path = path;
             topic.startedBy = startedBy;

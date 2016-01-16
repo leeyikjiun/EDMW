@@ -2,7 +2,6 @@ package xyz.edmw.post;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,7 +20,6 @@ import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
 import xyz.edmw.R;
-import xyz.edmw.generic.GenericMap;
 import xyz.edmw.recyclerview.RecyclerViewDisabler;
 import xyz.edmw.rest.RestClient;
 import xyz.edmw.thread.Thread;
