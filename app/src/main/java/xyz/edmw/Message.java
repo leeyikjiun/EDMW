@@ -2,6 +2,8 @@ package xyz.edmw;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.Resources;
+import android.net.Uri;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
@@ -14,6 +16,14 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.android.camera.drawable.TextDrawable;
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.drawable.ProgressBarDrawable;
+import com.facebook.drawee.drawable.ScalingUtils;
+import com.facebook.drawee.generic.GenericDraweeHierarchy;
+import com.facebook.drawee.generic.GenericDraweeHierarchyBuilder;
+import com.facebook.drawee.interfaces.DraweeController;
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
@@ -34,12 +44,24 @@ import xyz.edmw.thread.ThreadActivity;
 
 public class Message {
     private static final String tag = "Message";
+    private final TextDrawable tapToRetry;
+    private final ProgressBarDrawable progressBarDrawable;
+    private final GenericDraweeHierarchy hierarchy;
     private final Context context;
     private final LinearLayout message;
 
     public Message(Context context, LinearLayout message) {
         this.context = context;
         this.message = message;
+
+        Resources resources = context.getResources();
+        tapToRetry = new TextDrawable(resources, "Tap to retry.");
+        progressBarDrawable = new ProgressBarDrawable();
+        hierarchy = new GenericDraweeHierarchyBuilder(resources)
+                .setRetryImage(tapToRetry)
+                .setProgressBarImage(progressBarDrawable)
+                .setActualImageScaleType(ScalingUtils.ScaleType.CENTER_CROP)
+                .build();
     }
 
     public void setMessage(String message) {
@@ -104,7 +126,6 @@ public class Message {
                 } else if (className.equals("videocontainer")) {
                     final String videoId = element.select("a.video-frame").first().attr("data-vcode");
                     setYoutube(videoId);
-                    Log.d(tag, "Setting youtube up");
                     break;
                 }
                 // fall through
@@ -120,34 +141,27 @@ public class Message {
     }
 
     private void setImage(final String source) {
-        final ImageView imageView = new ImageView(context);
-        if(source.contains("www.edmw.xyz/core/images/smilies")
+        if (source.contains("www.edmw.xyz/core/images/smilies")
                 || source.contains("www.hardwarezone.com.sg/img/forums/hwz/smilies")
                 || source.contains("forum.lowyat.net/style_emoticons/")
                 || source.contains("illiweb.com/fa/i/smiles")) {
-
+            final ImageView imageView = new ImageView(context);
             Ion.with(imageView)
                     .animateGif(AnimateGifMode.ANIMATE)
                     //.placeholder(R.drawable.progress_animation)
                     .error(R.drawable.ic_error)
                     .load(source)
                     .setCallback(new FutureCallback<ImageView>() {
-
                         @SuppressLint("NewApi")
                         @Override
-                        public void onCompleted(Exception arg0,
-                                                ImageView arg1) {
-
+                        public void onCompleted(Exception e, final ImageView imageView) {
                             imageView.getViewTreeObserver().addOnPreDrawListener(
                                     new ViewTreeObserver.OnPreDrawListener() {
                                         public boolean onPreDraw() {
-
-                                            imageView.getViewTreeObserver()
-                                                    .removeOnPreDrawListener(this);
-
+                                            imageView.getViewTreeObserver().removeOnPreDrawListener(this);
                                             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
                                             imageView.setAdjustViewBounds(true);
-                                            imageView.getLayoutParams().width = imageView.getDrawable().getIntrinsicWidth()*4;
+                                            imageView.getLayoutParams().width = imageView.getDrawable().getIntrinsicWidth() * 4;
                                             return true;
                                         }
                                     });
@@ -156,19 +170,21 @@ public class Message {
             message.addView(imageView);
 
         } else {
-            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            SimpleDraweeView imageView = new SimpleDraweeView(context);
             imageView.setAdjustViewBounds(true);
 
-            Ion.with(imageView)
-                  //.placeholder(R.drawable.progress_animation)
-                    .error(R.drawable.ic_error)
-                    .load(source);
+            DraweeController controller = Fresco.newDraweeControllerBuilder()
+                    .setUri(Uri.parse(source))
+                    .setTapToRetryEnabled(true)
+                    .setAutoPlayAnimations(true)
+                    .build();
+            imageView.setController(controller);
+            imageView.setHierarchy(hierarchy);
             message.addView(imageView);
 
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
                     FragmentManager fm = ((ThreadActivity) context).getSupportFragmentManager();
                     ImageDialogFragment a = new ImageDialogFragment();
                     a.newInstance(source);
@@ -195,8 +211,8 @@ public class Message {
                     youTubePlayer.setOnFullscreenListener(new YouTubePlayer.OnFullscreenListener() {
 
                         @Override
-                        public void onFullscreen(boolean _isFullScreen) {
-                            ThreadActivity.isFullscreen = _isFullScreen;
+                        public void onFullscreen(boolean isFullScreen) {
+                            ThreadActivity.isFullscreen = isFullScreen;
                         }
                     });
                     ThreadActivity.youTubePlayer.cueVideo(videoID);

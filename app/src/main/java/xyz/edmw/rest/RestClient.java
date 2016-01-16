@@ -1,5 +1,10 @@
 package xyz.edmw.rest;
 
+import android.content.Context;
+
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.imagepipeline.backends.okhttp.OkHttpImagePipelineConfigFactory;
+import com.facebook.imagepipeline.core.ImagePipelineConfig;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.logging.HttpLoggingInterceptor;
 
@@ -22,12 +27,19 @@ public class RestClient {
     }
 
     private RestClient() {
+        Context context = MainApplication.getContext();
+
         OkHttpClient client = new OkHttpClient();
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BASIC);
         client.interceptors().add(interceptor);
 
-        CookieStore cookieStore = new PersistentCookieStore(MainApplication.getContext());
+        ImagePipelineConfig config = OkHttpImagePipelineConfigFactory
+                .newBuilder(context, client)
+                .build();
+        Fresco.initialize(context, config);
+
+        CookieStore cookieStore = new PersistentCookieStore(context);
         CookieManager cookieManager = new CookieManager(cookieStore, CookiePolicy.ACCEPT_ALL);
         client.setCookieHandler(cookieManager);
 

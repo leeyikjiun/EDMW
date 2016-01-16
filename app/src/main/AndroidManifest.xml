@@ -36,6 +36,7 @@
             android:label="@string/title_login_activity"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan"
             android:configChanges="orientation|screenSize">
         </activity>
 

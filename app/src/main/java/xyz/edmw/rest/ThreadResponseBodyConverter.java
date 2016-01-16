@@ -1,7 +1,5 @@
 package xyz.edmw.rest;
 
-import android.util.Log;
-
 import com.squareup.okhttp.ResponseBody;
 
 import org.jsoup.Jsoup;
@@ -14,7 +12,6 @@ import java.io.IOException;
 import retrofit.Converter;
 import xyz.edmw.post.Post;
 import xyz.edmw.thread.Thread;
-import xyz.edmw.thread.ThreadActivity;
 
 public class ThreadResponseBodyConverter implements Converter<ResponseBody, Thread> {
     @Override
