@@ -104,6 +104,10 @@ public class Thread implements Parcelable {
         this.pageNum = pageNum;
     }
 
+    public void setPath(String path) {
+        this.path = path;
+    }
+
     public static class Builder {
         private String path;
         private String title;

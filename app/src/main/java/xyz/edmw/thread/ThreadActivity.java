@@ -31,7 +31,7 @@ import xyz.edmw.recyclerview.RecyclerViewDisabler;
 import xyz.edmw.rest.RestClient;
 import xyz.edmw.topic.Topic;
 
-public class ThreadActivity extends AppCompatActivity implements UltimateRecyclerView.OnLoadMoreListener, SwipeRefreshLayout.OnRefreshListener, View.OnClickListener {
+public class ThreadActivity extends AppCompatActivity implements UltimateRecyclerView.OnLoadMoreListener, View.OnClickListener {
     @Bind(R.id.toolbar)
     Toolbar toolbar;
     @Bind(R.id.list)
@@ -74,7 +74,12 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         ultimateRecyclerView.setHasFixedSize(false);
         ultimateRecyclerView.enableLoadmore();
         ultimateRecyclerView.setOnLoadMoreListener(this);
-        ultimateRecyclerView.setDefaultOnRefreshListener(this);
+        ultimateRecyclerView.setDefaultOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                onThreadRefresh();
+            }
+        });
 
         reply.setOnClickListener(this);
 
@@ -127,7 +132,7 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_refresh:
-                onRefresh();
+                onThreadRefresh();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -144,6 +149,9 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
             adapter.insertPosts(thread.getPosts());
         }
         ultimateRecyclerView.hideEmptyView();
+
+        // TODO temp fix
+        thread.setPath(this.thread.getPath());
         this.thread = thread;
     }
 
@@ -177,8 +185,7 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         }
     }
 
-    @Override
-    public void onRefresh() {
+    public void onThreadRefresh() {
         adapter = null;
         thread.setPageNum(1);
         onThreadSelected(thread);
