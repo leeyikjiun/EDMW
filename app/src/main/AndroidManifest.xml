@@ -26,7 +26,7 @@
         </activity>
         <activity
             android:name=".thread.ThreadActivity"
-            android:label="@string/title_post_activity"
+            android:label="@string/title_thread_activity"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:configChanges="orientation|screenSize">
@@ -37,6 +37,13 @@
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustPan"
+            android:configChanges="orientation|screenSize">
+        </activity>
+        <activity
+            android:name=".topic.TopicActivity"
+            android:label="@string/title_topic_activity"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:configChanges="orientation|screenSize">
         </activity>
 

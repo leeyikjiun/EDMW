@@ -7,6 +7,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -34,6 +35,7 @@ import xyz.edmw.recyclerview.RecyclerViewDisabler;
 import xyz.edmw.rest.RestClient;
 import xyz.edmw.sharedpreferences.MainSharedPreferences;
 import xyz.edmw.thread.ThreadActivity;
+import xyz.edmw.topic.TopicActivity;
 import xyz.edmw.topic.TopicAdapter;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, UltimateRecyclerView.OnLoadMoreListener, SwipeRefreshLayout.OnRefreshListener {
@@ -45,6 +47,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     NavigationView navigationView;
     @Bind(R.id.list)
     UltimateRecyclerView ultimateRecyclerView;
+    @Bind(R.id.fab)
+    FloatingActionButton fab;
 
     private static final String tag = "MainActivity";
     private static final int MY_LOGIN_ACTIVITY = 1;
@@ -63,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
         setSupportActionBar(toolbar);
 
         preferences = new MainSharedPreferences(PreferenceManager.getDefaultSharedPreferences(this));
@@ -103,6 +108,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             Toast.makeText(getApplicationContext(), "No network connected", Toast.LENGTH_SHORT).show();
         }
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), TopicActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                getApplicationContext().startActivity(intent);
+            }
+        });
     }
 
 

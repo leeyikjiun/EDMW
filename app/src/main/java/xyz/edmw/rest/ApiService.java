@@ -10,6 +10,7 @@ import retrofit.http.Part;
 import retrofit.http.Path;
 import xyz.edmw.Forum;
 import xyz.edmw.thread.Thread;
+import xyz.edmw.topic.TopicForm;
 
 public interface ApiService {
     @FormUrlEncoded
@@ -25,4 +26,11 @@ public interface ApiService {
 
     @GET("/{path}/page{page}")
     Call<Thread> getThread(@Path("path") String path, @Path("page") int page);
+
+    @GET("/new-content/3")
+    Call<TopicForm> getTopic();
+
+    @Multipart
+    @POST("/create-content/text/")
+    Call<Void> postTopic(@Part("securitytoken") String securityToken, @Part("parentid") int parentId, @Part("title") String title, @Part("text") String text);
 }

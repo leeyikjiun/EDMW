@@ -20,7 +20,6 @@ import xyz.edmw.rest.RestClient;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String tag = "LoginActivity";
-
     @Bind(R.id.toolbar)
     Toolbar toolbar;
     @Bind(R.id.username)
@@ -29,8 +28,6 @@ public class LoginActivity extends AppCompatActivity {
     EditText password;
     @Bind(R.id.user_sign_in_button)
     Button signIn;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

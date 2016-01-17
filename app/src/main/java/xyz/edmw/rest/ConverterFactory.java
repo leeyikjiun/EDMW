@@ -9,6 +9,7 @@ import java.lang.reflect.Type;
 import retrofit.Converter;
 import xyz.edmw.Forum;
 import xyz.edmw.thread.Thread;
+import xyz.edmw.topic.TopicForm;
 
 public class ConverterFactory extends Converter.Factory {
     @Override
@@ -17,6 +18,8 @@ public class ConverterFactory extends Converter.Factory {
             return new ThreadResponseBodyConverter();
         } else if (type == Forum.class) {
             return new ForumResponseBodyConverter();
+        } else if (type == TopicForm.class) {
+            return new TopicFormResponseBodyConverter();
         } else {
             return super.fromResponseBody(type, annotations);
         }
