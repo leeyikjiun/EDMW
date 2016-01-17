@@ -65,6 +65,7 @@ public class ThreadResponseBodyConverter implements Converter<ResponseBody, Thre
             String id = row.attr("data-node-id");
 
             Post post = new Post.Builder()
+                    .id(id)
                     .author(author)
                     .timestamp(timestamp)
                     .postNum(postNum)

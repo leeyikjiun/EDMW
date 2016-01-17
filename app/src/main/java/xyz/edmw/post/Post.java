@@ -1,6 +1,7 @@
 package xyz.edmw.post;
 
 public class Post {
+    private String id;
     private String author;
     private String authorAvatar;
     private String userTitle;
@@ -36,7 +37,24 @@ public class Post {
         return authorAvatar;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Post post = (Post) o;
+
+        return id.equals(post.id);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
     public static class Builder {
+        private String id;
         private String author;
         private String authorAvatar;
         private String userTitle;
@@ -76,6 +94,7 @@ public class Post {
 
         public Post build() {
             Post post = new Post();
+            post.id = id;
             post.author = author;
             post.timestamp = timestamp;
             post.postNum = postNum;
@@ -83,6 +102,11 @@ public class Post {
             post.userTitle = userTitle;
             post.authorAvatar = authorAvatar;
             return post;
+        }
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
         }
     }
 }
