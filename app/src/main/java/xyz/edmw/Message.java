@@ -45,8 +45,6 @@ import xyz.edmw.thread.ThreadActivity;
 public class Message {
     private static final String tag = "Message";
     private final TextDrawable tapToRetry;
-    private final ProgressBarDrawable progressBarDrawable;
-    private final GenericDraweeHierarchy hierarchy;
     private final Context context;
     private final LinearLayout message;
 
@@ -56,12 +54,6 @@ public class Message {
 
         Resources resources = context.getResources();
         tapToRetry = new TextDrawable(resources, "Tap to retry.");
-        progressBarDrawable = new ProgressBarDrawable();
-        hierarchy = new GenericDraweeHierarchyBuilder(resources)
-                .setRetryImage(tapToRetry)
-                .setProgressBarImage(progressBarDrawable)
-                .setActualImageScaleType(ScalingUtils.ScaleType.CENTER_CROP)
-                .build();
     }
 
     public void setMessage(String message) {
@@ -172,6 +164,7 @@ public class Message {
         } else {
             SimpleDraweeView imageView = new SimpleDraweeView(context);
             imageView.setAdjustViewBounds(true);
+            message.addView(imageView);
 
             DraweeController controller = Fresco.newDraweeControllerBuilder()
                     .setUri(Uri.parse(source))
@@ -179,8 +172,13 @@ public class Message {
                     .setAutoPlayAnimations(true)
                     .build();
             imageView.setController(controller);
+
+            GenericDraweeHierarchy hierarchy = new GenericDraweeHierarchyBuilder(context.getResources())
+                    .setRetryImage(tapToRetry)
+                    .setProgressBarImage(new ProgressBarDrawable())
+                    .setActualImageScaleType(ScalingUtils.ScaleType.CENTER_CROP)
+                    .build();
             imageView.setHierarchy(hierarchy);
-            message.addView(imageView);
 
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
