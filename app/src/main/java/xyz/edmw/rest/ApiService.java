@@ -15,7 +15,7 @@ import xyz.edmw.topic.TopicForm;
 public interface ApiService {
     @FormUrlEncoded
     @POST("/auth/login")
-    Call<Void> login(@Field("username") String username, @Field("password") String password, @Field("rememberme") boolean remember);
+    Call<Boolean> login(@Field("username") String username, @Field("password") String password, @Field("rememberme") String remember);
 
     @Multipart
     @POST("/create-content/text/")

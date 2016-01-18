@@ -20,7 +20,9 @@ public class ConverterFactory extends Converter.Factory {
             return new ForumResponseBodyConverter();
         } else if (type == TopicForm.class) {
             return new TopicFormResponseBodyConverter();
-        } else {
+        } else if (type == Boolean.class) {
+            return new LoginResponseBodyConverter();
+        }else {
             return super.fromResponseBody(type, annotations);
         }
     }
