@@ -22,7 +22,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.marshalchen.ultimaterecyclerview.RecyclerItemClickListener;
 import com.marshalchen.ultimaterecyclerview.UltimateRecyclerView;
 
 import butterknife.Bind;
@@ -34,7 +33,6 @@ import retrofit.Retrofit;
 import xyz.edmw.recyclerview.RecyclerViewDisabler;
 import xyz.edmw.rest.RestClient;
 import xyz.edmw.sharedpreferences.MainSharedPreferences;
-import xyz.edmw.thread.ThreadActivity;
 import xyz.edmw.topic.TopicActivity;
 import xyz.edmw.topic.TopicAdapter;
 
@@ -88,17 +86,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ultimateRecyclerView.enableLoadmore();
         ultimateRecyclerView.setOnLoadMoreListener(this);
         ultimateRecyclerView.setDefaultOnRefreshListener(this);
-        ultimateRecyclerView.addOnItemTouchListener(
-                new RecyclerItemClickListener(getApplicationContext(), new RecyclerItemClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        Intent intent = new Intent(getApplicationContext(), ThreadActivity.class);
-                        intent.putExtra("Topic", adapter.getTopic(position));
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        getApplicationContext().startActivity(intent);
-                    }
-                })
-        );
 
         forum = Forum.edmw;
 

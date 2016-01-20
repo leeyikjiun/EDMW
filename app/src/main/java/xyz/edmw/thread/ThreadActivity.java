@@ -1,6 +1,7 @@
 package xyz.edmw.thread;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -19,6 +20,8 @@ import android.widget.Toast;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.marshalchen.ultimaterecyclerview.UltimateRecyclerView;
 
+import java.util.List;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import retrofit.Call;
@@ -26,12 +29,13 @@ import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
 import xyz.edmw.R;
+import xyz.edmw.post.Post;
 import xyz.edmw.post.PostAdapter;
 import xyz.edmw.recyclerview.RecyclerViewDisabler;
 import xyz.edmw.rest.RestClient;
 import xyz.edmw.topic.Topic;
 
-public class ThreadActivity extends AppCompatActivity implements UltimateRecyclerView.OnLoadMoreListener, View.OnClickListener {
+public class ThreadActivity extends AppCompatActivity implements UltimateRecyclerView.OnLoadMoreListener, View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
     @Bind(R.id.toolbar)
     Toolbar toolbar;
     @Bind(R.id.list)
@@ -42,6 +46,8 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
     ImageButton reply;
 
     private static final String tag = "ThreadActivity";
+    private static final String ARG_TOPIC = "arg_topic";
+    private static final String ARG_PAGE_NUM = "ar_page_num";
     private static final RecyclerView.OnItemTouchListener disabler = new RecyclerViewDisabler();
     public static YouTubePlayer youTubePlayer;
     public static boolean isFullscreen;
@@ -49,6 +55,14 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
     private PostAdapter adapter;
     private LinearLayoutManager llm;
     private Thread thread;
+
+    public static void startInstance(Context context, Topic topic, int pageNum) {
+        Intent intent = new Intent(context, ThreadActivity.class);
+        intent.putExtra(ARG_TOPIC, topic);
+        intent.putExtra(ARG_PAGE_NUM, pageNum);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,12 +73,13 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent i = getIntent();
-        Topic topic = i.getParcelableExtra("Topic");
+        Topic topic = i.getParcelableExtra(ARG_TOPIC);
+        int pageNum = i.getIntExtra(ARG_PAGE_NUM, 1);
 
         thread = new Thread.Builder()
                 .title(topic.getTitle())
                 .path(topic.getPath())
-                .pageNum(1)
+                .pageNum(pageNum)
                 .build();
         getSupportActionBar().setTitle(thread.getTitle());
 
@@ -74,12 +89,7 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         ultimateRecyclerView.setHasFixedSize(false);
         ultimateRecyclerView.enableLoadmore();
         ultimateRecyclerView.setOnLoadMoreListener(this);
-        ultimateRecyclerView.setDefaultOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                onThreadRefresh();
-            }
-        });
+        ultimateRecyclerView.setDefaultOnRefreshListener(this);
 
         reply.setOnClickListener(this);
 
@@ -88,25 +98,8 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
 
     private void onThreadSelected(Thread thread) {
         ultimateRecyclerView.showEmptyView();
-        Call<Thread> calls = RestClient.getService().getThread(thread.getPath(), thread.getPageNum());
-        calls.enqueue(new Callback<Thread>() {
-            @Override
-            public void onResponse(Response<Thread> response, Retrofit retrofit) {
-                if (response.isSuccess()) {
-                    onThreadLoaded(response.body());
-                } else {
-                    Toast.makeText(getApplicationContext(), "Fail to retrieve posts", Toast.LENGTH_SHORT).show();
-                    ultimateRecyclerView.hideEmptyView();
-                }
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                t.printStackTrace();
-                Toast.makeText(getApplicationContext(), "Fail to retrieve posts", Toast.LENGTH_SHORT).show();
-                ultimateRecyclerView.hideEmptyView();
-            }
-        });
+        Call<Thread> call = RestClient.getService().getThread(thread.getPath(), thread.getPageNum());
+        call.enqueue(new LoadThreadCallback(Insert.New));
     }
 
     @Override
@@ -132,23 +125,41 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_refresh:
-                onThreadRefresh();
+                thread.setPageNum(1);
+                onThreadSelected(thread);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-
-    private void onThreadLoaded(Thread thread) {
+    private void onThreadLoaded(Thread thread, Insert insert) {
         toolbar.setSubtitle("Page " + thread.getPageNum());
-        if (adapter == null) {
-            adapter = new PostAdapter(ThreadActivity.this, thread.getPosts());
-            ultimateRecyclerView.setAdapter(adapter);
-        } else {
-            adapter.insertPosts(thread.getPosts());
+        List<Post> posts = thread.getPosts();
+        switch (insert) {
+            case Before:
+                adapter.getPosts().addAll(0, posts);
+                adapter.notifyItemRangeInserted(0, posts.size());
+                llm.scrollToPosition(posts.size() - 1);
+                break;
+            case New:
+                adapter = new PostAdapter(ThreadActivity.this, posts);
+                ultimateRecyclerView.setAdapter(adapter);
+                break;
+            case After:
+                List<Post> adapterPosts = adapter.getPosts();
+                int positionStart = adapterPosts.size();
+                int itemCount = 0;
+                for (Post post : posts) {
+                    if (!adapterPosts.contains(post)) {
+                        adapterPosts.add(post);
+                        ++itemCount;
+                    }
+                }
+                adapter.notifyItemRangeInserted(positionStart, itemCount);
+                llm.scrollToPosition(positionStart + 1);
+                break;
         }
-        ultimateRecyclerView.hideEmptyView();
 
         // TODO temp fix
         thread.setPath(this.thread.getPath());
@@ -159,36 +170,10 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
     public void loadMore(int itemsCount, final int maxLastVisiblePosition) {
         if (thread.hasNextPage()) {
             ultimateRecyclerView.addOnItemTouchListener(disabler);        // disables scolling
-
             ultimateRecyclerView.showEmptyView();
-            Call<Thread> calls = RestClient.getService().getThread(thread.getPath(), thread.getPageNum() + 1);
-            calls.enqueue(new Callback<Thread>() {
-                @Override
-                public void onResponse(Response<Thread> response, Retrofit retrofit) {
-                    if (response.isSuccess()) {
-                        onThreadLoaded(response.body());
-                        llm.scrollToPosition(maxLastVisiblePosition + 1);
-                        ultimateRecyclerView.removeOnItemTouchListener(disabler);        // disables scolling
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Fail to retrieve posts", Toast.LENGTH_SHORT).show();
-                        ultimateRecyclerView.showEmptyView();
-                    }
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                    t.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Fail to retrieve posts", Toast.LENGTH_SHORT).show();
-                    ultimateRecyclerView.hideEmptyView();
-                }
-            });
+            Call<Thread> call = RestClient.getService().getThread(thread.getPath(), thread.getPageNum() + 1);
+            call.enqueue(new LoadThreadCallback(Insert.After));
         }
-    }
-
-    public void onThreadRefresh() {
-        adapter = null;
-        thread.setPageNum(1);
-        onThreadSelected(thread);
     }
 
     @Override
@@ -218,5 +203,48 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
                 Toast.makeText(ThreadActivity.this, "Failed to send reply", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public void onRefresh() {
+        if (thread.getPageNum() == 1) {
+            onThreadSelected(thread);
+        } else {
+            ultimateRecyclerView.addOnItemTouchListener(disabler);        // disables scolling
+            ultimateRecyclerView.showEmptyView();
+            Call<Thread> call = RestClient.getService().getThread(thread.getPath(), thread.getPageNum() - 1);
+            call.enqueue(new LoadThreadCallback(Insert.Before));
+        }
+    }
+
+    private class LoadThreadCallback implements Callback<Thread> {
+        private final Insert insert;
+
+        private LoadThreadCallback(Insert insert) {
+            this.insert = insert;
+        }
+
+        @Override
+        public void onResponse(Response<Thread> response, Retrofit retrofit) {
+            if (response.isSuccess()) {
+                onThreadLoaded(response.body(), insert);
+            } else {
+                Toast.makeText(getApplicationContext(), "Fail to retrieve posts", Toast.LENGTH_SHORT).show();
+            }
+            ultimateRecyclerView.hideEmptyView();
+            ultimateRecyclerView.removeOnItemTouchListener(disabler);        // disables scolling
+        }
+
+        @Override
+        public void onFailure(Throwable t) {
+            t.printStackTrace();
+            Toast.makeText(getApplicationContext(), "Fail to retrieve posts", Toast.LENGTH_SHORT).show();
+            ultimateRecyclerView.hideEmptyView();
+            ultimateRecyclerView.removeOnItemTouchListener(disabler);        // disables scolling
+        }
+    }
+
+    private enum Insert {
+        Before, New, After,
     }
 }

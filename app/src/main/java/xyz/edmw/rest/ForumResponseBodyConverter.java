@@ -14,6 +14,9 @@ import xyz.edmw.Forum;
 import xyz.edmw.topic.Topic;
 
 public class ForumResponseBodyConverter implements Converter<ResponseBody, Forum> {
+    // TODO fix this if user changes this value
+    private static final int responsesPerPage = 15;
+
     @Override
     public Forum convert(ResponseBody value) throws IOException {
         String html = value.string();
@@ -42,6 +45,11 @@ public class ForumResponseBodyConverter implements Converter<ResponseBody, Forum
             String startedBy = row.select("div.topic-info").first().text().trim();
             String id = row.attr("data-node-id");
 
+            String responses = row.select("div.posts-count").first().text().trim();
+            responses = responses.substring(0, responses.indexOf(" response"));
+            responses = responses.replace(",", "");
+            int numPages = (int) Math.ceil((double) Integer.parseInt(responses) / responsesPerPage);
+
             forum.addTopic(new Topic.Builder()
                     .id(id)
                     .title(title)
@@ -50,6 +58,7 @@ public class ForumResponseBodyConverter implements Converter<ResponseBody, Forum
                     .threadstarterAvatar(avatar)
                     .startedBy(startedBy)
                     .isSticky(isSticky)
+                    .numPages(numPages)
                     .build()
             );
         }

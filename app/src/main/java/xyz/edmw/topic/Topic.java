@@ -11,6 +11,7 @@ public class Topic implements Parcelable {
     private  String lastPost;
     private  String threadstarterAvatar;
     private  boolean isSticky;
+    private int numPages;
 
     private Topic() {
 
@@ -24,6 +25,7 @@ public class Topic implements Parcelable {
         lastPost = in.readString();
         threadstarterAvatar = in.readString();
         isSticky = in.readByte() != 0;
+        numPages = in.readInt();
     }
 
     public static final Creator<Topic> CREATOR = new Creator<Topic>() {
@@ -76,6 +78,7 @@ public class Topic implements Parcelable {
         dest.writeString(lastPost);
         dest.writeString(threadstarterAvatar);
         dest.writeByte((byte) (isSticky ? 1 : 0));
+        dest.writeInt(numPages);
     }
 
     @Override
@@ -92,6 +95,10 @@ public class Topic implements Parcelable {
     @Override
     public int hashCode() {
         return id.hashCode();
+    }
+
+    public int getNumPages() {
+        return numPages;
     }
 
     public static class Builder {
@@ -153,6 +160,7 @@ public class Topic implements Parcelable {
             topic.lastPost = lastPost;
             topic.threadstarterAvatar = threadstarterAvatar;
             topic.isSticky = isSticky;
+            topic.numPages = numPages;
             return topic;
         }
     }

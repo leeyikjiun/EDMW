@@ -1,6 +1,7 @@
 package xyz.edmw.topic;
 
 import android.content.Context;
+import android.support.v7.widget.CardView;
 import android.text.Html;
 import android.view.View;
 import android.widget.ImageView;
@@ -13,8 +14,11 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import xyz.edmw.R;
 import xyz.edmw.sharedpreferences.MainSharedPreferences;
+import xyz.edmw.thread.ThreadActivity;
 
 public class TopicViewHolder extends UltimateRecyclerviewViewHolder {
+    @Bind(R.id.card_view)
+    CardView cardView;
     @Bind(R.id.thread_title)
     TextView title;
     @Bind(R.id.thread_started_by)
@@ -39,6 +43,12 @@ public class TopicViewHolder extends UltimateRecyclerviewViewHolder {
     }
 
     public void setTopic(final Topic topic) {
+        cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ThreadActivity.startInstance(context, topic, 1);
+            }
+        });
         title.setText(topic.getTitle());
         startedBy.setText(topic.getStartedBy());
         lastPost.setText(Html.fromHtml(topic.getLastPost()));
@@ -60,7 +70,7 @@ public class TopicViewHolder extends UltimateRecyclerviewViewHolder {
         lastPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                ((MainActivity) context).onTopicSelected(topic, topic.getNumPages());
+                ThreadActivity.startInstance(context, topic, topic.getNumPages());
             }
         });
     }
