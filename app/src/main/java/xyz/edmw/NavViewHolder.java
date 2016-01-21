@@ -2,6 +2,7 @@ package xyz.edmw;
 
 import android.content.Context;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.TextView;
 
@@ -29,7 +30,7 @@ public class NavViewHolder {
         ButterKnife.bind(this, view);
     }
 
-    public void setUser(User user) {
+    public void setUser(@NonNull User user) {
         name.setText(user.getName());
 
         DraweeController controller = Fresco.newDraweeControllerBuilder()

@@ -200,7 +200,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         this.forum.setPageNum(forum.getPageNum());
         this.forum.hasNextPage(forum.hasNextPage());
-        navViewHolder.setUser(forum.getUser());
+
+        User user = forum.getUser();
+        if (user != null) {
+            navViewHolder.setUser(user);
+        }
     }
 
     @Override
