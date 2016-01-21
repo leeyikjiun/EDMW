@@ -28,6 +28,7 @@ import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
+import xyz.edmw.Insert;
 import xyz.edmw.R;
 import xyz.edmw.post.Post;
 import xyz.edmw.post.PostAdapter;
@@ -133,7 +134,7 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         }
     }
 
-    private void onThreadLoaded(Thread thread, Insert insert) {
+    private void onThreadLoaded(Thread thread, Insert insert, int maxLastVisiblePosition) {
         toolbar.setSubtitle("Page " + thread.getPageNum());
         List<Post> posts = thread.getPosts();
         switch (insert) {
@@ -157,7 +158,7 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
                     }
                 }
                 adapter.notifyItemRangeInserted(positionStart, itemCount);
-                llm.scrollToPosition(positionStart + 1);
+                llm.scrollToPosition(maxLastVisiblePosition + 1);
                 break;
         }
 
@@ -172,12 +173,13 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
             ultimateRecyclerView.addOnItemTouchListener(disabler);        // disables scolling
             ultimateRecyclerView.showEmptyView();
             Call<Thread> call = RestClient.getService().getThread(thread.getPath(), thread.getPageNum() + 1);
-            call.enqueue(new LoadThreadCallback(Insert.After));
+            call.enqueue(new LoadThreadCallback(Insert.After, maxLastVisiblePosition));
         }
     }
 
     @Override
-    public void onClick(View v) {
+    public void onClick(final View v) {
+        v.setEnabled(false);
         Call<Void> call = RestClient.getService().reply(
                 thread.getSecurityToken(),
                 thread.getChannelId(),
@@ -195,12 +197,14 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
                 } else {
                     Toast.makeText(ThreadActivity.this, "Failed to send reply", Toast.LENGTH_SHORT).show();
                 }
+                v.setEnabled(true);
             }
 
             @Override
             public void onFailure(Throwable t) {
                 t.printStackTrace();
                 Toast.makeText(ThreadActivity.this, "Failed to send reply", Toast.LENGTH_SHORT).show();
+                v.setEnabled(true);
             }
         });
     }
@@ -217,17 +221,27 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         }
     }
 
+    public void setQuote(String quote) {
+        message.setText(quote + "\n");
+    }
+
     private class LoadThreadCallback implements Callback<Thread> {
         private final Insert insert;
+        private int maxLastVisiblePosition;
 
         private LoadThreadCallback(Insert insert) {
             this.insert = insert;
         }
 
+        private LoadThreadCallback(Insert insert, int maxLastVisiblePosition) {
+            this.insert = insert;
+            this.maxLastVisiblePosition = maxLastVisiblePosition;
+        }
+
         @Override
         public void onResponse(Response<Thread> response, Retrofit retrofit) {
             if (response.isSuccess()) {
-                onThreadLoaded(response.body(), insert);
+                onThreadLoaded(response.body(), insert, maxLastVisiblePosition);
             } else {
                 Toast.makeText(getApplicationContext(), "Fail to retrieve posts", Toast.LENGTH_SHORT).show();
             }
@@ -242,9 +256,5 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
             ultimateRecyclerView.hideEmptyView();
             ultimateRecyclerView.removeOnItemTouchListener(disabler);        // disables scolling
         }
-    }
-
-    private enum Insert {
-        Before, New, After,
     }
 }

@@ -11,6 +11,7 @@ import java.io.IOException;
 
 import retrofit.Converter;
 import xyz.edmw.Forum;
+import xyz.edmw.User;
 import xyz.edmw.topic.Topic;
 
 public class ForumResponseBodyConverter implements Converter<ResponseBody, Forum> {
@@ -61,6 +62,14 @@ public class ForumResponseBodyConverter implements Converter<ResponseBody, Forum
                     .numPages(numPages)
                     .build()
             );
+        }
+
+        Element usernameMenu = doc.getElementById("lnkUsernameMenu");
+        if (usernameMenu != null) {
+            String username = usernameMenu.select("span.b-menu__username-label").first().text().trim();
+            String avatar = usernameMenu.select("img").first().attr("src");
+            User user = new User(username, avatar);
+            forum.setUser(user);
         }
 
         return forum;

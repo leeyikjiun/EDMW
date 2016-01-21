@@ -59,10 +59,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     // SharedPreferences
     public static MainSharedPreferences preferences;
+    private NavViewHolder navViewHolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // TODO hack to get fresco initialized
+        RestClient.getService();
+
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
@@ -78,6 +83,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
 
         navigationView.setNavigationItemSelectedListener(this);
+        View view = navigationView.inflateHeaderView(R.layout.nav_header_main);
+        navViewHolder = new NavViewHolder(this, view);
 
         layoutManager = new LinearLayoutManager(getApplicationContext());
         ultimateRecyclerView.setLayoutManager(layoutManager);
@@ -175,38 +182,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toolbar.setTitle(title);
 
         ultimateRecyclerView.showEmptyView();
-        Call<Forum> calls = RestClient.getService().getForum(forum.getPath(), forum.getPageNum());
-        calls.enqueue(new Callback<Forum>() {
-            @Override
-            public void onResponse(Response<Forum> response, Retrofit retrofit) {
-                if (response.isSuccess()) {
-                    onForumLoaded(response.body());
-                } else {
-                    Toast.makeText(getApplicationContext(), "Fail to retrieve threads", Toast.LENGTH_SHORT).show();
-                    ultimateRecyclerView.hideEmptyView();
-                }
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                t.printStackTrace();
-                Toast.makeText(getApplicationContext(), "Fail to retrieve threads", Toast.LENGTH_SHORT).show();
-                ultimateRecyclerView.hideEmptyView();
-            }
-        });
+        Call<Forum> call = RestClient.getService().getForum(forum.getPath(), forum.getPageNum());
+        call.enqueue(new LoadForumCallback(Insert.New));
     }
 
-    private void onForumLoaded(Forum forum) {
+    private void onForumLoaded(Forum forum, Insert insert, int maxLastVisiblePosition) {
         toolbar.setSubtitle("Page " + forum.getPageNum());
-        if (adapter == null) {
-            adapter = new TopicAdapter(this, forum.getTopics());
-            ultimateRecyclerView.setAdapter(adapter);
-        } else {
-            adapter.insertTopics(forum.getTopics());
+        switch (insert) {
+            case After:
+                adapter.insertTopics(forum.getTopics());
+                layoutManager.scrollToPosition(maxLastVisiblePosition + 1);
+                break;
+            case New:
+                adapter = new TopicAdapter(this, forum.getTopics());
+                ultimateRecyclerView.setAdapter(adapter);
+                break;
         }
-        ultimateRecyclerView.hideEmptyView();
         this.forum.setPageNum(forum.getPageNum());
         this.forum.hasNextPage(forum.hasNextPage());
+        navViewHolder.setUser(forum.getUser());
     }
 
     @Override
@@ -214,28 +208,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (forum.hasNextPage()) {
             ultimateRecyclerView.addOnItemTouchListener(disabler);        // disables scolling
             ultimateRecyclerView.showEmptyView();
-
-            Call<Forum> calls = RestClient.getService().getForum(forum.getPath(), forum.getPageNum() + 1);
-            calls.enqueue(new Callback<Forum>() {
-                @Override
-                public void onResponse(Response<Forum> response, Retrofit retrofit) {
-                    if (response.isSuccess()) {
-                        onForumLoaded(response.body());
-                        layoutManager.scrollToPosition(maxLastVisiblePosition + 1);
-                        ultimateRecyclerView.removeOnItemTouchListener(disabler);     // scrolling is enabled again
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Fail to retrieve threads", Toast.LENGTH_SHORT).show();
-                        ultimateRecyclerView.hideEmptyView();
-                    }
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                    t.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Fail to retrieve threads", Toast.LENGTH_SHORT).show();
-                    ultimateRecyclerView.hideEmptyView();
-                }
-            });
+            Call<Forum> call = RestClient.getService().getForum(forum.getPath(), forum.getPageNum() + 1);
+            call.enqueue(new LoadForumCallback(Insert.After, maxLastVisiblePosition));
         }
     }
 
@@ -313,6 +287,39 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     break;
                 }
             }
+        }
+    }
+
+    private class LoadForumCallback implements Callback<Forum> {
+        private final Insert insert;
+        private int maxLastVisiblePosition;
+
+        private LoadForumCallback(Insert insert) {
+            this.insert = insert;
+        }
+
+        private LoadForumCallback(Insert insert, int maxLastVisiblePosition) {
+            this.insert = insert;
+            this.maxLastVisiblePosition = maxLastVisiblePosition;
+        }
+
+        @Override
+        public void onResponse(Response<Forum> response, Retrofit retrofit) {
+            if (response.isSuccess()) {
+                onForumLoaded(response.body(), insert, maxLastVisiblePosition);
+            } else {
+                Toast.makeText(getApplicationContext(), "Fail to retrieve threads", Toast.LENGTH_SHORT).show();
+            }
+            ultimateRecyclerView.hideEmptyView();
+            ultimateRecyclerView.removeOnItemTouchListener(disabler);
+        }
+
+        @Override
+        public void onFailure(Throwable t) {
+            t.printStackTrace();
+            Toast.makeText(getApplicationContext(), "Fail to retrieve threads", Toast.LENGTH_SHORT).show();
+            ultimateRecyclerView.hideEmptyView();
+            ultimateRecyclerView.removeOnItemTouchListener(disabler);
         }
     }
 }

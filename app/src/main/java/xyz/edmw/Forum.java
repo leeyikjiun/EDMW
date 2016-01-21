@@ -37,6 +37,7 @@ public class Forum {
     private int pageNum = 1;
     private boolean hasNextPage;
     private List<Topic> topics;
+    private User user;
 
     public void clear() {
         pageNum = 1;
@@ -84,6 +85,14 @@ public class Forum {
 
     public void hasNextPage(boolean hasNextPage) {
         this.hasNextPage = hasNextPage;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     public static class Builder {

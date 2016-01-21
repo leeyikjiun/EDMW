@@ -53,6 +53,10 @@ public class Post {
         return id.hashCode();
     }
 
+    public String getId() {
+        return id;
+    }
+
     public static class Builder {
         private String id;
         private String author;
