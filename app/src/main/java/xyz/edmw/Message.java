@@ -128,6 +128,11 @@ public class Message {
                 // fall through
             case "a":
                 Log.i("a", element.outerHtml());
+                Element img = element.select("img").first();
+                if (img != null) {
+                    setImage(img.attr("src"));
+                    break;
+                }
             default:
                 TextView view = new TextView(context);
                 view.setTextColor(context.getResources().getColor(R.color.font_color_black));
@@ -181,7 +186,7 @@ public class Message {
             GenericDraweeHierarchy hierarchy = new GenericDraweeHierarchyBuilder(context.getResources())
                     .setRetryImage(tapToRetry)
                     .setProgressBarImage(new ProgressBarDrawable())
-                    .setActualImageScaleType(ScalingUtils.ScaleType.CENTER_CROP)
+                    .setActualImageScaleType(ScalingUtils.ScaleType.FIT_CENTER)
                     .build();
             imageView.setHierarchy(hierarchy);
 
@@ -189,8 +194,7 @@ public class Message {
                 @Override
                 public void onClick(View v) {
                     FragmentManager fm = ((ThreadActivity) context).getSupportFragmentManager();
-                    ImageDialogFragment a = new ImageDialogFragment();
-                    a.newInstance(source);
+                    ImageDialogFragment a = ImageDialogFragment.newInstance(source);
                     a.show(fm, "dialog_image");
                 }
             });

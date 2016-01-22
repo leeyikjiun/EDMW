@@ -25,14 +25,14 @@ public class ImageDialogFragment extends DialogFragment {
     @Bind(R.id.progressBar)
     ProgressBar progressBar;
 
-    public static String source;
-
-    public static final String tag = "ImageDialogFragment";
+    private static final String tag = "ImageDialogFragment";
+    private static final String ARG_SOURCE = "arg_source";
 
     public static ImageDialogFragment newInstance(String source) {
         ImageDialogFragment fragment = new ImageDialogFragment();
-
-        fragment.setSource(source);
+        Bundle args = new Bundle();
+        args.putString(ARG_SOURCE, source);
+        fragment.setArguments(args);
         return fragment;
     }
 
@@ -58,34 +58,22 @@ public class ImageDialogFragment extends DialogFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        String source = getSource();
-        System.out.println(source);
+
+        Bundle args = getArguments();
+        String source = args.getString(ARG_SOURCE);
         imageView.setAdjustViewBounds(true);
-        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
         Ion.with(imageView)
                 .animateGif(AnimateGifMode.ANIMATE)
                 .error(R.drawable.ic_error)
                 .load(source)
                 .setCallback(new FutureCallback<ImageView>() {
-
                     @SuppressLint("NewApi")
                     @Override
-                    public void onCompleted(Exception arg0,
-                                            ImageView arg1) {
-
+                    public void onCompleted(Exception e, ImageView result) {
                         progressBar.setVisibility(View.GONE);
                     }
                 });
-
-        imageView.setZoom(1, 1, 1, ImageView.ScaleType.FIT_CENTER);
-    }
-
-    public static String getSource() {
-        return source;
-    }
-
-    public static void setSource(String source) {
-        ImageDialogFragment.source = source;
     }
 }
