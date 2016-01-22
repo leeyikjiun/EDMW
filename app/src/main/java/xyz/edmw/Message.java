@@ -94,6 +94,11 @@ public class Message {
                 if(MainSharedPreferences.getLoadImageAutomatically())
                     setImage(source);
                 break;
+            case "iframe":
+                String videoId = element.attr("src");
+                videoId = videoId.substring(videoId.lastIndexOf("/") + 1);
+                setYoutube(videoId);
+                break;
             case "div":
                 String className = element.className();
                 if (className.equals("bbcode_container")) {
@@ -116,7 +121,7 @@ public class Message {
                     this.message.addView(view);
                     break;
                 } else if (className.equals("videocontainer")) {
-                    final String videoId = element.select("a.video-frame").first().attr("data-vcode");
+                    videoId = element.select("a.video-frame").first().attr("data-vcode");
                     setYoutube(videoId);
                     break;
                 }

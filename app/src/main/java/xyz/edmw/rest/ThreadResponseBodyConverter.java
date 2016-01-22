@@ -11,6 +11,7 @@ import java.io.IOException;
 
 import retrofit.Converter;
 import xyz.edmw.post.Post;
+import xyz.edmw.thread.ReplyForm;
 import xyz.edmw.thread.Thread;
 
 public class ThreadResponseBodyConverter implements Converter<ResponseBody, Thread> {
@@ -30,11 +31,10 @@ public class ThreadResponseBodyConverter implements Converter<ResponseBody, Thre
             String securityToken = form.select("input[name=securitytoken]").first().val();
             String channelId = form.select("input[name=channelid]").first().val();
             String parentId = form.select("input[name=parentid]").first().val();
+            ReplyForm replyForm = new ReplyForm(securityToken, Integer.parseInt(channelId), Integer.parseInt(parentId));
 
             builder = builder
-                    .securityToken(securityToken)
-                    .channelId(Integer.parseInt(channelId))
-                    .parentId(Integer.parseInt(parentId));
+                    .replyForm(replyForm);
         }
 
         Element primaryPage = threadViewTab.select("a.primary.page").first();

@@ -204,6 +204,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         User user = forum.getUser();
         if (user != null) {
             navViewHolder.setUser(user);
+            fab.setVisibility(View.VISIBLE);
+        } else {
+            fab.setVisibility(View.GONE);
         }
     }
 

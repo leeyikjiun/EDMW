@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.android.youtube.player.YouTubePlayer;
@@ -41,6 +42,8 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
     Toolbar toolbar;
     @Bind(R.id.list)
     UltimateRecyclerView ultimateRecyclerView;
+    @Bind(R.id.reply_bar)
+    RelativeLayout replyLayout;
     @Bind(R.id.reply_message)
     EditText message;
     @Bind(R.id.reply)
@@ -165,6 +168,12 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         // TODO temp fix
         thread.setPath(this.thread.getPath());
         this.thread = thread;
+
+        if (thread.getReplyForm() == null) {
+            replyLayout.setVisibility(View.GONE);
+        } else {
+            replyLayout.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -180,17 +189,20 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
     @Override
     public void onClick(final View v) {
         v.setEnabled(false);
+        ReplyForm replyForm = thread.getReplyForm();
+        String message = this.message.getText().toString().trim();
+        message.replace("\n", "<br />");
         Call<Void> call = RestClient.getService().reply(
-                thread.getSecurityToken(),
-                thread.getChannelId(),
-                thread.getParentId(),
-                message.getText().toString().trim()
+                replyForm.getSecurityToken(),
+                replyForm.getChannelId(),
+                replyForm.getParentId(),
+                message
         );
         call.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Response<Void> response, Retrofit retrofit) {
                 if (response.isSuccess()) {
-                    message.setText("");
+                    ThreadActivity.this.message.setText("");
                     InputMethodManager inputMethodManager = (InputMethodManager)  getSystemService(Activity.INPUT_METHOD_SERVICE);
                     inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
                     onThreadSelected(thread);

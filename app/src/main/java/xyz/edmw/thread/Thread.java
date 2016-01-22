@@ -12,12 +12,10 @@ import xyz.edmw.post.Post;
 public class Thread implements Parcelable {
     private String path;
     private String title;
-    private String securityToken;
-    private int channelId;
-    private int parentId;
     private int pageNum;
     private boolean hasNextPage;
     private List<Post> posts;
+    private ReplyForm replyForm;
 
     private Thread() {
 
@@ -26,11 +24,9 @@ public class Thread implements Parcelable {
     protected Thread(Parcel in) {
         path = in.readString();
         title = in.readString();
-        securityToken = in.readString();
-        channelId = in.readInt();
-        parentId = in.readInt();
         pageNum = in.readInt();
         hasNextPage = in.readByte() != 0;
+        replyForm = in.readParcelable(ReplyForm.class.getClassLoader());
     }
 
     public static final Creator<Thread> CREATOR = new Creator<Thread>() {
@@ -56,18 +52,6 @@ public class Thread implements Parcelable {
         return posts == null ? Collections.<Post>emptyList() : posts;
     }
 
-    public String getSecurityToken() {
-        return securityToken;
-    }
-
-    public int getChannelId() {
-        return channelId;
-    }
-
-    public int getParentId() {
-        return parentId;
-    }
-
     @Override
     public int describeContents() {
         return 0;
@@ -77,11 +61,9 @@ public class Thread implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(path);
         dest.writeString(title);
-        dest.writeString(securityToken);
-        dest.writeInt(channelId);
-        dest.writeInt(parentId);
         dest.writeInt(pageNum);
         dest.writeByte((byte) (hasNextPage ? 1 : 0));
+        dest.writeParcelable(replyForm, flags);
     }
 
     public String getTitle() {
@@ -108,14 +90,16 @@ public class Thread implements Parcelable {
         this.path = path;
     }
 
+    public ReplyForm getReplyForm() {
+        return replyForm;
+    }
+
     public static class Builder {
         private String path;
         private String title;
-        private String securityToken;
-        private int channelId;
-        private int parentId;
         private int pageNum = 1;
         private boolean hasNextPage;
+        private ReplyForm replyForm;
 
         public Builder title(String title) {
             this.title = title;
@@ -127,18 +111,8 @@ public class Thread implements Parcelable {
             return this;
         }
 
-        public Builder securityToken(String securityToken) {
-            this.securityToken = securityToken;
-            return this;
-        }
-
-        public Builder channelId(int channelId) {
-            this.channelId = channelId;
-            return this;
-        }
-
-        public Builder parentId(int parentId) {
-            this.parentId = parentId;
+        public Builder replyForm(ReplyForm replyForm) {
+            this.replyForm = replyForm;
             return this;
         }
 
@@ -156,11 +130,9 @@ public class Thread implements Parcelable {
             Thread thread = new Thread();
             thread.path = path;
             thread.title = title;
-            thread.securityToken = securityToken;
-            thread.channelId = channelId;
-            thread.parentId = parentId;
             thread.pageNum = pageNum;
             thread.hasNextPage = hasNextPage;
+            thread.replyForm = replyForm;
             return thread;
         }
     }

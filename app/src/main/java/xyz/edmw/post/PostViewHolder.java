@@ -13,6 +13,11 @@ import android.widget.TextView;
 
 import com.koushikdutta.ion.Ion;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import xyz.edmw.Message;
@@ -35,14 +40,12 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     TextView userTitle;
 
     private final Context context;
-    private PopupMenu popup;
 
     public PostViewHolder(Context context, View view, boolean isItem) {
         super(view);
         this.context = context;
         if (isItem) {
             ButterKnife.bind(this, view);
-            popup = new PopupMenu(context, view);
         }
     }
 
@@ -66,12 +69,14 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         postNum.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                PopupMenu popup = new PopupMenu(context, v);
                 popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
                         switch (item.getItemId()) {
                             case R.id.action_quote:
-                                String quote = String.format("[QUOTE=%s;n%s]%s[/QUOTE]", post.getAuthor(), post.getId(), post.getMessage());
+                                String message = getBBCode(post.getMessage());
+                                String quote = String.format("[QUOTE=%s;n%s]%s[/QUOTE]", post.getAuthor(), post.getId(), message);
                                 ((ThreadActivity) context).setQuote(quote);
                                 return true;
                             default:
@@ -84,5 +89,33 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                 popup.show();
             }
         });
+    }
+
+    private String getBBCode(String html) {
+        StringBuilder sb = new StringBuilder();
+        Element body = Jsoup.parse(html).body();
+        for (Node node : body.childNodes()) {
+            if (node instanceof TextNode) {
+                sb.append(((TextNode) node).text().trim());
+            } else if (node instanceof Element) {
+                sb.append(getBBCode((Element) node));
+            }
+        }
+        return sb.toString();
+    }
+
+    private String getBBCode(Element element) {
+        switch (element.tagName()) {
+            case "a":
+                return String.format("[url=%s]%s[/url]", element.attr("href"), element.text().trim());
+            case "img":
+                return String.format("[img]%s[/img]", element.attr("src"));
+            case "br":
+                return "\n";
+            case "div":
+                // fall through
+            default:
+                return "";
+        }
     }
 }
