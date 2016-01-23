@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -141,6 +142,7 @@ public class Message {
                 view.setTextColor(context.getResources().getColor(R.color.font_color_black));
                 view.setMovementMethod(LinkMovementMethod.getInstance());
                 view.setText(Html.fromHtml(element.html()));
+                Linkify.addLinks(view, Linkify.ALL);
                 message.addView(view);
         }
     }
@@ -205,7 +207,7 @@ public class Message {
     }
 
     // TODO replace with developer key
-    private static final String DeveloperKey = null;
+    private static final String DeveloperKey = "AIzaSyBa8vRHJ34uGbfLLOoHOlQmXuJXDFqpN2U";
     private void setYoutube(final String videoID) {
         YouTubePlayerSupportFragment youTubePlayerSupportFragment = YouTubePlayerSupportFragment.newInstance();
         youTubePlayerSupportFragment.initialize(DeveloperKey, new YouTubePlayer.OnInitializedListener() {

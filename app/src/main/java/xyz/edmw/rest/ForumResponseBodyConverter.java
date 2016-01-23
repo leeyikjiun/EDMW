@@ -67,7 +67,7 @@ public class ForumResponseBodyConverter implements Converter<ResponseBody, Forum
         Element usernameMenu = doc.getElementById("lnkUsernameMenu");
         if (usernameMenu != null) {
             String username = usernameMenu.select("span.b-menu__username-label").first().text().trim();
-            String avatar = usernameMenu.select("img").first().attr("src");
+            String avatar = usernameMenu.select("img").first().attr("src").replace("thumb=1", "thumb=0");
             Elements anchors = doc.select("ul.submenu a");
             String profile = anchors.get(0).attr("href");
             String recentPosts = anchors.get(1).attr("href");

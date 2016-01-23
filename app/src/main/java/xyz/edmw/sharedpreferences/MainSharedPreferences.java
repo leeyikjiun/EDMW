@@ -2,9 +2,6 @@ package xyz.edmw.sharedpreferences;
 
 import android.content.SharedPreferences;
 
-/**
- * Created by Jun Qin on 10/1/2016.
- */
 public class MainSharedPreferences {
 
     private SharedPreferences preferences;
