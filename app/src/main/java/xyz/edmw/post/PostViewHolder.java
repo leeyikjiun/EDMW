@@ -4,6 +4,8 @@ import android.content.Context;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -77,7 +79,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                             case R.id.action_quote:
                                 String message = getBBCode(post.getMessage());
                                 String quote = String.format("[QUOTE=%s;n%s]%s[/QUOTE]", post.getAuthor(), post.getId(), message);
-                                ((ThreadActivity) context).setQuote(quote);
+                                ((ThreadActivity) context).addQuote(quote);
                                 return true;
                             default:
                                 return false;
@@ -96,7 +98,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         Element body = Jsoup.parse(html).body();
         for (Node node : body.childNodes()) {
             if (node instanceof TextNode) {
-                sb.append(((TextNode) node).text().trim());
+                sb.append(((TextNode) node).text());
             } else if (node instanceof Element) {
                 sb.append(getBBCode((Element) node));
             }
@@ -108,10 +110,39 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         switch (element.tagName()) {
             case "a":
                 return String.format("[url=%s]%s[/url]", element.attr("href"), element.text().trim());
+            case "b":
+                return String.format("[b]%s[/b]", element.text().trim());
+            case "i":
+                return String.format("[i]%s[/i]", element.text().trim());
             case "img":
                 return String.format("[img]%s[/img]", element.attr("src"));
             case "br":
-                return "\n";
+                return System.getProperty("line.separator");
+            case "font":
+                String face = element.attr("face");
+                if (!TextUtils.isEmpty(face)) {
+                    String text = element.children().isEmpty() ? element.text().trim() : getBBCode(element.child(0));
+                    return String.format("[font=%s]%s[/font]", face, text);
+                }
+                String color = element.attr("color");
+                if (!TextUtils.isEmpty(color)) {
+                    String text = element.children().isEmpty() ? element.text().trim() : getBBCode(element.child(0));
+                    return String.format("[color=%s]%s[/color]", color, text);
+                }
+            case "span":
+                String style = element.attr("style");
+                if (TextUtils.isEmpty(style)) {
+                    Log.d("span", element.outerHtml());
+                    return "";
+                }
+
+                String[] tokens = style.split(":");
+                if (tokens.length == 2 && tokens[0].equals("font-size")) {
+                    String text = element.children().isEmpty() ? element.text().trim() : getBBCode(element.child(0));
+                    return String.format("[size=%s]%s[/size]", tokens[1], text);
+                }
+
+                Log.d("span", element.outerHtml());
             case "div":
                 // fall through
             default:

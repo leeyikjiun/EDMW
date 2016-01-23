@@ -54,7 +54,9 @@ public class PostAdapter extends UltimateViewAdapter<PostViewHolder> {
 
     @Override
     public void onBindViewHolder(PostViewHolder viewHolder, int position) {
-        viewHolder.setPost(posts.get(position));
+        if (position < posts.size()) {
+            viewHolder.setPost(posts.get(position));
+        }
     }
 
     public List<Post> getPosts() {
