@@ -133,6 +133,9 @@ public class Message {
                     setImage(img.attr("src"));
                     break;
                 }
+            case "b":
+                // TODO take care of bold and font size
+                // <b><span style="font-size:72px">親, 你们喜欢玩3P 吗？<br /> 不会的话，我愿意教你们玩 <img src="http://www.edmw.xyz/core/images/smilies/smilies-extra/bye.gif" border="0" alt="" title="Bye" smilieid="74" class="inlineimg" /><img src="http://www.edmw.xyz/core/images/smilies/smilies-extra/bouncy.gif" border="0" alt="" title="Bouncy" smilieid="73" class="inlineimg" /><img src="http://www.edmw.xyz/core/images/smilies/smilies-extra/bouncy.gif" border="0" alt="" title="Bouncy" smilieid="73" class="inlineimg" /></span></b>
             default:
                 TextView view = new TextView(context);
                 view.setTextColor(context.getResources().getColor(R.color.font_color_black));

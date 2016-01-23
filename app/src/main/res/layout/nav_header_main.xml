@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="@dimen/nav_header_height"
+    xmlns:fresco="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/background_poly"
     android:gravity="bottom"
     android:orientation="vertical"
@@ -15,7 +16,7 @@
         android:id="@+id/member_avatar"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:src="@drawable/temp_avatar" />
+        fresco:placeholderImage="@drawable/temp_avatar" />
 
     <TextView
         android:id="@+id/member_name"

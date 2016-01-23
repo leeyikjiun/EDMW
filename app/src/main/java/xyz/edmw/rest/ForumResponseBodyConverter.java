@@ -68,8 +68,16 @@ public class ForumResponseBodyConverter implements Converter<ResponseBody, Forum
         if (usernameMenu != null) {
             String username = usernameMenu.select("span.b-menu__username-label").first().text().trim();
             String avatar = usernameMenu.select("img").first().attr("src");
-            User user = new User(username, avatar);
-            forum.setUser(user);
+            Elements anchors = doc.select("ul.submenu a");
+            String profile = anchors.get(0).attr("href");
+            String recentPosts = anchors.get(1).attr("href");
+            forum.setUser(new User.Builder()
+                    .name(username)
+                    .avatar(avatar)
+                    .profile(profile)
+                    .recentPosts(recentPosts)
+                    .build()
+            );
         }
 
         return forum;

@@ -30,6 +30,7 @@ import retrofit.Call;
 import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
+import xyz.edmw.navigation.NavViewHolder;
 import xyz.edmw.recyclerview.RecyclerViewDisabler;
 import xyz.edmw.rest.RestClient;
 import xyz.edmw.sharedpreferences.MainSharedPreferences;
@@ -51,14 +52,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final String tag = "MainActivity";
     private static final int MY_LOGIN_ACTIVITY = 1;
     private static final RecyclerView.OnItemTouchListener disabler = new RecyclerViewDisabler();
+
+    // SharedPreferences
+    public static MainSharedPreferences preferences;
+
     private String title;
     private Forum forum;
 
     private TopicAdapter adapter;
     private LinearLayoutManager layoutManager;
-
-    // SharedPreferences
-    public static MainSharedPreferences preferences;
     private NavViewHolder navViewHolder;
 
     @Override
@@ -82,9 +84,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        navigationView.setNavigationItemSelectedListener(this);
-        View view = navigationView.inflateHeaderView(R.layout.nav_header_main);
-        navViewHolder = new NavViewHolder(this, view);
+        navViewHolder = new NavViewHolder(this, navigationView);
 
         layoutManager = new LinearLayoutManager(getApplicationContext());
         ultimateRecyclerView.setLayoutManager(layoutManager);
@@ -145,7 +145,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case (R.id.nav_login):
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivityForResult(intent, MY_LOGIN_ACTIVITY);
-
                 break;
             case (R.id.nav_edmw):
                 forum = Forum.edmw;
@@ -198,12 +197,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 ultimateRecyclerView.setAdapter(adapter);
                 break;
         }
-        this.forum.setPageNum(forum.getPageNum());
-        this.forum.hasNextPage(forum.hasNextPage());
+
+        forum.setPath(this.forum.getPath());
+        this.forum = forum;
 
         User user = forum.getUser();
+        navViewHolder.setUser(user);
         if (user != null) {
-            navViewHolder.setUser(user);
             fab.setVisibility(View.VISIBLE);
         } else {
             fab.setVisibility(View.GONE);

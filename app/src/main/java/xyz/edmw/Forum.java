@@ -95,6 +95,10 @@ public class Forum {
         return user;
     }
 
+    public void setPath(String path) {
+        this.path = path;
+    }
+
     public static class Builder {
         private String title;
         private String path;
