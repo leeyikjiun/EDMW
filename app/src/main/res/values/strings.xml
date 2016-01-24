@@ -22,4 +22,5 @@
     <string name="title_thread_activity">Thread</string>
     <string name="title_login_activity">Login</string>
     <string name="title_topic_activity">Topic</string>
+    <string name="login">Please Log in</string>
 </resources>

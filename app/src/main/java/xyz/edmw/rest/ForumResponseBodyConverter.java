@@ -1,5 +1,7 @@
 package xyz.edmw.rest;
 
+import android.util.Log;
+
 import com.squareup.okhttp.ResponseBody;
 
 import org.jsoup.Jsoup;
@@ -42,7 +44,7 @@ public class ForumResponseBodyConverter implements Converter<ResponseBody, Forum
             String title = anchor.text().trim();
             String path = anchor.attr("href").substring(RestClient.baseUrl.length());
             String lastPost = row.select("td.cell-lastpost").first().text().trim();
-            String avatar = row.select("div.topic-avatar").first().getElementsByTag("img").attr("src");
+            String avatar = row.select("div.topic-avatar").first().getElementsByTag("img").attr("src").replace("thumb=1", "thumb=0");
             String startedBy = row.select("div.topic-info").first().text().trim();
             String id = row.attr("data-node-id");
 

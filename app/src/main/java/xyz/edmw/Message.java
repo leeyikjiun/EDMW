@@ -168,7 +168,7 @@ public class Message {
                                             imageView.getViewTreeObserver().removeOnPreDrawListener(this);
                                             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
                                             imageView.setAdjustViewBounds(true);
-                                            imageView.getLayoutParams().width = imageView.getDrawable().getIntrinsicWidth() * 4;
+                                            imageView.getLayoutParams().width = imageView.getDrawable().getIntrinsicWidth() * 3;
                                             return true;
                                         }
                                     });

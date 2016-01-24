@@ -14,9 +14,10 @@
             android:layout_height="wrap_content">
 
             <ImageView
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:id="@+id/post_avatar"/>
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:id="@+id/post_avatar"
+                android:background="@drawable/image_view_background"/>
 
             <TextView
                 android:id="@+id/post_author"
