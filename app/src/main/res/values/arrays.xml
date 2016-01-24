@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="pref_themeIds_entries">
+        <item>Default</item>
+        <item>Black</item>
+    </string-array>
+    <string-array name="pref_themeIds_values">
+        <item>Default</item>
+        <item>Black</item>
+    </string-array>
+    <string-array name="pref_downloadImages_entries_values">
+        <item>Automatically</item>
+        <item>Only on WiFi</item>
+        <item>Never</item>
+    </string-array>
+</resources>

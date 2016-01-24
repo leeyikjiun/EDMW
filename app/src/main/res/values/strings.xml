@@ -22,4 +22,9 @@
     <string name="title_thread_activity">Thread</string>
     <string name="title_login_activity">Login</string>
     <string name="title_topic_activity">Topic</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="pref_themeId">Theme</string>
+    <string name="pref_themeIds_default">Default</string>
+    <string name="pref_downloadImage">Download Image</string>
+    <string name="pref_downloadImages_default">Only on WiFi</string>
 </resources>

@@ -3,6 +3,7 @@ package xyz.edmw;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -22,6 +23,7 @@ import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
 import xyz.edmw.rest.RestClient;
+import xyz.edmw.sharedpreferences.MainSharedPreferences;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String tag = "LoginActivity";
@@ -36,6 +38,7 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(new MainSharedPreferences(PreferenceManager.getDefaultSharedPreferences(this)).getThemeId());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_login);
         ButterKnife.bind(this);

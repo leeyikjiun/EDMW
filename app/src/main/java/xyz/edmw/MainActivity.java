@@ -58,13 +58,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private String title;
     private Forum forum;
-
     private TopicAdapter adapter;
     private LinearLayoutManager layoutManager;
     private NavViewHolder navViewHolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        preferences = new MainSharedPreferences(PreferenceManager.getDefaultSharedPreferences(this));
+        setTheme(preferences.getThemeId());
         super.onCreate(savedInstanceState);
 
         // TODO hack to get fresco initialized
@@ -74,8 +75,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ButterKnife.bind(this);
 
         setSupportActionBar(toolbar);
-
-        preferences = new MainSharedPreferences(PreferenceManager.getDefaultSharedPreferences(this));
 
         // TODO CHECK IF USER IS LOGIN, SET AVATAR, USERNAME, MEMBER TITLE, HIDE LOGIN BUTTON (MIGHT WANT TO USE SHAREDPREFERENCES)
 
@@ -88,8 +87,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         layoutManager = new LinearLayoutManager(getApplicationContext());
         ultimateRecyclerView.setLayoutManager(layoutManager);
-
-        ultimateRecyclerView.addItemDividerDecoration(getApplicationContext());
         ultimateRecyclerView.enableLoadmore();
         ultimateRecyclerView.setOnLoadMoreListener(this);
         ultimateRecyclerView.setDefaultOnRefreshListener(this);
@@ -112,8 +109,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
     }
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -169,6 +164,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 forum.setPageNum(1);
                 adapter = null;
                 onForumSelected(forum);
+                break;
+            case R.id.nav_settings:
+                intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
                 break;
         }
 

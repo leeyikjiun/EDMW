@@ -73,7 +73,6 @@ public class Message {
 
     private void setTextNode(TextNode node) {
         TextView view = new TextView(context);
-        view.setTextColor(context.getResources().getColor(R.color.font_color_black));
         String text = node.text().trim();
         if (!text.isEmpty()) {
             view.setText(Html.fromHtml(text));
