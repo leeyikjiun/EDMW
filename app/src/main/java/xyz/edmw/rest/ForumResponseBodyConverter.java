@@ -30,7 +30,13 @@ public class ForumResponseBodyConverter implements Converter<ResponseBody, Forum
         Document doc = Jsoup.parse(html);
         Element topicTab = doc.getElementById("topic-tab");
 
-        int pageNum = Integer.parseInt(topicTab.select("a.primary.page").first().text().trim());
+        int pageNum;
+        try {
+            // Forum that has only 1 page will be catch by exception and set pageNum = 1
+            pageNum = Integer.parseInt(topicTab.select("a.primary.page").first().text().trim());
+        } catch (NullPointerException e) {
+            pageNum = 1;
+        }
         boolean hasNextPage = !topicTab.select("a.js-pagenav-next-button").first().attr("data-page").equals("0");
         Forum forum = new Forum.Builder()
                 .pageNum(pageNum)

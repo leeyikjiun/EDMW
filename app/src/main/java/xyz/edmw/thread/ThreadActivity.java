@@ -191,34 +191,39 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         v.setEnabled(false);
         ReplyForm replyForm = thread.getReplyForm();
         String message = this.message.getText().toString().trim();
-        message.replace("\n", "<br />");
-        Call<Void> call = RestClient.getService().reply(
-                replyForm.getSecurityToken(),
-                replyForm.getChannelId(),
-                replyForm.getParentId(),
-                message
-        );
-        call.enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Response<Void> response, Retrofit retrofit) {
-                if (response.isSuccess()) {
-                    ThreadActivity.this.message.setText("");
-                    InputMethodManager inputMethodManager = (InputMethodManager)  getSystemService(Activity.INPUT_METHOD_SERVICE);
-                    inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-                    onThreadSelected(thread);
-                } else {
-                    Toast.makeText(ThreadActivity.this, "Failed to send reply", Toast.LENGTH_SHORT).show();
+        if(!message.isEmpty()) {
+            message.replace("\n", "<br />");
+            Call<Void> call = RestClient.getService().reply(
+                    replyForm.getSecurityToken(),
+                    replyForm.getChannelId(),
+                    replyForm.getParentId(),
+                    message
+            );
+            call.enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Response<Void> response, Retrofit retrofit) {
+                    if (response.isSuccess()) {
+                        ThreadActivity.this.message.setText("");
+                        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+                        inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+                        onThreadSelected(thread);
+                    } else {
+                        Toast.makeText(ThreadActivity.this, "Failed to send reply", Toast.LENGTH_SHORT).show();
+                    }
+                    v.setEnabled(true);
                 }
-                v.setEnabled(true);
-            }
 
-            @Override
-            public void onFailure(Throwable t) {
-                t.printStackTrace();
-                Toast.makeText(ThreadActivity.this, "Failed to send reply", Toast.LENGTH_SHORT).show();
-                v.setEnabled(true);
-            }
-        });
+                @Override
+                public void onFailure(Throwable t) {
+                    t.printStackTrace();
+                    Toast.makeText(ThreadActivity.this, "Failed to send reply", Toast.LENGTH_SHORT).show();
+                    v.setEnabled(true);
+                }
+            });
+        } else {
+            Toast.makeText(ThreadActivity.this, "Please write something", Toast.LENGTH_SHORT).show();
+            v.setEnabled(true);
+        }
     }
 
     @Override
