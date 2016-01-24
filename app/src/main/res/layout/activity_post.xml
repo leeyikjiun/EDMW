@@ -38,11 +38,17 @@
                 android:layout_alignParentTop="true"
                 android:layout_above="@+id/reply_bar"/>
 
+
             <RelativeLayout
                 android:id="@+id/reply_bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true">
+
+                <View android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/font_color_gray"
+                    android:id="@+id/line"/>
 
                 <EditText
                     android:id="@+id/reply_message"

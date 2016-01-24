@@ -41,13 +41,13 @@
         android:text="Android Studio"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 -->
-        <TextView
+    <TextView
         android:id="@+id/member_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="android.studio@android.com"
-        android:layout_below="@+id/member_name"
-        android:layout_alignLeft="@+id/member_name"
-        android:layout_alignStart="@+id/member_name" />
+        android:layout_below="@id/member_name"
+        android:layout_alignLeft="@id/member_name"
+        android:layout_alignStart="@id/member_name" />
 
 </RelativeLayout>
