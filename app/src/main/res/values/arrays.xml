@@ -9,7 +9,7 @@
         <item>Black</item>
     </string-array>
     <string-array name="pref_downloadImages_entries_values">
-        <item>Automatically</item>
+        <item>Always</item>
         <item>Only on WiFi</item>
         <item>Never</item>
     </string-array>

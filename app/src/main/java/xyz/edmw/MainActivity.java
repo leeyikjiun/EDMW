@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -33,7 +32,8 @@ import retrofit.Retrofit;
 import xyz.edmw.navigation.NavViewHolder;
 import xyz.edmw.recyclerview.RecyclerViewDisabler;
 import xyz.edmw.rest.RestClient;
-import xyz.edmw.sharedpreferences.MainSharedPreferences;
+import xyz.edmw.settings.MainSharedPreferences;
+import xyz.edmw.settings.SettingsActivity;
 import xyz.edmw.topic.TopicActivity;
 import xyz.edmw.topic.TopicAdapter;
 
@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        preferences = new MainSharedPreferences(PreferenceManager.getDefaultSharedPreferences(this));
+        preferences = new MainSharedPreferences(this);
         setTheme(preferences.getThemeId());
         super.onCreate(savedInstanceState);
 
@@ -113,14 +113,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
-
-        MenuItem image_load_toggle = (MenuItem) menu.findItem(R.id.action_hide_image);
-        if (MainSharedPreferences.getLoadImageAutomatically()) {
-            image_load_toggle.setChecked(true);
-        } else {
-            image_load_toggle.setChecked(false);
-        }
-
         return true;
     }
 
@@ -253,23 +245,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch (item.getItemId()) {
             case R.id.action_refresh:
                 onRefresh();
-                return true;
-            case R.id.action_hide_image:
-
-                //Changing to disable
-                if (item.isChecked()) {
-                    item.setChecked(false);
-                    preferences.putBoolean("image_load_check", false);
-
-                    Toast.makeText(this, "Please restart the application", Toast.LENGTH_SHORT).show();
-                } else {
-                    //Changing to enable
-                    item.setChecked(true);
-                    preferences.putBoolean("image_load_check", true);
-
-                    Toast.makeText(this, "Please restart the application", Toast.LENGTH_SHORT).show();
-                }
-
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

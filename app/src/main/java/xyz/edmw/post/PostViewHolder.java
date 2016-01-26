@@ -1,6 +1,8 @@
 package xyz.edmw.post;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -24,7 +26,8 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import xyz.edmw.Message;
 import xyz.edmw.R;
-import xyz.edmw.sharedpreferences.MainSharedPreferences;
+import xyz.edmw.settings.DownloadImage;
+import xyz.edmw.settings.MainSharedPreferences;
 import xyz.edmw.thread.ThreadActivity;
 
 public class PostViewHolder extends RecyclerView.ViewHolder {
@@ -42,10 +45,13 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     TextView userTitle;
 
     private final Context context;
+    private final MainSharedPreferences preferences;
 
     public PostViewHolder(Context context, View view, boolean isItem) {
         super(view);
         this.context = context;
+        preferences = new MainSharedPreferences(context);
+
         if (isItem) {
             ButterKnife.bind(this, view);
         }
@@ -61,11 +67,21 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         Message message = new Message(context, this.message);
         message.setMessage(post.getMessage());
 
-        if (MainSharedPreferences.getLoadImageAutomatically()) {
-            authorAvatar.setVisibility(View.VISIBLE);
-            Ion.with(authorAvatar).load(post.getAuthorAvatar());
-        } else {
-            authorAvatar.setVisibility(View.GONE);
+        ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = connMgr.getActiveNetworkInfo();
+        DownloadImage downloadImage = preferences.getDownloadImage();
+        switch (downloadImage) {
+            case Never:
+                authorAvatar.setVisibility(View.GONE);
+                break;
+            case Wifi:
+                if (info == null && info.getType() != ConnectivityManager.TYPE_WIFI) {
+                    authorAvatar.setVisibility(View.GONE);
+                    break;
+                }
+            case Always:
+                authorAvatar.setVisibility(View.VISIBLE);
+                Ion.with(authorAvatar).load(post.getAuthorAvatar());
         }
 
         postNum.setOnClickListener(new View.OnClickListener() {

@@ -3,6 +3,8 @@ package xyz.edmw;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
@@ -39,7 +41,8 @@ import org.jsoup.nodes.TextNode;
 import xyz.edmw.image.ImageDialogFragment;
 import xyz.edmw.quote.Quote;
 import xyz.edmw.quote.QuoteViewHolder;
-import xyz.edmw.sharedpreferences.MainSharedPreferences;
+import xyz.edmw.settings.DownloadImage;
+import xyz.edmw.settings.MainSharedPreferences;
 import xyz.edmw.thread.ThreadActivity;
 
 public class Message {
@@ -47,10 +50,12 @@ public class Message {
     private final TextDrawable tapToRetry;
     private final Context context;
     private final LinearLayout message;
+    private final MainSharedPreferences preferences;
 
     public Message(Context context, LinearLayout message) {
         this.context = context;
         this.message = message;
+        preferences = new MainSharedPreferences(context);
 
         Resources resources = context.getResources();
         tapToRetry = new TextDrawable(resources, "Tap to retry.");
@@ -88,10 +93,7 @@ public class Message {
                 break;
             case "img":
                 String source = element.attr("src");
-
-                // Prevent image from loading
-                if(MainSharedPreferences.getLoadImageAutomatically())
-                    setImage(source);
+                        setImage(source);
                 break;
             case "iframe":
                 String videoId = element.attr("src");
@@ -145,6 +147,18 @@ public class Message {
     }
 
     private void setImage(final String source) {
+        ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = connMgr.getActiveNetworkInfo();
+        DownloadImage downloadImage = preferences.getDownloadImage();
+        switch (downloadImage) {
+            case Never:
+                return;
+            case Wifi:
+                if (info == null || info.getType() != ConnectivityManager.TYPE_WIFI) {
+                    return;
+                }
+        }
+
         if (source.contains("www.edmw.xyz/core/images/smilies")
                 || source.contains("www.hardwarezone.com.sg/img/forums/hwz/smilies")
                 || source.contains("forum.lowyat.net/style_emoticons/")

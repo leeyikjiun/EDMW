@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -36,7 +35,7 @@ import xyz.edmw.post.Post;
 import xyz.edmw.post.PostAdapter;
 import xyz.edmw.recyclerview.RecyclerViewDisabler;
 import xyz.edmw.rest.RestClient;
-import xyz.edmw.sharedpreferences.MainSharedPreferences;
+import xyz.edmw.settings.MainSharedPreferences;
 import xyz.edmw.topic.Topic;
 
 public class ThreadActivity extends AppCompatActivity implements UltimateRecyclerView.OnLoadMoreListener, View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
@@ -75,7 +74,7 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        MainSharedPreferences preferences = new MainSharedPreferences(PreferenceManager.getDefaultSharedPreferences(this));
+        MainSharedPreferences preferences = new MainSharedPreferences(this);
         setTheme(preferences.getThemeId());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
@@ -124,10 +123,6 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
-
-        MenuItem image_load_toggle = (MenuItem) menu.findItem(R.id.action_hide_image);
-        image_load_toggle.setVisible(false);
-
         return true;
     }
 

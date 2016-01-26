@@ -17,6 +17,7 @@ import retrofit.Response;
 import retrofit.Retrofit;
 import xyz.edmw.R;
 import xyz.edmw.rest.RestClient;
+import xyz.edmw.settings.MainSharedPreferences;
 
 public class TopicActivity extends AppCompatActivity implements View.OnClickListener {
     @Bind(R.id.toolbar)
@@ -32,6 +33,7 @@ public class TopicActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        setTheme(new MainSharedPreferences(this).getThemeId());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_topic);
         ButterKnife.bind(this);
