@@ -65,7 +65,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         userTitle.setText(post.getUserTitle());
 
         Message message = new Message(context, this.message);
-        message.setMessage(post.getMessage());
+        message.setPost(post);
 
         ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = connMgr.getActiveNetworkInfo();

@@ -40,6 +40,7 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 
 import xyz.edmw.image.ImageDialogFragment;
+import xyz.edmw.post.Post;
 import xyz.edmw.quote.Quote;
 import xyz.edmw.quote.QuoteViewHolder;
 import xyz.edmw.settings.DownloadImage;
@@ -60,6 +61,13 @@ public class Message {
 
         Resources resources = context.getResources();
         tapToRetry = new TextDrawable(resources, "Tap to retry.");
+    }
+
+    public void setPost(Post post) {
+        setMessage(post.getMessage());
+        for (String source : post.getPhotos()) {
+            setImage(source);
+        }
     }
 
     public void setMessage(String message) {

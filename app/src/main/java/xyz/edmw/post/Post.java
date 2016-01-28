@@ -1,5 +1,8 @@
 package xyz.edmw.post;
 
+import java.util.Collections;
+import java.util.List;
+
 public class Post {
     private String id;
     private String author;
@@ -8,6 +11,7 @@ public class Post {
     private String timestamp;
     private String postNum;
     private String message;
+    private List<String> photos;
 
     private Post() {
 
@@ -35,6 +39,10 @@ public class Post {
 
     public String getAuthorAvatar() {
         return authorAvatar;
+    }
+
+    public List<String> getPhotos() {
+        return photos == null ? Collections.<String>emptyList() : photos;
     }
 
     @Override
@@ -65,6 +73,12 @@ public class Post {
         private String timestamp;
         private String postNum;
         private String message;
+        private List<String> photos;
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
 
         public Builder author(String author) {
             this.author = author;
@@ -96,6 +110,11 @@ public class Post {
             return this;
         }
 
+        public Builder photos(List<String> photos) {
+            this.photos = photos;
+            return this;
+        }
+
         public Post build() {
             Post post = new Post();
             post.id = id;
@@ -105,12 +124,8 @@ public class Post {
             post.message = message;
             post.userTitle = userTitle;
             post.authorAvatar = authorAvatar;
+            post.photos = photos;
             return post;
-        }
-
-        public Builder id(String id) {
-            this.id = id;
-            return this;
         }
     }
 }

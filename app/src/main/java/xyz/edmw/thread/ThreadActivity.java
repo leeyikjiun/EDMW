@@ -263,6 +263,7 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
     @Override
     public void onRefresh() {
         if (thread.getPageNum() == 1) {
+            hasNextPage = false;
             onThreadSelected(thread, Insert.New);
         } else {
             ultimateRecyclerView.addOnItemTouchListener(disabler);        // disables scolling
