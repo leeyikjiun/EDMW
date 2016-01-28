@@ -11,6 +11,7 @@ import com.squareup.okhttp.logging.HttpLoggingInterceptor;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.CookieStore;
+import java.util.concurrent.TimeUnit;
 
 import retrofit.Retrofit;
 import retrofit2.ScalarsConverterFactory;
@@ -30,6 +31,8 @@ public class RestClient {
         Context context = MainApplication.getContext();
 
         OkHttpClient client = new OkHttpClient();
+        client.setReadTimeout(0, TimeUnit.MILLISECONDS);
+
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BASIC);
         client.interceptors().add(interceptor);

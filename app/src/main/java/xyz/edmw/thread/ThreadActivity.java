@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,6 +21,8 @@ import android.widget.Toast;
 
 import com.google.android.youtube.player.YouTubePlayer;
 import com.marshalchen.ultimaterecyclerview.UltimateRecyclerView;
+
+import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -35,6 +38,7 @@ import xyz.edmw.post.Post;
 import xyz.edmw.post.PostAdapter;
 import xyz.edmw.recyclerview.RecyclerViewDisabler;
 import xyz.edmw.rest.RestClient;
+import xyz.edmw.settings.MainSharedPreferences;
 import xyz.edmw.topic.Topic;
 
 public class ThreadActivity extends AppCompatActivity implements UltimateRecyclerView.OnLoadMoreListener, View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
@@ -56,9 +60,16 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
     public static YouTubePlayer youTubePlayer;
     public static boolean isFullscreen;
 
+    private final int numPosts = 15;
     private PostAdapter adapter;
     private LinearLayoutManager llm;
     private Thread thread;
+    private Thread nextThread;
+    private View footer;
+    private int firstPage, lastPage;
+    private boolean hasNextPage;
+    private boolean loadNextThread;
+    private boolean loadMore;
 
     public static void startInstance(Context context, Topic topic, int pageNum) {
         Intent intent = new Intent(context, ThreadActivity.class);
@@ -70,6 +81,8 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        MainSharedPreferences preferences = new MainSharedPreferences(this);
+        setTheme(preferences.getThemeId());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
         ButterKnife.bind(this);
@@ -95,24 +108,32 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         ultimateRecyclerView.setOnLoadMoreListener(this);
         ultimateRecyclerView.setDefaultOnRefreshListener(this);
 
+        footer = getLayoutInflater().inflate(R.layout.view_footer, ultimateRecyclerView, false);
+        footer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onThreadSelected(thread, Insert.After);
+            }
+        });
+
         reply.setOnClickListener(this);
 
-        onThreadSelected(thread);
+        onThreadSelected(thread, Insert.New);
     }
 
-    private void onThreadSelected(Thread thread) {
+    private void onThreadSelected(Thread thread, Insert insert) {
         ultimateRecyclerView.showEmptyView();
-        Call<Thread> call = RestClient.getService().getThread(thread.getPath(), thread.getPageNum());
-        call.enqueue(new LoadThreadCallback(Insert.New));
+        int pageNum = thread.getPageNum();
+        if (hasNextPage) {
+            ++pageNum;
+        }
+        Call<Thread> call = RestClient.getService().getThread(thread.getPath(), pageNum);
+        call.enqueue(new LoadThreadCallback(insert));
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
-
-        MenuItem image_load_toggle = (MenuItem) menu.findItem(R.id.action_hide_image);
-        image_load_toggle.setVisible(false);
-
         return true;
     }
 
@@ -130,14 +151,14 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         switch (item.getItemId()) {
             case R.id.action_refresh:
                 thread.setPageNum(1);
-                onThreadSelected(thread);
+                onThreadSelected(thread, Insert.New);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    private void onThreadLoaded(Thread thread, Insert insert, int maxLastVisiblePosition) {
+    private void onThreadLoaded(Thread thread, Insert insert) {
         toolbar.setSubtitle("Page " + thread.getPageNum());
         List<Post> posts = thread.getPosts();
         switch (insert) {
@@ -145,10 +166,15 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
                 adapter.getPosts().addAll(0, posts);
                 adapter.notifyItemRangeInserted(0, posts.size());
                 llm.scrollToPosition(posts.size() - 1);
+                firstPage = thread.getPageNum();
                 break;
             case New:
                 adapter = new PostAdapter(ThreadActivity.this, posts);
+                adapter.setCustomLoadMoreView(footer);
                 ultimateRecyclerView.setAdapter(adapter);
+                firstPage = lastPage = thread.getPageNum();
+                hasNextPage = thread.hasNextPage();
+                loadNextThread();
                 break;
             case After:
                 List<Post> adapterPosts = adapter.getPosts();
@@ -161,7 +187,8 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
                     }
                 }
                 adapter.notifyItemRangeInserted(positionStart, itemCount);
-                llm.scrollToPosition(maxLastVisiblePosition + 1);
+                lastPage = thread.getPageNum();
+                hasNextPage = thread.hasNextPage();
                 break;
         }
 
@@ -178,87 +205,88 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
 
     @Override
     public void loadMore(int itemsCount, final int maxLastVisiblePosition) {
-        if (thread.hasNextPage()) {
-            ultimateRecyclerView.addOnItemTouchListener(disabler);        // disables scolling
-            ultimateRecyclerView.showEmptyView();
-            Call<Thread> call = RestClient.getService().getThread(thread.getPath(), thread.getPageNum() + 1);
-            call.enqueue(new LoadThreadCallback(Insert.After, maxLastVisiblePosition));
+        loadMore = true;
+        if (loadNextThread) {
+            return;
         }
+        if (nextThread == null) {
+            ultimateRecyclerView.addOnItemTouchListener(disabler);
+            onThreadSelected(thread, Insert.After);
+            return;
+        }
+        loadMore = false;
+        onThreadLoaded(nextThread, Insert.After);
+        loadNextThread();
     }
 
     @Override
     public void onClick(final View v) {
-        v.setEnabled(false);
-        ReplyForm replyForm = thread.getReplyForm();
         String message = this.message.getText().toString().trim();
-        if(!message.isEmpty()) {
-            message.replace("\n", "<br />");
-            Call<Void> call = RestClient.getService().reply(
-                    replyForm.getSecurityToken(),
-                    replyForm.getChannelId(),
-                    replyForm.getParentId(),
-                    message
-            );
-            call.enqueue(new Callback<Void>() {
-                @Override
-                public void onResponse(Response<Void> response, Retrofit retrofit) {
-                    if (response.isSuccess()) {
-                        ThreadActivity.this.message.setText("");
-                        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-                        inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-                        onThreadSelected(thread);
-                    } else {
-                        Toast.makeText(ThreadActivity.this, "Failed to send reply", Toast.LENGTH_SHORT).show();
-                    }
-                    v.setEnabled(true);
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                    t.printStackTrace();
-                    Toast.makeText(ThreadActivity.this, "Failed to send reply", Toast.LENGTH_SHORT).show();
-                    v.setEnabled(true);
-                }
-            });
-        } else {
+        if (TextUtils.isEmpty(message)) {
             Toast.makeText(ThreadActivity.this, "Please write something", Toast.LENGTH_SHORT).show();
-            v.setEnabled(true);
+            return;
         }
+
+        Toast.makeText(ThreadActivity.this, "Sending...", Toast.LENGTH_SHORT).show();
+        v.setEnabled(false);
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+
+        ReplyForm replyForm = thread.getReplyForm();
+        message = message.replace(System.getProperty("line.separator"), "<br />");
+        Call<Void> call = RestClient.getService().reply(
+                replyForm.getSecurityToken(),
+                replyForm.getChannelId(),
+                replyForm.getParentId(),
+                message
+        );
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Response<Void> response, Retrofit retrofit) {
+                if (response.isSuccess()) {
+                    ThreadActivity.this.message.setText("");
+                    onThreadSelected(thread, Insert.After);
+                } else {
+                    Toast.makeText(ThreadActivity.this, "Failed to send reply", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                t.printStackTrace();
+                Toast.makeText(ThreadActivity.this, "Failed to send reply", Toast.LENGTH_SHORT).show();
+                v.setEnabled(true);
+            }
+        });
     }
 
     @Override
     public void onRefresh() {
         if (thread.getPageNum() == 1) {
-            onThreadSelected(thread);
+            onThreadSelected(thread, Insert.New);
         } else {
             ultimateRecyclerView.addOnItemTouchListener(disabler);        // disables scolling
             ultimateRecyclerView.showEmptyView();
-            Call<Thread> call = RestClient.getService().getThread(thread.getPath(), thread.getPageNum() - 1);
+            Call<Thread> call = RestClient.getService().getThread(thread.getPath(), firstPage - 1);
             call.enqueue(new LoadThreadCallback(Insert.Before));
         }
     }
 
-    public void setQuote(String quote) {
-        message.setText(quote + "\n");
+    public void addQuote(String quote) {
+        message.append(quote + System.getProperty("line.separator"));
     }
 
     private class LoadThreadCallback implements Callback<Thread> {
         private final Insert insert;
-        private int maxLastVisiblePosition;
 
         private LoadThreadCallback(Insert insert) {
             this.insert = insert;
         }
 
-        private LoadThreadCallback(Insert insert, int maxLastVisiblePosition) {
-            this.insert = insert;
-            this.maxLastVisiblePosition = maxLastVisiblePosition;
-        }
-
         @Override
         public void onResponse(Response<Thread> response, Retrofit retrofit) {
             if (response.isSuccess()) {
-                onThreadLoaded(response.body(), insert, maxLastVisiblePosition);
+                onThreadLoaded(response.body(), insert);
             } else {
                 Toast.makeText(getApplicationContext(), "Fail to retrieve posts", Toast.LENGTH_SHORT).show();
             }
@@ -274,4 +302,31 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
             ultimateRecyclerView.removeOnItemTouchListener(disabler);        // disables scolling
         }
     }
+
+    private void loadNextThread() {
+        loadNextThread = true;
+        int pageNum = hasNextPage ? lastPage + 1 : lastPage;
+        Call<Thread> call = RestClient.getService().getThread(this.thread.getPath(), pageNum);
+        call.enqueue(loadNextThreadCallback);
+    }
+
+    private final Callback<Thread> loadNextThreadCallback = new Callback<Thread>() {
+        @Override
+        public void onResponse(Response<Thread> response, Retrofit retrofit) {
+            loadNextThread = false;
+            if (response.isSuccess()) {
+                Thread thread = response.body();
+                if (loadMore) {
+                    onThreadLoaded(thread, Insert.After);
+                } else {
+                    nextThread = response.body();
+                }
+            }
+        }
+
+        @Override
+        public void onFailure(Throwable t) {
+            loadNextThread = false;
+        }
+    };
 }

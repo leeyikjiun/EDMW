@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <android.support.v7.preference.ListPreference
+        android:key="pref_themeId"
+        android:title="@string/pref_themeId"
+        android:dialogTitle="@string/pref_themeId"
+        android:entries="@array/pref_themeIds_entries"
+        android:entryValues="@array/pref_themeIds_values"
+        android:defaultValue="@string/pref_themeIds_default"
+        android:summary="%s"/>
+    <android.support.v7.preference.ListPreference
+        android:key="pref_downloadImage"
+        android:title="@string/pref_downloadImage"
+        android:dialogTitle="@string/pref_downloadImage"
+        android:entries="@array/pref_downloadImages_entries_values"
+        android:entryValues="@array/pref_downloadImages_entries_values"
+        android:defaultValue="@string/pref_downloadImages_default"
+        android:summary="%s"/>
+</PreferenceScreen>

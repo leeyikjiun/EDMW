@@ -1,6 +1,8 @@
 package xyz.edmw.topic;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.widget.CardView;
 import android.text.Html;
 import android.view.View;
@@ -13,7 +15,8 @@ import com.marshalchen.ultimaterecyclerview.UltimateRecyclerviewViewHolder;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import xyz.edmw.R;
-import xyz.edmw.sharedpreferences.MainSharedPreferences;
+import xyz.edmw.settings.DownloadImage;
+import xyz.edmw.settings.MainSharedPreferences;
 import xyz.edmw.thread.ThreadActivity;
 
 public class TopicViewHolder extends UltimateRecyclerviewViewHolder {
@@ -31,10 +34,12 @@ public class TopicViewHolder extends UltimateRecyclerviewViewHolder {
     TextView stickyLabel;
 
     private final Context context;
+    private final MainSharedPreferences preferences;
 
     public TopicViewHolder(Context context, View view, boolean isItem) {
         super(view);
         this.context = context;
+        preferences = new MainSharedPreferences(context);
 
         if (isItem) {
             ButterKnife.bind(this, view);
@@ -53,12 +58,21 @@ public class TopicViewHolder extends UltimateRecyclerviewViewHolder {
         startedBy.setText(topic.getStartedBy());
         lastPost.setText(Html.fromHtml(topic.getLastPost()));
 
-        if(MainSharedPreferences.getLoadImageAutomatically()) {
-            threadstarterAvatar.setVisibility(View.VISIBLE);
-            Ion.with(threadstarterAvatar)
-                    .load(topic.getThreadstarterAvatar());
-        } else {
-            threadstarterAvatar.setVisibility(View.GONE);
+        ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = connMgr.getActiveNetworkInfo();
+        DownloadImage downloadImage = preferences.getDownloadImage();
+        switch (downloadImage) {
+            case Never:
+                threadstarterAvatar.setVisibility(View.GONE);
+                break;
+            case Wifi:
+                if (info == null || info.getType() != ConnectivityManager.TYPE_WIFI) {
+                    threadstarterAvatar.setVisibility(View.GONE);
+                    break;
+                }
+            case Always:
+                threadstarterAvatar.setVisibility(View.VISIBLE);
+                Ion.with(threadstarterAvatar).load(topic.getThreadstarterAvatar());
         }
 
         if(!topic.isSticky()) {
