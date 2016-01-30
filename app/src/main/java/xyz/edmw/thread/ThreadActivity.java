@@ -64,12 +64,12 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
     private final int numPosts = 15;
     private PostAdapter adapter;
     private LinearLayoutManager llm;
-    private Thread nextThread;
+    private Thread prevThread, nextThread;
     private View footer;
     private int firstPage, lastPage;
     private boolean hasNextPage;
-    private boolean isLoadingNextThread;
-    private boolean loadMore;
+    private boolean isLoadingPrevThread, isLoadingNextThread;
+    private boolean loadPrev, loadMore;
     private String path;
     private ReplyForm replyForm;
 
@@ -172,13 +172,11 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
                 adapter.getPosts().addAll(0, posts);
                 adapter.notifyItemRangeInserted(0, posts.size());
                 llm.scrollToPosition(posts.size() - 1);
-                firstPage = thread.getPageNum();
-                return;
+                break;
             case New:
                 adapter = new PostAdapter(ThreadActivity.this, posts);
                 adapter.setCustomLoadMoreView(footer);
                 ultimateRecyclerView.setAdapter(adapter);
-                firstPage = lastPage = thread.getPageNum();
                 break;
             case After:
                 List<Post> adapterPosts = adapter.getPosts();
@@ -191,11 +189,19 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
                     }
                 }
                 adapter.notifyItemRangeInserted(positionStart, itemCount);
-                lastPage = thread.getPageNum();
                 break;
         }
-        if (hasNextPage = thread.hasNextPage()) {
-            loadNextThread();
+        loadPrev = loadMore = false;
+
+        if ((insert.equals(Insert.Before) || insert.equals(Insert.New))
+            && (firstPage = thread.getPageNum()) > 1) {
+                loadPrevThread();
+        }
+        if (insert.equals(Insert.New) || insert.equals(Insert.After)) {
+            lastPage = thread.getPageNum();
+            if (hasNextPage = thread.hasNextPage()) {
+                loadNextThread();
+            }
         }
     }
 
@@ -212,10 +218,7 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
             }
             return;
         }
-
-        loadMore = false;
         onThreadLoaded(nextThread, Insert.After);
-        loadNextThread();
     }
 
     @Override
@@ -262,15 +265,23 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
 
     @Override
     public void onRefresh() {
-        ultimateRecyclerView.setRefreshing(false);
+        loadPrev = true;
         if (firstPage == 1) {
             onThreadSelected(path, firstPage, Insert.New);
-        } else {
-            ultimateRecyclerView.addOnItemTouchListener(disabler);        // disables scolling
-            ultimateRecyclerView.showEmptyView();
-            Call<Thread> call = RestClient.getService().getThread(path, firstPage - 1);
-            call.enqueue(new LoadThreadCallback(Insert.Before));
+            return;
         }
+
+        if (isLoadingPrevThread) {
+            return;
+        }
+        if (prevThread == null) {
+            if (firstPage > 1) {
+                ultimateRecyclerView.addOnItemTouchListener(disabler);
+                onThreadSelected(path, firstPage - 1, Insert.Before);
+            }
+            return;
+        }
+        onThreadLoaded(prevThread, Insert.Before);
     }
 
     public void addQuote(String quote) {
@@ -303,6 +314,31 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
             ultimateRecyclerView.removeOnItemTouchListener(disabler);        // disables scolling
         }
     }
+
+    private void loadPrevThread() {
+        Call<Thread> call = RestClient.getService().getThread(path, firstPage - 1);
+        call.enqueue(loadPrevThreadCallback);
+    }
+
+    private final Callback<Thread> loadPrevThreadCallback = new Callback<Thread>() {
+        @Override
+        public void onResponse(Response<Thread> response, Retrofit retrofit) {
+            isLoadingPrevThread = false;
+            if (response.isSuccess()) {
+                Thread thread = response.body();
+                if (loadPrev) {
+                    onThreadLoaded(thread, Insert.Before);
+                } else {
+                    prevThread = thread;
+                }
+            }
+        }
+
+        @Override
+        public void onFailure(Throwable t) {
+            isLoadingPrevThread = false;
+        }
+    };
 
     private void loadNextThread() {
         isLoadingNextThread = true;
