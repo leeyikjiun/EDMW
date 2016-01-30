@@ -20,6 +20,9 @@ public interface ApiService {
     @POST("/auth/login")
     Call<Boolean> login(@Field("username") String username, @Field("password") String password, @Field("rememberme") String remember);
 
+    @GET("/auth/logout")
+    Call<Void> logout();
+
     @Multipart
     @POST("/create-content/text/")
     Call<Void> reply(@Part("securitytoken") String securityToken, @Part("channelid") int channelId, @Part("parentid") int parentId, @Part("text") String text);

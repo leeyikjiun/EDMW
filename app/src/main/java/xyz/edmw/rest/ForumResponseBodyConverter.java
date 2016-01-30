@@ -70,18 +70,21 @@ public class ForumResponseBodyConverter implements Converter<ResponseBody, Forum
             );
         }
 
-        Element usernameMenu = doc.getElementById("lnkUsernameMenu");
+        Element mainNavBar = doc.getElementById("main-navbar");
+        Element usernameMenu = mainNavBar.getElementById("lnkUsernameMenu");
         if (usernameMenu != null) {
             String username = usernameMenu.select("span.b-menu__username-label").first().text().trim();
             String avatar = usernameMenu.select("img").first().attr("src").replace("thumb=1", "thumb=0");
             Elements anchors = doc.select("ul.submenu a");
             String profile = anchors.get(0).attr("href");
             String recentPosts = anchors.get(1).attr("href");
+            String messages = String.format("Messages (%s)", mainNavBar.select("span.notifications-count").first().text().trim());
             forum.setUser(new User.Builder()
                     .name(username)
                     .avatar(avatar)
                     .profile(profile)
                     .recentPosts(recentPosts)
+                    .messages(messages)
                     .build()
             );
         }

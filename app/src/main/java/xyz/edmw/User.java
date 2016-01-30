@@ -5,6 +5,7 @@ public class User {
     private String avatar;
     private String profile;
     private String recentPosts;
+    private String messages;
 
     private User() {
 
@@ -22,11 +23,16 @@ public class User {
         return recentPosts;
     }
 
+    public String getMessages() {
+        return messages;
+    }
+
     public static class Builder {
         private String name;
         private String avatar;
         private String profile;
         private String recentPosts;
+        private String messages;
 
         public Builder name(String name) {
             this.name = name;
@@ -48,12 +54,18 @@ public class User {
             return this;
         }
 
+        public Builder messages(String messages) {
+            this.messages = messages;
+            return this;
+        }
+
         public User build() {
             User user = new User();
             user.name = name;
             user.avatar = avatar;
             user.profile = profile;
             user.recentPosts = recentPosts;
+            user.messages = messages;
             return user;
         }
     }

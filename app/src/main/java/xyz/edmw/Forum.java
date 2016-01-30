@@ -123,6 +123,10 @@ public class Forum {
         this.path = path;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public static class Builder {
         private String title;
         private String path;

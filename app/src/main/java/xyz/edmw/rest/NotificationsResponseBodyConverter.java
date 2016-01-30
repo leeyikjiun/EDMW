@@ -5,6 +5,7 @@ import com.squareup.okhttp.ResponseBody;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
@@ -49,10 +50,15 @@ public class NotificationsResponseBodyConverter implements Converter<ResponseBod
             String title = a.text().trim();
             String postDate = message.select("div.post-date").first().text().trim();
 
-            List<TextNode> textNodes = messageText.textNodes();
+            List<Node> nodes = messageText.childNodes();
             StringBuilder type = new StringBuilder();
-            for (int i = 1; i < textNodes.size()-1; ++i) {
-                type.append(textNodes.get(i).text().trim());
+            for (int i = 1; i < nodes.size()-1; ++i) {
+                Node node = nodes.get(i);
+                if (node instanceof TextNode) {
+                    type.append(((TextNode) node).text().trim());
+                }else if (node instanceof Element) {
+                    type.append(((Element) node).text().trim());
+                }
             }
 
             Notification notification = new Notification.Builder()

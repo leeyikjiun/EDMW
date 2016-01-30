@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="Account">
+        <menu>
+            <item
+                android:id="@+id/nav_logout"
+                android:title="Log Out" />
+            <item
+                android:id="@+id/nav_messages"
+                android:title="Messages" />
+        </menu>
+    </item>
+
+    <item android:title="Forum">
+        <menu>
+            <item
+                android:id="@+id/nav_edmw"
+                android:title="EDMW" />
+            <item
+                android:id="@+id/nav_nsfw"
+                android:title="NSFW" />
+            <item
+                android:id="@+id/nav_moneytalk"
+                android:title="Money Talk" />
+            <item
+                android:id="@+id/nav_metaphysics"
+                android:title="Metaphysics" />
+            <item
+                android:id="@+id/nav_stylegrooming"
+                android:title="Style &amp; Grooming" />
+            <item
+                android:id="@+id/nav_technology"
+                android:title="Technology" />
+            <item
+                android:id="@+id/nav_music_entertainment"
+                android:title="Music &amp; Entertainment" />
+            <item
+                android:id="@+id/nav_feedback"
+                android:title="Feedback" />
+        </menu>
+    </item>
+
+    <group
+        android:id="@+id/menu_bottom"
+        android:checkableBehavior="none">
+
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_settings"
+            android:title="Settings" >
+        </item>
+
+        <item
+            android:id="@+id/nav_help_feedback"
+            android:icon="@android:drawable/ic_menu_help"
+            android:title="Help &amp; feedback" >
+        </item>
+    </group>
+</menu>

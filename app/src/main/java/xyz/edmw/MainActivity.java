@@ -131,8 +131,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
         switch (id) {
             case (R.id.nav_login):
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                startActivityForResult(intent, MY_LOGIN_ACTIVITY);
+                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                    startActivityForResult(intent, MY_LOGIN_ACTIVITY);
+                break;
+            case (R.id.nav_logout):
+                    Call<Void> call = RestClient.getService().logout();
+                    call.enqueue(new Callback<Void>() {
+                        @Override
+                        public void onResponse(Response<Void> response, Retrofit retrofit) {
+                            if (response.isSuccess()) {
+                                Toast.makeText(MainActivity.this, "Logging out...", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            Toast.makeText(MainActivity.this, "Log out failed", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onFailure(Throwable t) {
+                            t.printStackTrace();
+                            Toast.makeText(MainActivity.this, "Log out failed", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 break;
             case (R.id.nav_messages):
                 startActivity(new Intent(MainActivity.this, NotificationActivity.class));
@@ -185,8 +204,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 onForumSelected(forum);
                 break;
             case R.id.nav_settings:
-                intent = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 break;
         }
 
@@ -216,16 +234,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
         }
 
+        forum.setTitle(this.forum.getTitle());
         forum.setPath(this.forum.getPath());
         this.forum = forum;
 
         User user = forum.getUser();
         navViewHolder.setUser(user);
-        if (user != null) {
-            fab.setVisibility(View.VISIBLE);
-        } else {
-            fab.setVisibility(View.GONE);
-        }
+        int visibility = user == null ? View.GONE : View.VISIBLE;
+        fab.setVisibility(visibility);
     }
 
     @Override
@@ -267,8 +283,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         onForumSelected(forum);
     }
 
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         switch (item.getItemId()) {
             case R.id.action_refresh:
                 onRefresh();

@@ -1,6 +1,8 @@
 package xyz.edmw.navigation;
 
 import android.support.design.widget.NavigationView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import xyz.edmw.MainActivity;
@@ -23,5 +25,14 @@ public class NavViewHolder {
 
     public void setUser(User user) {
         navHeaderViewHolder.setUser(user);
+
+        if (user == null) {
+            view.inflateMenu(R.menu.activity_main_drawer_guest);
+        } else {
+            view.inflateMenu(R.menu.activity_main_drawer_member);
+            Menu menu = view.getMenu();
+            MenuItem messages = menu.findItem(R.id.nav_messages);
+            messages.setTitle(user.getMessages());
+        }
     }
 }
