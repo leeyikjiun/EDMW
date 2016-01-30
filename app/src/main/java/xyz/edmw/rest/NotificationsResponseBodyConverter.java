@@ -1,5 +1,7 @@
 package xyz.edmw.rest;
 
+import android.util.Log;
+
 import com.squareup.okhttp.ResponseBody;
 
 import org.jsoup.Jsoup;
@@ -52,12 +54,12 @@ public class NotificationsResponseBodyConverter implements Converter<ResponseBod
 
             List<Node> nodes = messageText.childNodes();
             StringBuilder type = new StringBuilder();
-            for (int i = 1; i < nodes.size()-1; ++i) {
+            for (int i = 2; i < nodes.size()-2; ++i) {
                 Node node = nodes.get(i);
                 if (node instanceof TextNode) {
-                    type.append(((TextNode) node).text().trim());
+                    type.append(((TextNode) node).text());
                 }else if (node instanceof Element) {
-                    type.append(((Element) node).text().trim());
+                    type.append(((Element) node).text());
                 }
             }
 
@@ -66,7 +68,7 @@ public class NotificationsResponseBodyConverter implements Converter<ResponseBod
                     .path(path)
                     .title(title)
                     .postDate(postDate)
-                    .type(type.toString())
+                    .type(type.toString().trim())
                     .build();
             notifications.add(notification);
         }
