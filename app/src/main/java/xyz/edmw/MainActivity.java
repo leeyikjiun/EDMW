@@ -59,9 +59,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private String title;
     private Forum forum;
+    private Forum nextForum;
     private TopicAdapter adapter;
     private LinearLayoutManager layoutManager;
     private NavViewHolder navViewHolder;
+    private boolean isLoadingNextForum;
+    private boolean loadMore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -213,30 +216,38 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void onForumSelected(final Forum forum) {
+        onForumSelected(forum, Insert.New);
+    }
+
+    private void onForumSelected(final Forum forum, Insert insert) {
         title = forum.getTitle();
         toolbar.setTitle(title);
 
         ultimateRecyclerView.showEmptyView();
         Call<Forum> call = RestClient.getService().getForum(forum.getPath(), forum.getPageNum());
-        call.enqueue(new LoadForumCallback(Insert.New));
+        call.enqueue(new LoadForumCallback(insert));
     }
 
-    private void onForumLoaded(Forum forum, Insert insert, int maxLastVisiblePosition) {
+    private void onForumLoaded(Forum forum, Insert insert) {
         toolbar.setSubtitle("Page " + forum.getPageNum());
         switch (insert) {
             case After:
                 adapter.insertTopics(forum.getTopics());
-                layoutManager.scrollToPosition(maxLastVisiblePosition + 1);
                 break;
             case New:
                 adapter = new TopicAdapter(this, forum.getTopics());
                 ultimateRecyclerView.setAdapter(adapter);
                 break;
         }
+        loadMore = false;
 
         forum.setTitle(this.forum.getTitle());
         forum.setPath(this.forum.getPath());
         this.forum = forum;
+
+        if (forum.hasNextPage()) {
+            loadNextForum();
+        }
 
         User user = forum.getUser();
         navViewHolder.setUser(user);
@@ -246,12 +257,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void loadMore(int itemsCount, final int maxLastVisiblePosition) {
-        if (forum.hasNextPage()) {
-            ultimateRecyclerView.addOnItemTouchListener(disabler);        // disables scolling
-            ultimateRecyclerView.showEmptyView();
-            Call<Forum> call = RestClient.getService().getForum(forum.getPath(), forum.getPageNum() + 1);
-            call.enqueue(new LoadForumCallback(Insert.After, maxLastVisiblePosition));
+        loadMore = true;
+        if (isLoadingNextForum) {
+            return;
         }
+        if (nextForum == null) {
+            if (forum.hasNextPage()) {
+                ultimateRecyclerView.addOnItemTouchListener(disabler);
+                forum.setPageNum(forum.getPageNum() + 1);
+                onForumSelected(forum, Insert.After);
+            }
+            return;
+        }
+        onForumLoaded(nextForum, Insert.After);
     }
 
     public void onLogin() {
@@ -316,21 +334,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private class LoadForumCallback implements Callback<Forum> {
         private final Insert insert;
-        private int maxLastVisiblePosition;
 
         private LoadForumCallback(Insert insert) {
             this.insert = insert;
         }
 
-        private LoadForumCallback(Insert insert, int maxLastVisiblePosition) {
-            this.insert = insert;
-            this.maxLastVisiblePosition = maxLastVisiblePosition;
-        }
-
         @Override
         public void onResponse(Response<Forum> response, Retrofit retrofit) {
             if (response.isSuccess()) {
-                onForumLoaded(response.body(), insert, maxLastVisiblePosition);
+                onForumLoaded(response.body(), insert);
             } else {
                 Toast.makeText(getApplicationContext(), "Fail to retrieve threads", Toast.LENGTH_SHORT).show();
             }
@@ -346,4 +358,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             ultimateRecyclerView.removeOnItemTouchListener(disabler);
         }
     }
+
+    private void loadNextForum() {
+        isLoadingNextForum = true;
+        Call<Forum> call = RestClient.getService().getForum(forum.getPath(), forum.getPageNum() + 1);
+        call.enqueue(loadNextForumCallback);
+    }
+
+    private final Callback<Forum> loadNextForumCallback = new Callback<Forum>() {
+        @Override
+        public void onResponse(Response<Forum> response, Retrofit retrofit) {
+            isLoadingNextForum = false;
+            if (response.isSuccess()) {
+                Forum forum = response.body();
+                if (loadMore) {
+                    onForumLoaded(forum, Insert.After);
+                } else {
+                    nextForum = forum;
+                }
+            }
+        }
+
+        @Override
+        public void onFailure(Throwable t) {
+            isLoadingNextForum = false;
+        }
+    };
 }
