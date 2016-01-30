@@ -1,0 +1,80 @@
+package xyz.edmw.notification;
+
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.koushikdutta.ion.Ion;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import xyz.edmw.R;
+import xyz.edmw.User;
+import xyz.edmw.settings.DownloadImage;
+import xyz.edmw.settings.MainSharedPreferences;
+import xyz.edmw.thread.ThreadActivity;
+
+public class NotificationViewHolder extends RecyclerView.ViewHolder {
+    @Bind(R.id.card_view)
+    CardView cardView;
+    @Bind(R.id.notification_author)
+    TextView author;
+    @Bind(R.id.notification_title)
+    TextView title;
+    @Bind(R.id.notification_postDate)
+    TextView postDate;
+    @Bind(R.id.notification_avatar)
+    ImageView authorAvatar;
+    @Bind(R.id.notification_type)
+    TextView userTitle;
+
+    private final Context context;
+    private MainSharedPreferences preferences;
+
+    public NotificationViewHolder(Context context, View view, boolean isItem) {
+        super(view);
+        this.context = context;
+
+        if (isItem) {
+            ButterKnife.bind(this, view);
+            preferences = new MainSharedPreferences(context);
+        }
+    }
+
+    public void setNotification(final Notification notification) {
+        User user = notification.getUser();
+        author.setText(user.getName());
+        userTitle.setText(notification.getType());
+        postDate.setText(notification.getPostDate());
+        title.setText(notification.getTitle());
+
+        ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = connMgr.getActiveNetworkInfo();
+        DownloadImage downloadImage = preferences.getDownloadImage();
+        switch (downloadImage) {
+            case Never:
+                authorAvatar.setVisibility(View.GONE);
+                break;
+            case Wifi:
+                if (info == null && info.getType() != ConnectivityManager.TYPE_WIFI) {
+                    authorAvatar.setVisibility(View.GONE);
+                    break;
+                }
+            case Always:
+                authorAvatar.setVisibility(View.VISIBLE);
+                Ion.with(authorAvatar).load(user.getAvatar());
+        }
+
+        cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ThreadActivity.startInstance(context, notification);
+            }
+        });
+    }
+}

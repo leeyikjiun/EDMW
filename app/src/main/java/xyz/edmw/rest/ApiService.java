@@ -1,5 +1,7 @@
 package xyz.edmw.rest;
 
+import java.util.List;
+
 import retrofit.Call;
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
@@ -9,6 +11,7 @@ import retrofit.http.POST;
 import retrofit.http.Part;
 import retrofit.http.Path;
 import xyz.edmw.Forum;
+import xyz.edmw.notification.Notification;
 import xyz.edmw.thread.Thread;
 import xyz.edmw.topic.TopicForm;
 
@@ -24,6 +27,9 @@ public interface ApiService {
     @GET("/forum/{forum}/page{page}")
     Call<Forum> getForum(@Path("forum") String forum, @Path("page") int page);
 
+    @GET("/{path}")
+    Call<Thread> getThread(@Path("path") String path);
+
     @GET("/{path}/page{page}")
     Call<Thread> getThread(@Path("path") String path, @Path("page") int page);
 
@@ -33,4 +39,7 @@ public interface ApiService {
     @Multipart
     @POST("/create-content/text/")
     Call<Void> postTopic(@Part("securitytoken") String securityToken, @Part("parentid") int parentId, @Part("title") String title, @Part("text") String text);
+
+    @GET("/privatemessage/notification/364/1")
+    Call<List<Notification>> getNotifications();
 }

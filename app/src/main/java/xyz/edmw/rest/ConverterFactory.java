@@ -22,7 +22,9 @@ public class ConverterFactory extends Converter.Factory {
             return new TopicFormResponseBodyConverter();
         } else if (type == Boolean.class) {
             return new LoginResponseBodyConverter();
-        }else {
+        }else if (type.toString().equals("java.util.List<xyz.edmw.notification.Notification>")) {
+            return new NotificationsResponseBodyConverter();
+        } else {
             return super.fromResponseBody(type, annotations);
         }
     }

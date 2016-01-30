@@ -55,6 +55,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="xyz.edmw.MainActivity" />
         </activity>
+        <activity
+            android:name=".notification.NotificationActivity"
+            android:label="@string/title_activity_notifications"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

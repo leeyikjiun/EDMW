@@ -51,6 +51,10 @@ public class ThreadResponseBodyConverter implements Converter<ResponseBody, Thre
         String title = doc.select("h1.main-title").first().text().trim();
         String path = doc.head().select("link[rel=canonical]").attr("href");
         path = path.substring(RestClient.baseUrl.length());
+        int index = path.indexOf("/page");
+        if (index >= 0) {
+            path = path.substring(0, index);
+        }
         Thread thread = threadBuilder
                 .title(title)
                 .path(path)

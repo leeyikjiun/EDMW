@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/card_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    style="?attr/cardStyle">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="8dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:id="@+id/notification_avatar"
+                android:background="@drawable/image_view_background"/>
+
+            <TextView
+                android:id="@+id/notification_author"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:textStyle="bold"
+
+                android:layout_alignParentTop="true"
+                android:layout_toRightOf="@+id/notification_avatar"
+                android:layout_toEndOf="@+id/notification_avatar" />
+
+            <TextView
+                android:id="@+id/notification_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/notification_postDate"
+                android:layout_alignLeft="@+id/notification_author"
+                android:layout_alignStart="@+id/notification_author" />
+
+            <TextView
+                android:id="@+id/notification_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="@color/thread_text_color"
+                android:layout_below="@+id/notification_type"
+                android:layout_alignLeft="@+id/notification_type"
+                android:layout_alignStart="@+id/notification_type" />
+
+            <TextView
+                android:id="@+id/notification_postDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"/>
+        </RelativeLayout>
+    </LinearLayout>
+</android.support.v7.widget.CardView>

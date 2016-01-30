@@ -30,6 +30,7 @@ import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
 import xyz.edmw.navigation.NavViewHolder;
+import xyz.edmw.notification.NotificationActivity;
 import xyz.edmw.recyclerview.RecyclerViewDisabler;
 import xyz.edmw.rest.RestClient;
 import xyz.edmw.settings.MainSharedPreferences;
@@ -133,6 +134,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivityForResult(intent, MY_LOGIN_ACTIVITY);
                 break;
+            case (R.id.nav_messages):
+                startActivity(new Intent(MainActivity.this, NotificationActivity.class));
             case (R.id.nav_edmw):
                 forum = Forum.edmw;
                 forum.setPageNum(1);
