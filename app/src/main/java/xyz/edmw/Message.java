@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.util.Log;
@@ -49,6 +50,7 @@ import xyz.edmw.thread.ThreadActivity;
 
 public class Message {
     private static final String tag = "Message";
+    private static final String endl = System.getProperty("line.separator");
     private final TextDrawable tapToRetry;
     private final Context context;
     private final LinearLayout message;
@@ -73,6 +75,7 @@ public class Message {
     public void setMessage(String message) {
         this.message.removeAllViews();
 
+        message = message.replace("<br /> " + endl + "<br /> " + endl, endl);
         Element body = Jsoup.parseBodyFragment(message).body();
         for (Node node : body.childNodes()) {
             if (node instanceof TextNode) {
@@ -87,8 +90,9 @@ public class Message {
 
     private void setTextNode(TextNode node) {
         TextView view = new TextView(context);
-        String text = node.text().trim();
-        if (!text.isEmpty()) {
+        String text = node.getWholeText();
+        if (!TextUtils.isEmpty(text.trim())) {
+            text = text.replace(endl + endl, "<br /> ");
             view.setText(Html.fromHtml(text));
             message.addView(view);
         }
@@ -148,9 +152,8 @@ public class Message {
                 // <b><span style="font-size:72px">親, 你们喜欢玩3P 吗？<br /> 不会的话，我愿意教你们玩 <img src="http://www.edmw.xyz/core/images/smilies/smilies-extra/bye.gif" border="0" alt="" title="Bye" smilieid="74" class="inlineimg" /><img src="http://www.edmw.xyz/core/images/smilies/smilies-extra/bouncy.gif" border="0" alt="" title="Bouncy" smilieid="73" class="inlineimg" /><img src="http://www.edmw.xyz/core/images/smilies/smilies-extra/bouncy.gif" border="0" alt="" title="Bouncy" smilieid="73" class="inlineimg" /></span></b>
             default:
                 TextView view = new TextView(context);
-                view.setTextColor(context.getResources().getColor(R.color.font_color_black));
                 view.setMovementMethod(LinkMovementMethod.getInstance());
-                view.setText(Html.fromHtml(element.html()));
+                view.setText(Html.fromHtml(element.outerHtml()));
                 Linkify.addLinks(view, Linkify.ALL);
                 message.addView(view);
         }
