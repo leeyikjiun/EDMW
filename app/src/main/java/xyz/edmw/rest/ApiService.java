@@ -1,17 +1,18 @@
 package xyz.edmw.rest;
 
-import java.util.List;
+import java.util.Map;
 
 import retrofit.Call;
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
 import retrofit.http.GET;
+import retrofit.http.Headers;
 import retrofit.http.Multipart;
 import retrofit.http.POST;
 import retrofit.http.Part;
 import retrofit.http.Path;
 import xyz.edmw.Forum;
-import xyz.edmw.notification.Notification;
+import xyz.edmw.notification.Notifications;
 import xyz.edmw.thread.Thread;
 import xyz.edmw.topic.TopicForm;
 
@@ -44,5 +45,10 @@ public interface ApiService {
     Call<Void> postTopic(@Part("securitytoken") String securityToken, @Part("parentid") int parentId, @Part("title") String title, @Part("text") String text);
 
     @GET("/privatemessage/notification/364/1")
-    Call<List<Notification>> getNotifications();
+    Call<Notifications> getNotifications();
+
+    @Headers("Accept: application/json")
+    @Multipart
+    @POST("/ajax/api/notification/dismissNotification")
+    Call<Void> dismissNotification(@Part("readIds") String id, @Part("idsOnPage") Map<String, String> idsOnPage, @Part("filterParams") Map<String, String> filterParams, @Part("securitytoken") String securityToken);
 }

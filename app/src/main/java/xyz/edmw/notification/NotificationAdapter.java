@@ -5,20 +5,28 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.marshalchen.ultimaterecyclerview.UltimateViewAdapter;
 
 import java.util.List;
 
+import retrofit.Call;
+import retrofit.Callback;
+import retrofit.Response;
+import retrofit.Retrofit;
 import xyz.edmw.R;
+import xyz.edmw.rest.RestClient;
 
 public class NotificationAdapter extends UltimateViewAdapter<NotificationViewHolder> {
     private final Context context;
-    private final List<Notification> notifications;
+    private final Notifications notifications;
+    private final List<Notification> notificationList;
 
-    public NotificationAdapter(Context context, List<Notification> notifications) {
+    public NotificationAdapter(Context context, Notifications notifications) {
         this.context = context;
         this.notifications = notifications;
+        notificationList = notifications.getNotifications();
     }
 
     @Override
@@ -34,7 +42,7 @@ public class NotificationAdapter extends UltimateViewAdapter<NotificationViewHol
 
     @Override
     public int getAdapterItemCount() {
-        return notifications.size();
+        return notificationList.size();
     }
 
     @Override
@@ -44,8 +52,8 @@ public class NotificationAdapter extends UltimateViewAdapter<NotificationViewHol
 
     @Override
     public void onBindViewHolder(NotificationViewHolder holder, int position) {
-        if (position < notifications.size()) {
-            holder.setNotification(notifications.get(position));
+        if (position < notificationList.size()) {
+            holder.setNotification(notificationList.get(position));
         }
     }
 
@@ -57,5 +65,28 @@ public class NotificationAdapter extends UltimateViewAdapter<NotificationViewHol
     @Override
     public void onBindHeaderViewHolder(RecyclerView.ViewHolder holder, int position) {
 
+    }
+
+    @Override
+    public void onItemDismiss(final int position) {
+        Notification notification = notificationList.get(position);
+        Call<Void> call = RestClient.getService().dismissNotification(notification.getId(), notifications.getIdsOnPage(), notifications.getFilterParams(), notifications.getSecurityToken());
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Response<Void> response, Retrofit retrofit) {
+                if (response.isSuccess()) {
+                    notificationList.remove(position);
+                    notifyItemRemoved(position);
+                } else {
+                    Toast.makeText(context, "Failed to dismiss notification", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                t.printStackTrace();
+                Toast.makeText(context, "Failed to dismiss notification", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

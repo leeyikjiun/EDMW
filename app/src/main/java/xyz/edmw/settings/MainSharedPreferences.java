@@ -5,9 +5,6 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
-import android.view.View;
-
-import com.koushikdutta.ion.Ion;
 
 import xyz.edmw.R;
 

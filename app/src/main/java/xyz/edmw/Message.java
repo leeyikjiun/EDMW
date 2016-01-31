@@ -3,8 +3,6 @@ package xyz.edmw;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
@@ -44,7 +42,6 @@ import xyz.edmw.image.ImageDialogFragment;
 import xyz.edmw.post.Post;
 import xyz.edmw.quote.Quote;
 import xyz.edmw.quote.QuoteViewHolder;
-import xyz.edmw.settings.DownloadImage;
 import xyz.edmw.settings.MainSharedPreferences;
 import xyz.edmw.thread.ThreadActivity;
 

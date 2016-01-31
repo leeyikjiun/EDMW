@@ -11,7 +11,6 @@ import com.facebook.drawee.view.SimpleDraweeView;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import xyz.edmw.MainActivity;
 import xyz.edmw.R;
 import xyz.edmw.User;
 import xyz.edmw.settings.MainSharedPreferences;

@@ -1,13 +1,10 @@
 package xyz.edmw.post;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,7 +23,6 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import xyz.edmw.Message;
 import xyz.edmw.R;
-import xyz.edmw.settings.DownloadImage;
 import xyz.edmw.settings.MainSharedPreferences;
 import xyz.edmw.thread.ThreadActivity;
 
@@ -138,7 +134,6 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
             case "span":
                 String style = element.attr("style");
                 if (TextUtils.isEmpty(style)) {
-                    Log.d("span", element.outerHtml());
                     return "";
                 }
 
@@ -147,8 +142,6 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
                     String text = element.children().isEmpty() ? element.text().trim() : getBBCode(element.child(0));
                     return String.format("[size=%s]%s[/size]", tokens[1], text);
                 }
-
-                Log.d("span", element.outerHtml());
             case "div":
                 // fall through
             default:

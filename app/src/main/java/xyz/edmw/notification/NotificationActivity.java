@@ -5,10 +5,11 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
+import android.widget.Toast;
 
 import com.marshalchen.ultimaterecyclerview.UltimateRecyclerView;
-
-import java.util.List;
+import com.marshalchen.ultimaterecyclerview.itemTouchHelper.SimpleItemTouchHelperCallback;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -30,7 +31,7 @@ public class NotificationActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         setTheme(new MainSharedPreferences(this).getThemeId());
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_post);
+        setContentView(R.layout.activity_notification);
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -39,20 +40,27 @@ public class NotificationActivity extends AppCompatActivity {
         ultimateRecyclerView.addItemDividerDecoration(getApplicationContext());
         ultimateRecyclerView.setLayoutManager(llm);
 
-        Call<List<Notification>> call = RestClient.getService().getNotifications();
-        call.enqueue(new Callback<List<Notification>>() {
+        Call<Notifications> call = RestClient.getService().getNotifications();
+        call.enqueue(new Callback<Notifications>() {
             @Override
-            public void onResponse(Response<List<Notification>> response, Retrofit retrofit) {
+            public void onResponse(Response<Notifications> response, Retrofit retrofit) {
                 if (response.isSuccess()) {
-                    List<Notification> notifications = response.body();
-                    NotificationAdapter adapter = new NotificationAdapter(getApplicationContext(), notifications);
+                    Notifications notifications = response.body();
+                    NotificationAdapter adapter = new NotificationAdapter(NotificationActivity.this, notifications);
                     ultimateRecyclerView.setAdapter(adapter);
+
+                    ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(adapter);
+                    ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
+                    itemTouchHelper.attachToRecyclerView(ultimateRecyclerView.mRecyclerView);
+                } else {
+                    Toast.makeText(NotificationActivity.this, "Failed to load notifications", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Throwable t) {
                 t.printStackTrace();
+                Toast.makeText(NotificationActivity.this, "Failed to load notifications", Toast.LENGTH_SHORT).show();
             }
         });
     }

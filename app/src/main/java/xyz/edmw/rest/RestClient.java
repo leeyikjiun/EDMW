@@ -13,6 +13,7 @@ import java.net.CookiePolicy;
 import java.net.CookieStore;
 import java.util.concurrent.TimeUnit;
 
+import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
 import retrofit2.ScalarsConverterFactory;
 import xyz.edmw.MainApplication;
@@ -50,6 +51,7 @@ public class RestClient {
                 .baseUrl(baseUrl)
                 .addConverterFactory(new ConverterFactory())
                 .addConverterFactory(ScalarsConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
                 .client(client)
                 .build();
         service = retrofit.create(ApiService.class);

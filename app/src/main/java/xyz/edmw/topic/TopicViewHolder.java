@@ -1,8 +1,6 @@
 package xyz.edmw.topic;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.support.v7.widget.CardView;
 import android.text.Html;
 import android.view.View;
@@ -15,7 +13,6 @@ import com.marshalchen.ultimaterecyclerview.UltimateRecyclerviewViewHolder;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import xyz.edmw.R;
-import xyz.edmw.settings.DownloadImage;
 import xyz.edmw.settings.MainSharedPreferences;
 import xyz.edmw.thread.ThreadActivity;
 

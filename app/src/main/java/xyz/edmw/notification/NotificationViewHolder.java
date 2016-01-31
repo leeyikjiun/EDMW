@@ -1,25 +1,22 @@
 package xyz.edmw.notification;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.koushikdutta.ion.Ion;
+import com.marshalchen.ultimaterecyclerview.UltimateRecyclerviewViewHolder;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import xyz.edmw.R;
 import xyz.edmw.User;
-import xyz.edmw.settings.DownloadImage;
 import xyz.edmw.settings.MainSharedPreferences;
 import xyz.edmw.thread.ThreadActivity;
 
-public class NotificationViewHolder extends RecyclerView.ViewHolder {
+public class NotificationViewHolder extends UltimateRecyclerviewViewHolder {
     @Bind(R.id.card_view)
     CardView cardView;
     @Bind(R.id.notification_author)
@@ -35,6 +32,7 @@ public class NotificationViewHolder extends RecyclerView.ViewHolder {
 
     private final Context context;
     private MainSharedPreferences preferences;
+    private String id;
 
     public NotificationViewHolder(Context context, View view, boolean isItem) {
         super(view);
@@ -47,6 +45,7 @@ public class NotificationViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void setNotification(final Notification notification) {
+        id = notification.getId();
         User user = notification.getUser();
         author.setText(user.getName());
         userTitle.setText(notification.getType());

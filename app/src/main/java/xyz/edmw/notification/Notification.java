@@ -3,6 +3,7 @@ package xyz.edmw.notification;
 import xyz.edmw.User;
 
 public class Notification {
+    private String id;
     private User user;
     private String title;
     private String path;
@@ -29,7 +30,12 @@ public class Notification {
         return path;
     }
 
+    public String getId() {
+        return id;
+    }
+
     public static class Builder {
+        private String id;
         private User user;
         private String title;
         private String path;
@@ -61,8 +67,14 @@ public class Notification {
             return this;
         }
 
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
+
         public Notification build() {
             Notification notification = new Notification();
+            notification.id = id;
             notification.user = user;
             notification.title = title;
             notification.path = path;
