@@ -67,21 +67,11 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         Message message = new Message(context, this.message);
         message.setPost(post);
 
-        ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info = connMgr.getActiveNetworkInfo();
-        DownloadImage downloadImage = preferences.getDownloadImage();
-        switch (downloadImage) {
-            case Never:
-                authorAvatar.setVisibility(View.GONE);
-                break;
-            case Wifi:
-                if (info == null && info.getType() != ConnectivityManager.TYPE_WIFI) {
-                    authorAvatar.setVisibility(View.GONE);
-                    break;
-                }
-            case Always:
-                authorAvatar.setVisibility(View.VISIBLE);
-                Ion.with(authorAvatar).load(post.getAuthorAvatar());
+        if (preferences.canDownloadImage()) {
+            authorAvatar.setVisibility(View.VISIBLE);
+            Ion.with(authorAvatar).load(post.getAuthorAvatar());
+        } else {
+            authorAvatar.setVisibility(View.GONE);
         }
 
         postNum.setOnClickListener(new View.OnClickListener() {

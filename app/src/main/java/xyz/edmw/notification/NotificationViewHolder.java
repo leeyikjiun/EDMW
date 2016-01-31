@@ -53,21 +53,11 @@ public class NotificationViewHolder extends RecyclerView.ViewHolder {
         postDate.setText(notification.getPostDate());
         title.setText(notification.getTitle());
 
-        ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info = connMgr.getActiveNetworkInfo();
-        DownloadImage downloadImage = preferences.getDownloadImage();
-        switch (downloadImage) {
-            case Never:
-                authorAvatar.setVisibility(View.GONE);
-                break;
-            case Wifi:
-                if (info == null && info.getType() != ConnectivityManager.TYPE_WIFI) {
-                    authorAvatar.setVisibility(View.GONE);
-                    break;
-                }
-            case Always:
-                authorAvatar.setVisibility(View.VISIBLE);
-                Ion.with(authorAvatar).load(user.getAvatar());
+        if (preferences.canDownloadImage()) {
+            authorAvatar.setVisibility(View.VISIBLE);
+            Ion.with(authorAvatar).load(user.getAvatar());
+        } else {
+            authorAvatar.setVisibility(View.GONE);
         }
 
         cardView.setOnClickListener(new View.OnClickListener() {

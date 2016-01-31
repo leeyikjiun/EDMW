@@ -2,7 +2,12 @@ package xyz.edmw.settings;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
+import android.view.View;
+
+import com.koushikdutta.ion.Ion;
 
 import xyz.edmw.R;
 
@@ -39,10 +44,23 @@ public class MainSharedPreferences {
         }
     }
 
-    public DownloadImage getDownloadImage() {
+    private DownloadImage getDownloadImage() {
         String defValue = context.getString(R.string.pref_downloadImages_default);
         String downloadImage = preferences.getString(PREF_DOWNLOAD_IMAGE, defValue);
         return DownloadImage.getEnum(downloadImage);
     }
 
+    public boolean canDownloadImage() {
+        ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = connMgr.getActiveNetworkInfo();
+        switch (getDownloadImage()) {
+            case Never:
+                return false;
+            case Wifi:
+                return info != null && info.getType() == ConnectivityManager.TYPE_WIFI;
+            case Always:
+            default:
+                return true;
+        }
+    }
 }

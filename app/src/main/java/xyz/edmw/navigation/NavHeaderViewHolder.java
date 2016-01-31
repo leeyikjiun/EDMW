@@ -11,8 +11,10 @@ import com.facebook.drawee.view.SimpleDraweeView;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import xyz.edmw.MainActivity;
 import xyz.edmw.R;
 import xyz.edmw.User;
+import xyz.edmw.settings.MainSharedPreferences;
 
 public class NavHeaderViewHolder {
     @Bind(R.id.member_name)
@@ -24,27 +26,32 @@ public class NavHeaderViewHolder {
 
     private final Context context;
     private final View view;
+    private final MainSharedPreferences preferences;
 
     public NavHeaderViewHolder(Context context, View view) {
         this.context = context;
         this.view = view;
         ButterKnife.bind(this, view);
+        preferences = new MainSharedPreferences(context);
     }
 
     public void setUser(User user) {
         if (user == null) {
-            title.setVisibility(View.GONE);
+
         } else {
             name.setText(user.getName());
 
-            DraweeController controller = Fresco.newDraweeControllerBuilder()
-                    .setUri(Uri.parse(user.getAvatar()))
-                    .setTapToRetryEnabled(true)
-                    .setAutoPlayAnimations(true)
-                    .build();
-            avatar.setController(controller);
-
-            title.setVisibility(View.GONE);
+            if (preferences.canDownloadImage()) {
+                avatar.setVisibility(View.VISIBLE);
+                DraweeController controller = Fresco.newDraweeControllerBuilder()
+                        .setUri(Uri.parse(user.getAvatar()))
+                        .setAutoPlayAnimations(true)
+                        .build();
+                avatar.setController(controller);
+            } else {
+                avatar.setVisibility(View.GONE);
+            }
         }
+        title.setVisibility(View.GONE);
     }
 }

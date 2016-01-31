@@ -8,6 +8,7 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+        <item name="cardStyleQuote">@style/CardView.PrimaryLight</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -21,6 +22,7 @@
 
     <style name="AppTheme.Black" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="cardStyle">@style/CardView.Black</item>
+        <item name="cardStyleQuote">@style/CardView.Grey</item>
         <item name="android:background">@color/black</item>
         <item name="colorPrimary">@color/black</item>
         <item name="android:textColor">@color/font_color_white</item>
@@ -39,7 +41,13 @@
 
     <style name="AppTheme.Black.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="CardView.Grey">
+        <item name="cardBackgroundColor">#60000000</item>
+    </style>
     <style name="CardView.Black">
         <item name="cardBackgroundColor">@color/black</item>
+    </style>
+    <style name="CardView.PrimaryLight">
+        <item name="cardBackgroundColor">@color/colorPrimaryLight</item>
     </style>
 </resources>

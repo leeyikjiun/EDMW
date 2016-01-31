@@ -126,7 +126,15 @@ public class Message {
                         postedBy = postedByElement.text().trim();
                         message = element.select("div.message").first().html();
                     } else {
-                        message = element.select("div.quote_container").first().html();
+                        Element div = element.select("div.quote_container").first();
+                        if (div != null) {
+                            message = div.html();
+                        } else {
+                            message = element.select("pre.bbcode_code").first().html();
+                            TextView textView = new TextView(context);
+                            textView.setText("Code:");
+                            this.message.addView(textView);
+                        }
                     }
 
                     Quote quote = new Quote(postedBy, message);
@@ -160,16 +168,8 @@ public class Message {
     }
 
     private void setImage(final String source) {
-        ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info = connMgr.getActiveNetworkInfo();
-        DownloadImage downloadImage = preferences.getDownloadImage();
-        switch (downloadImage) {
-            case Never:
-                return;
-            case Wifi:
-                if (info == null || info.getType() != ConnectivityManager.TYPE_WIFI) {
-                    return;
-                }
+        if (!preferences.canDownloadImage()) {
+            return;
         }
 
         if (source.contains("www.edmw.xyz/core/images/smilies")

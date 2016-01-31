@@ -26,11 +26,12 @@ public class NavViewHolder {
     public void setUser(User user) {
         navHeaderViewHolder.setUser(user);
 
+        Menu menu = view.getMenu();
+        menu.clear();
         if (user == null) {
             view.inflateMenu(R.menu.activity_main_drawer_guest);
         } else {
             view.inflateMenu(R.menu.activity_main_drawer_member);
-            Menu menu = view.getMenu();
             MenuItem messages = menu.findItem(R.id.nav_messages);
             messages.setTitle(user.getMessages());
         }

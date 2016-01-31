@@ -58,21 +58,11 @@ public class TopicViewHolder extends UltimateRecyclerviewViewHolder {
         startedBy.setText(topic.getStartedBy());
         lastPost.setText(Html.fromHtml(topic.getLastPost()));
 
-        ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info = connMgr.getActiveNetworkInfo();
-        DownloadImage downloadImage = preferences.getDownloadImage();
-        switch (downloadImage) {
-            case Never:
-                threadstarterAvatar.setVisibility(View.GONE);
-                break;
-            case Wifi:
-                if (info == null || info.getType() != ConnectivityManager.TYPE_WIFI) {
-                    threadstarterAvatar.setVisibility(View.GONE);
-                    break;
-                }
-            case Always:
-                threadstarterAvatar.setVisibility(View.VISIBLE);
-                Ion.with(threadstarterAvatar).load(topic.getThreadstarterAvatar());
+        if (preferences.canDownloadImage()) {
+            threadstarterAvatar.setVisibility(View.VISIBLE);
+            Ion.with(threadstarterAvatar).load(topic.getThreadstarterAvatar());
+        } else {
+            threadstarterAvatar.setVisibility(View.GONE);
         }
 
         if(!topic.isSticky()) {
