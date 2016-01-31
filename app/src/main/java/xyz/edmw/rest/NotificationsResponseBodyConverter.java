@@ -37,7 +37,7 @@ public class NotificationsResponseBodyConverter implements Converter<ResponseBod
         Map<String, String> idsOnPage = new HashMap<>();
         List<Notification> notifications = new ArrayList<>(messages.size());
         for (Element message : messages) {
-            String avatar = message.select("a.avatar img").first().attr("src").trim();
+            String avatar = message.select("a.avatar img").attr("src").trim();
 
             Element messageText = message.select("div.notification-message-text").first();
             Element a = messageText.select("a.user-profile.author").first();
@@ -67,7 +67,7 @@ public class NotificationsResponseBodyConverter implements Converter<ResponseBod
                 }
             }
 
-            String id = message.select("button[id^=notificationBtnDelete_]").first().attr("data-notificationid");
+            String id = message.select("button[id^=notificationBtnDelete_]").attr("data-notificationid");
             idsOnPage.put(id, id);
 
             Notification notification = new Notification.Builder()

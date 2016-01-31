@@ -6,7 +6,6 @@ import retrofit.Call;
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
 import retrofit.http.GET;
-import retrofit.http.Headers;
 import retrofit.http.Multipart;
 import retrofit.http.POST;
 import retrofit.http.Part;
@@ -47,8 +46,11 @@ public interface ApiService {
     @GET("/privatemessage/notification/364/1")
     Call<Notifications> getNotifications();
 
-    @Headers("Accept: application/json")
     @Multipart
     @POST("/ajax/api/notification/dismissNotification")
     Call<Void> dismissNotification(@Part("readIds") String id, @Part("idsOnPage") Map<String, String> idsOnPage, @Part("filterParams") Map<String, String> filterParams, @Part("securitytoken") String securityToken);
+
+    @Multipart
+    @POST("/ajax/api/follow/{action}")
+    Call<Void> follow(@Path("action") String action, @Part("follow_item") String id, @Part("type") String type, @Part("securitytoken") String securityToken);
 }

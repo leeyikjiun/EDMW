@@ -72,6 +72,8 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
     private boolean loadPrev, loadMore;
     private String path;
     private ReplyForm replyForm;
+    private String id;
+    private boolean isSubscribed;
 
     public static Intent newInstance(Context context, String title, String path) {
         Intent intent = new Intent(context, ThreadActivity.class);
@@ -96,7 +98,7 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(new MainSharedPreferences(this).getThemeId());
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_post);
+        setContentView(R.layout.activity_thread);
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -136,7 +138,7 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.thread, menu);
         return true;
     }
 
@@ -150,10 +152,38 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem item = menu.findItem(R.id.action_subscribe);
+        String title = isSubscribed ? "Unsubscribe" : "Subscribe";
+        item.setTitle(title);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_refresh:
                 onThreadSelected(path, 1, Insert.New);
+                return true;
+            case R.id.action_subscribe:
+                final String action = isSubscribed ? "delete" : "add";
+                final String err = isSubscribed ? "unsubscribe" : "subscribe";
+                Call<Void> call = RestClient.getService().follow(action, id, "follow_contents", replyForm.getSecurityToken());
+                call.enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(Response<Void> response, Retrofit retrofit) {
+                        if (response.isSuccess()) {
+                            isSubscribed = !isSubscribed;
+                        } else {
+                            Toast.makeText(ThreadActivity.this, "Failed to " + err, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        Toast.makeText(ThreadActivity.this, "Failed to " + err, Toast.LENGTH_SHORT).show();
+                    }
+                });
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -163,6 +193,9 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
     private void onThreadLoaded(Thread thread, Insert insert) {
         toolbar.setSubtitle("Page " + thread.getPageNum());
         path = thread.getPath();
+        id = thread.getId();
+        isSubscribed = thread.isSubscribed();
+
         int visibility = (replyForm = thread.getReplyForm()) == null ? View.GONE : View.VISIBLE;
         replyLayout.setVisibility(visibility);
 

@@ -10,23 +10,27 @@ import java.util.List;
 import xyz.edmw.post.Post;
 
 public class Thread implements Parcelable {
+    private String id;
     private String path;
     private String title;
     private int pageNum;
     private boolean hasNextPage;
     private List<Post> posts;
     private ReplyForm replyForm;
+    private boolean isSubscribed;
 
     private Thread() {
 
     }
 
     protected Thread(Parcel in) {
+        id = in.readString();
         path = in.readString();
         title = in.readString();
         pageNum = in.readInt();
         hasNextPage = in.readByte() != 0;
         replyForm = in.readParcelable(ReplyForm.class.getClassLoader());
+        isSubscribed = in.readByte() != 0;
     }
 
     public static final Creator<Thread> CREATOR = new Creator<Thread>() {
@@ -50,20 +54,6 @@ public class Thread implements Parcelable {
 
     public List<Post> getPosts() {
         return posts == null ? Collections.<Post>emptyList() : posts;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(path);
-        dest.writeString(title);
-        dest.writeInt(pageNum);
-        dest.writeByte((byte) (hasNextPage ? 1 : 0));
-        dest.writeParcelable(replyForm, flags);
     }
 
     public String getTitle() {
@@ -94,12 +84,43 @@ public class Thread implements Parcelable {
         return replyForm;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(path);
+        dest.writeString(title);
+        dest.writeInt(pageNum);
+        dest.writeByte((byte) (hasNextPage ? 1 : 0));
+        dest.writeParcelable(replyForm, flags);
+        dest.writeByte((byte) (isSubscribed ? 1 : 0));
+    }
+
+    public boolean isSubscribed() {
+        return isSubscribed;
+    }
+
     public static class Builder {
+        private String id;
         private String path;
         private String title;
         private int pageNum = 1;
         private boolean hasNextPage;
         private ReplyForm replyForm;
+        private boolean isSubscribed;
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
 
         public Builder title(String title) {
             this.title = title;
@@ -126,13 +147,20 @@ public class Thread implements Parcelable {
             return this;
         }
 
+        public Builder isSubscribed(boolean isSubscribed) {
+            this.isSubscribed = isSubscribed;
+            return this;
+        }
+
         public Thread build() {
             Thread thread = new Thread();
+            thread.id = id;
             thread.path = path;
             thread.title = title;
             thread.pageNum = pageNum;
             thread.hasNextPage = hasNextPage;
             thread.replyForm = replyForm;
+            thread.isSubscribed = isSubscribed;
             return thread;
         }
     }

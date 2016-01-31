@@ -26,39 +26,8 @@ public class ThreadResponseBodyConverter implements Converter<ResponseBody, Thre
     public Thread getThread(String html) {
         Document doc = Jsoup.parse(html);
         Element threadViewTab = doc.getElementById("thread-view-tab");
-        Thread.Builder threadBuilder = new Thread.Builder();
 
-        Element form = doc.select("form[data-message-type=reply]").first();
-        if (form != null) {
-            String securityToken = form.select("input[name=securitytoken]").first().val();
-            String channelId = form.select("input[name=channelid]").first().val();
-            String parentId = form.select("input[name=parentid]").first().val();
-            ReplyForm replyForm = new ReplyForm(securityToken, Integer.parseInt(channelId), Integer.parseInt(parentId));
-
-            threadBuilder = threadBuilder
-                    .replyForm(replyForm);
-        }
-
-        Element primaryPage = threadViewTab.select("a.primary.page").first();
-        if (primaryPage != null) {
-            int pageNum = Integer.parseInt(primaryPage.text().trim());
-            boolean hasNextPage = !threadViewTab.select("a.js-pagenav-next-button").first().attr("data-page").equals("0");
-            threadBuilder = threadBuilder
-                    .pageNum(pageNum)
-                    .hasNextPage(hasNextPage);
-        }
-
-        String title = doc.select("h1.main-title").first().text().trim();
-        String path = doc.head().select("link[rel=canonical]").attr("href");
-        path = path.substring(RestClient.baseUrl.length());
-        int index = path.indexOf("/page");
-        if (index >= 0) {
-            path = path.substring(0, index);
-        }
-        Thread thread = threadBuilder
-                .title(title)
-                .path(path)
-                .build();
+        Thread thread = getThread(doc);
 
         Elements rows = threadViewTab.select("li.b-post");
         for (Element row : rows) {
@@ -94,5 +63,47 @@ public class ThreadResponseBodyConverter implements Converter<ResponseBody, Thre
             thread.addPost(post);
         }
         return thread;
+    }
+
+    public Thread getThread(Document doc) {
+        Element threadViewTab = doc.getElementById("thread-view-tab");
+        Thread.Builder threadBuilder = new Thread.Builder();
+
+        Element form = doc.select("form[data-message-type=reply]").first();
+        if (form != null) {
+            String securityToken = form.select("input[name=securitytoken]").val();
+            String channelId = form.select("input[name=channelid]").val();
+            String parentId = form.select("input[name=parentid]").val();
+            ReplyForm replyForm = new ReplyForm(securityToken, Integer.parseInt(channelId), Integer.parseInt(parentId));
+
+            threadBuilder = threadBuilder
+                    .replyForm(replyForm);
+        }
+
+        Element primaryPage = threadViewTab.select("a.primary.page").first();
+        if (primaryPage != null) {
+            int pageNum = Integer.parseInt(primaryPage.text().trim());
+            boolean hasNextPage = !threadViewTab.select("a.js-pagenav-next-button").first().attr("data-page").equals("0");
+            threadBuilder = threadBuilder
+                    .pageNum(pageNum)
+                    .hasNextPage(hasNextPage);
+        }
+
+        String title = doc.select("h1.main-title").first().text().trim();
+        String path = doc.head().select("link[rel=canonical]").attr("href");
+        path = path.substring(RestClient.baseUrl.length());
+        int index = path.indexOf("/page");
+        if (index >= 0) {
+            path = path.substring(0, index);
+        }
+
+        String id = doc.select("input[name=nodeid]").val();
+        boolean isSubscribed = !doc.select("button.isSubscribed").isEmpty();
+        return threadBuilder
+                .id(id)
+                .title(title)
+                .path(path)
+                .isSubscribed(isSubscribed)
+                .build();
     }
 }
