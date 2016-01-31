@@ -31,8 +31,13 @@ public class NotificationsResponseBodyConverter implements Converter<ResponseBod
 
     private Notifications getNotifications(String html) {
         Document doc = Jsoup.parse(html);
-        Element notificationContent = doc.getElementById("notificationContent");
-        Elements messages = notificationContent.select("li.list-item.message-item");
+        Element privateMessageContainer = doc.getElementById("privateMessageContainer");
+        Element notificationList = privateMessageContainer.select("ul.pm-notification-list").first();
+        if (notificationList == null) {
+            return new Notifications();
+        }
+
+        Elements messages =  notificationList.select("li.list-item.message-item");
 
         Map<String, String> idsOnPage = new HashMap<>();
         List<Notification> notifications = new ArrayList<>(messages.size());

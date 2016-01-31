@@ -43,7 +43,7 @@ public interface ApiService {
     @POST("/create-content/text/")
     Call<Void> postTopic(@Part("securitytoken") String securityToken, @Part("parentid") int parentId, @Part("title") String title, @Part("text") String text);
 
-    @GET("/privatemessage/notification/364/1")
+    @GET("/privatemessage/index")
     Call<Notifications> getNotifications();
 
     @Multipart
