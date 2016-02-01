@@ -200,6 +200,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 adapter = null;
                 onForumSelected(forum);
                 break;
+            case R.id.nav_sex_and_love:
+                forum = Forum.sex_and_love;
+                forum.setPageNum(1);
+                adapter = null;
+                onForumSelected(forum);
             case R.id.nav_feedback:
                 forum = Forum.feedback;
                 forum.setPageNum(1);

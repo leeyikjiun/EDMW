@@ -34,7 +34,10 @@
                 android:title="Technology" />
             <item
                 android:id="@+id/nav_music_entertainment"
-                android:title="Music &amp; Entertainment" />
+                android:title="Entertainment" />
+            <item
+                android:id="@+id/nav_sex_and_love"
+                android:title="Sex &amp; Love" />
             <item
                 android:id="@+id/nav_feedback"
                 android:title="Feedback" />
