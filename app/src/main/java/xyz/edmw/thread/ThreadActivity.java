@@ -3,6 +3,7 @@ package xyz.edmw.thread;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -123,7 +124,7 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
 
         Intent i = getIntent();
         String title = i.getStringExtra(ARG_TITLE);
-        String path = i.getStringExtra(ARG_PATH);
+        path = i.getStringExtra(ARG_PATH);
         int pageNum = i.getIntExtra(ARG_PAGE_NUM, -1);
         getSupportActionBar().setTitle(title);
         onThreadSelected(path, pageNum, Insert.New);
@@ -161,6 +162,8 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        // TODO fix exact page
+        String url = RestClient.baseUrl + path;
         switch (item.getItemId()) {
             case R.id.action_refresh:
                 onThreadSelected(path, 1, Insert.New);
@@ -184,6 +187,16 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
                         Toast.makeText(ThreadActivity.this, "Failed to " + err, Toast.LENGTH_SHORT).show();
                     }
                 });
+                return true;
+            case (R.id.action_share):
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.putExtra(Intent.EXTRA_SUBJECT, "EDMW.XYZ");
+                intent.putExtra(Intent.EXTRA_TEXT, url);
+                intent.setType("text/plain");
+                startActivity(Intent.createChooser(intent, "Share Thread"));
+                return true;
+            case (R.id.action_open_browser):
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

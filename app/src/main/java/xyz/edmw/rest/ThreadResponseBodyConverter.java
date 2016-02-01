@@ -33,7 +33,10 @@ public class ThreadResponseBodyConverter implements Converter<ResponseBody, Thre
         for (Element row : rows) {
             String author = row.select("div.author a").first().text().trim();
             String timestamp = row.select("div.b-post__timestamp").text().trim();
-            String postNum = row.select("a.b-post__count").first().text().trim();
+            Element a = row.select("a.b-post__count").first();
+            String postNum = a.text().trim();
+            String path = a.attr("href");
+            path = path.substring(RestClient.baseUrl.length());
             String message = row.select("div.js-post__content-text").first().html();
             String authorAvatar = row.select("a.b-avatar").first().getElementsByTag("img").attr("src");
             String userTitle = row.select("div.usertitle").first().text().trim();
@@ -46,7 +49,8 @@ public class ThreadResponseBodyConverter implements Converter<ResponseBody, Thre
                     .postNum(postNum)
                     .userTitle(userTitle)
                     .authorAvatar(authorAvatar)
-                    .message(message);
+                    .message(message)
+                    .path(path);
 
             Elements imgs = row.select("img.b-gallery-thumbnail-list__thumbnail");
             if (imgs != null) {

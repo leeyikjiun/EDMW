@@ -11,6 +11,7 @@ public class Post {
     private String timestamp;
     private String postNum;
     private String message;
+    private String path;
     private List<String> photos;
 
     private Post() {
@@ -65,6 +66,10 @@ public class Post {
         return id;
     }
 
+    public String getPath() {
+        return path;
+    }
+
     public static class Builder {
         private String id;
         private String author;
@@ -73,6 +78,7 @@ public class Post {
         private String timestamp;
         private String postNum;
         private String message;
+        private String path;
         private List<String> photos;
 
         public Builder id(String id) {
@@ -110,6 +116,11 @@ public class Post {
             return this;
         }
 
+        public Builder path(String path) {
+            this.path = path;
+            return this;
+        }
+
         public Builder photos(List<String> photos) {
             this.photos = photos;
             return this;
@@ -124,6 +135,7 @@ public class Post {
             post.message = message;
             post.userTitle = userTitle;
             post.authorAvatar = authorAvatar;
+            post.path = path;
             post.photos = photos;
             return post;
         }

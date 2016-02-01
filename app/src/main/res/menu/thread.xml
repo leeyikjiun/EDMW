@@ -8,4 +8,8 @@
         app:showAsAction="ifRoom" />
     <item android:id="@+id/action_subscribe"
         android:title="Subscribe" />
+    <item android:id="@+id/action_share"
+        android:title="Share"/>
+    <item android:id="@+id/action_open_browser"
+        android:title="Open in browser"/>
 </menu>

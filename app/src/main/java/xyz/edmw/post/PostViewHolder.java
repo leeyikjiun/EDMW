@@ -1,6 +1,7 @@
 package xyz.edmw.post;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -23,10 +24,11 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import xyz.edmw.Message;
 import xyz.edmw.R;
+import xyz.edmw.rest.RestClient;
 import xyz.edmw.settings.MainSharedPreferences;
 import xyz.edmw.thread.ThreadActivity;
 
-public class PostViewHolder extends RecyclerView.ViewHolder {
+public class PostViewHolder extends RecyclerView.ViewHolder implements PopupMenu.OnMenuItemClickListener {
     @Bind(R.id.post_author)
     TextView author;
     @Bind(R.id.post_timestamp)
@@ -39,9 +41,11 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
     ImageView authorAvatar;
     @Bind(R.id.post_user_title)
     TextView userTitle;
-
     private final Context context;
+
     private final MainSharedPreferences preferences;
+    private PopupMenu popup;
+    private Post post;
 
     public PostViewHolder(Context context, View view, boolean isItem) {
         super(view);
@@ -50,10 +54,15 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
 
         if (isItem) {
             ButterKnife.bind(this, view);
+            popup = new PopupMenu(context, postNum);
+            popup.setOnMenuItemClickListener(PostViewHolder.this);
+            MenuInflater inflater = popup.getMenuInflater();
+            inflater.inflate(R.menu.post, popup.getMenu());
         }
     }
 
     public void setPost(final Post post) {
+        this.post = post;
         message.removeAllViews();
         author.setText(Html.fromHtml(post.getAuthor()));
         timestamp.setText(Html.fromHtml(post.getTimestamp()));
@@ -73,26 +82,30 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         postNum.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                PopupMenu popup = new PopupMenu(context, v);
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        switch (item.getItemId()) {
-                            case R.id.action_quote:
-                                String message = getBBCode(post.getMessage());
-                                String quote = String.format("[QUOTE=%s;n%s]%s[/QUOTE]", post.getAuthor(), post.getId(), message);
-                                ((ThreadActivity) context).addQuote(quote);
-                                return true;
-                            default:
-                                return false;
-                        }
-                    }
-                });
-                MenuInflater inflater = popup.getMenuInflater();
-                inflater.inflate(R.menu.post, popup.getMenu());
                 popup.show();
             }
         });
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_quote:
+                String message = getBBCode(post.getMessage());
+                String quote = String.format("[QUOTE=%s;n%s]%s[/QUOTE]", post.getAuthor(), post.getId(), message);
+                ((ThreadActivity) context).addQuote(quote);
+                return true;
+            case R.id.action_share:
+                String url = RestClient.baseUrl + post.getPath();
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.putExtra(Intent.EXTRA_SUBJECT, "EDMW.XYZ");
+                intent.putExtra(Intent.EXTRA_TEXT, url);
+                intent.setType("text/plain");
+                context.startActivity(Intent.createChooser(intent, "Share Post"));
+                return true;
+            default:
+                return false;
+        }
     }
 
     private String getBBCode(String html) {
