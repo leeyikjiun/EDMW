@@ -16,7 +16,7 @@
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name"
-            android:launchMode="singleInstance"
+            android:launchMode="singleTop"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,20 +28,32 @@
             android:configChanges="orientation|screenSize"
             android:label="@string/title_thread_activity"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="xyz.edmw.MainActivity" />
+        </activity>
         <activity
             android:name=".LoginActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_login_activity"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan"/>
+            android:windowSoftInputMode="adjustPan">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="xyz.edmw.MainActivity" />
+        </activity>
         <activity
             android:name=".topic.TopicActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_topic_activity"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="xyz.edmw.MainActivity" />
+        </activity>
         <activity
             android:name=".settings.SettingsActivity"
             android:label="@string/title_activity_settings"
@@ -59,7 +71,11 @@
             android:name=".notification.NotificationActivity"
             android:label="@string/title_activity_notifications"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="xyz.edmw.MainActivity" />
+        </activity>
     </application>
 
 </manifest>
