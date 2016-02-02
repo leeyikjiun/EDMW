@@ -159,7 +159,6 @@ public class Message {
                 TextView view = new TextView(context);
                 view.setMovementMethod(LinkMovementMethod.getInstance());
                 view.setText(Html.fromHtml(element.outerHtml()));
-                Linkify.addLinks(view, Linkify.ALL);
                 message.addView(view);
         }
     }

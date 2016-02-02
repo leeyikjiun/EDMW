@@ -44,8 +44,14 @@ public class Forum {
             .hasNextPage(false)
             .build();
     public static final Forum music_entertainment = new Builder()
-            .title("Music & Entertainment")
+            .title("Entertainment")
             .path("music-entertainment")
+            .pageNum(1)
+            .hasNextPage(false)
+            .build();
+    public static final Forum sex_and_love = new Builder()
+            .title("Sex & Love")
+            .path("sex-love-sponsored-by-www-alicemaple-com")
             .pageNum(1)
             .hasNextPage(false)
             .build();
