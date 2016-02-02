@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v7.widget.CardView;
 import android.text.Html;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -29,6 +30,8 @@ public class TopicViewHolder extends UltimateRecyclerviewViewHolder {
     ImageView threadstarterAvatar;
     @Bind(R.id.sticky_label)
     TextView stickyLabel;
+    @Bind(R.id.goto_last_post)
+    ImageButton gotoLastPost;
 
     private final Context context;
     private final MainSharedPreferences preferences;
@@ -68,11 +71,13 @@ public class TopicViewHolder extends UltimateRecyclerviewViewHolder {
             stickyLabel.setVisibility(View.VISIBLE);
         }
 
-        lastPost.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener listener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ThreadActivity.startInstance(context, topic, topic.getNumPages());
             }
-        });
+        };
+        lastPost.setOnClickListener(listener);
+        gotoLastPost.setOnClickListener(listener);
     }
 }

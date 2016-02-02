@@ -3,6 +3,10 @@ package xyz.edmw.topic;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import org.jsoup.nodes.Element;
+
+import xyz.edmw.rest.RestClient;
+
 public class Topic implements Parcelable {
     private String id;
     private String title;
@@ -12,6 +16,7 @@ public class Topic implements Parcelable {
     private  String threadstarterAvatar;
     private  boolean isSticky;
     private int numPages;
+    private String lastPostPath;
 
     private Topic() {
 
@@ -162,6 +167,29 @@ public class Topic implements Parcelable {
             topic.isSticky = isSticky;
             topic.numPages = numPages;
             return topic;
+        }
+
+        public static Builder from(Element topicItem) {
+            String id = topicItem.attr("data-node-id");
+            boolean isSticky = topicItem.hasClass("sticky");
+
+            Element anchor = topicItem.select("a.topic-title").first();
+            String title = anchor.text().trim();
+            String path = anchor.attr("href").substring(RestClient.baseUrl.length());
+
+            Element cell = topicItem.select("td.cell-lastpost").first();
+            String lastPost = cell.text().trim();
+            String avatar = cell.select("a.avatar img").attr("src").replace("thumb=1", "thumb=0");
+            String startedBy = topicItem.select("div.topic-info").first().text().trim();
+
+            return new Topic.Builder()
+                    .id(id)
+                    .title(title)
+                    .path(path)
+                    .lastPost(lastPost)
+                    .threadstarterAvatar(avatar)
+                    .startedBy(startedBy)
+                    .isSticky(isSticky);
         }
     }
 }

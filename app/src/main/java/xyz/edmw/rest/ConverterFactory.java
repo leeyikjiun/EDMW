@@ -9,6 +9,7 @@ import java.lang.reflect.Type;
 import retrofit.Converter;
 import xyz.edmw.Forum;
 import xyz.edmw.notification.Notifications;
+import xyz.edmw.subscription.Subscriptions;
 import xyz.edmw.thread.Thread;
 import xyz.edmw.topic.TopicForm;
 
@@ -23,8 +24,10 @@ public class ConverterFactory extends Converter.Factory {
             return new TopicFormResponseBodyConverter();
         } else if (type == Boolean.class) {
             return new LoginResponseBodyConverter();
-        }else if (type == Notifications.class) {
+        } else if (type == Notifications.class) {
             return new NotificationsResponseBodyConverter();
+        } else if (type == Subscriptions.class) {
+            return new SubscriptionsResponseBodyConverter();
         } else {
             return super.fromResponseBody(type, annotations);
         }

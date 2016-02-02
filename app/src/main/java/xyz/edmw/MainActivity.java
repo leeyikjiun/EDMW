@@ -35,6 +35,7 @@ import xyz.edmw.recyclerview.RecyclerViewDisabler;
 import xyz.edmw.rest.RestClient;
 import xyz.edmw.settings.MainSharedPreferences;
 import xyz.edmw.settings.SettingsActivity;
+import xyz.edmw.subscription.SubscriptionActivity;
 import xyz.edmw.topic.TopicActivity;
 import xyz.edmw.topic.TopicAdapter;
 
@@ -158,6 +159,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case (R.id.nav_messages):
                 startActivity(new Intent(MainActivity.this, NotificationActivity.class));
+                break;
+            case (R.id.nav_subscriptions):
+                startActivity(new Intent(MainActivity.this, SubscriptionActivity.class));
+                break;
             case (R.id.nav_edmw):
                 forum = Forum.edmw;
                 forum.setPageNum(1);

@@ -35,7 +35,7 @@ public class TopicActivity extends AppCompatActivity implements View.OnClickList
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         setTheme(new MainSharedPreferences(this).getThemeId());
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_topic);
+        setContentView(R.layout.activity_new_topic);
         ButterKnife.bind(this);
 
         setSupportActionBar(toolbar);

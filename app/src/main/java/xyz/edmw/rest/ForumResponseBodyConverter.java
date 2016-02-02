@@ -43,31 +43,14 @@ public class ForumResponseBodyConverter implements Converter<ResponseBody, Forum
 
         Elements rows = topicTab.select("tr.topic-item");
         for (Element row : rows) {
-            Element anchor = row.select("a.topic-title").first();
-            Boolean isSticky = row.hasClass("sticky");
-            String title = anchor.text().trim();
-            String path = anchor.attr("href").substring(RestClient.baseUrl.length());
-            String lastPost = row.select("td.cell-lastpost").first().text().trim();
-            String avatar = row.select("div.topic-avatar").first().getElementsByTag("img").attr("src").replace("thumb=1", "thumb=0");
-            String startedBy = row.select("div.topic-info").first().text().trim();
-            String id = row.attr("data-node-id");
+            Topic.Builder builder = Topic.Builder.from(row);
 
             String responses = row.select("div.posts-count").first().text().trim();
             responses = responses.substring(0, responses.indexOf(" response"));
             responses = responses.replace(",", "");
             int numPages = (int) Math.ceil((double) Integer.parseInt(responses) / responsesPerPage);
 
-            forum.addTopic(new Topic.Builder()
-                    .id(id)
-                    .title(title)
-                    .path(path)
-                    .lastPost(lastPost)
-                    .threadstarterAvatar(avatar)
-                    .startedBy(startedBy)
-                    .isSticky(isSticky)
-                    .numPages(numPages)
-                    .build()
-            );
+            forum.addTopic(builder.numPages(numPages).build());
         }
 
         Element mainNavBar = doc.getElementById("main-navbar");

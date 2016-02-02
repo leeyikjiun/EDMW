@@ -12,6 +12,7 @@ import retrofit.http.Part;
 import retrofit.http.Path;
 import xyz.edmw.Forum;
 import xyz.edmw.notification.Notifications;
+import xyz.edmw.subscription.Subscriptions;
 import xyz.edmw.thread.Thread;
 import xyz.edmw.topic.TopicForm;
 
@@ -53,4 +54,7 @@ public interface ApiService {
     @Multipart
     @POST("/ajax/api/follow/{action}")
     Call<Void> follow(@Path("action") String action, @Part("follow_item") String id, @Part("type") String type, @Part("securitytoken") String securityToken);
+
+    @GET("/privatemessage/subscribedposts/0/1")
+    Call<Subscriptions> getSubscriptions();
 }
