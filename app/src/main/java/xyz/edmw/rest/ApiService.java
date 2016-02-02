@@ -14,6 +14,7 @@ import xyz.edmw.Forum;
 import xyz.edmw.notification.Notifications;
 import xyz.edmw.subscription.Subscriptions;
 import xyz.edmw.thread.Thread;
+import xyz.edmw.topic.RecentPosts;
 import xyz.edmw.topic.TopicForm;
 
 public interface ApiService {
@@ -57,4 +58,10 @@ public interface ApiService {
 
     @GET("/privatemessage/subscribedposts/0/1")
     Call<Subscriptions> getSubscriptions();
+
+    @GET("/{path}")
+    Call<RecentPosts> getRecentPosts(@Path("path") String path);
+
+    @GET("/search?searchJson={searchJson}")
+    Call<Void> search(@Path("searchJson") String searchJson);
 }

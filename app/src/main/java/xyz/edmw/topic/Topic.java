@@ -172,6 +172,7 @@ public class Topic implements Parcelable {
         public static Builder from(Element topicItem) {
             String id = topicItem.attr("data-node-id");
             boolean isSticky = topicItem.hasClass("sticky");
+            String avatar = topicItem.select("div.topic-avatar img").attr("src").replace("thumb=1", "thumb=0");
 
             Element anchor = topicItem.select("a.topic-title").first();
             String title = anchor.text().trim();
@@ -179,7 +180,7 @@ public class Topic implements Parcelable {
 
             Element cell = topicItem.select("td.cell-lastpost").first();
             String lastPost = cell.text().trim();
-            String avatar = cell.select("a.avatar img").attr("src").replace("thumb=1", "thumb=0");
+//            String avatar = cell.select("a.avatar img").attr("src").replace("thumb=1", "thumb=0");
             String startedBy = topicItem.select("div.topic-info").first().text().trim();
 
             return new Topic.Builder()

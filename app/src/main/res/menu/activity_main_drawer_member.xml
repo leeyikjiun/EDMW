@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:title="Account">
-        <menu>
+    <group>
             <item
                 android:id="@+id/nav_logout"
                 android:title="Log Out" />
@@ -12,11 +11,12 @@
             <item
                 android:id="@+id/nav_subscriptions"
                 android:title="Subscriptions" />
-        </menu>
-    </item>
+        <item
+            android:id="@+id/nav_recent_posts"
+            android:title="Recent Posts" />
+    </group>
 
-    <item android:title="Forum">
-        <menu>
+    <group>
             <item
                 android:id="@+id/nav_edmw"
                 android:title="EDMW" />
@@ -41,8 +41,7 @@
             <item
                 android:id="@+id/nav_feedback"
                 android:title="Feedback" />
-        </menu>
-    </item>
+    </group>
 
     <group
         android:id="@+id/menu_bottom"

@@ -19,7 +19,7 @@ import xyz.edmw.R;
 import xyz.edmw.rest.RestClient;
 import xyz.edmw.settings.MainSharedPreferences;
 
-public class TopicActivity extends AppCompatActivity implements View.OnClickListener {
+public class NewTopicActivity extends AppCompatActivity implements View.OnClickListener {
     @Bind(R.id.toolbar)
     Toolbar toolbar;
     @Bind(R.id.topic_title)
@@ -66,7 +66,7 @@ public class TopicActivity extends AppCompatActivity implements View.OnClickList
     @Override
     public void onClick(View v) {
         if (topicForm == null) {
-            Toast.makeText(TopicActivity.this, "Failed to create new topic", Toast.LENGTH_SHORT).show();
+            Toast.makeText(NewTopicActivity.this, "Failed to create new topic", Toast.LENGTH_SHORT).show();
         } else {
             Call<Void> call = RestClient.getService().postTopic(
                     topicForm.getSecurityToken(),
@@ -78,17 +78,17 @@ public class TopicActivity extends AppCompatActivity implements View.OnClickList
                 @Override
                 public void onResponse(Response<Void> response, Retrofit retrofit) {
                     if (response.isSuccess()) {
-                        Toast.makeText(TopicActivity.this, "Successfully created new topic", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(NewTopicActivity.this, "Successfully created new topic", Toast.LENGTH_SHORT).show();
                         finish();
                     } else {
-                        Toast.makeText(TopicActivity.this, "Failed to create new topic", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(NewTopicActivity.this, "Failed to create new topic", Toast.LENGTH_SHORT).show();
                     }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
                     t.printStackTrace();
-                    Toast.makeText(TopicActivity.this, "Failed to create new topic", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(NewTopicActivity.this, "Failed to create new topic", Toast.LENGTH_SHORT).show();
                 }
             });
         }

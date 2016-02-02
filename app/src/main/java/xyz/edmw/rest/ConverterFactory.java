@@ -11,6 +11,7 @@ import xyz.edmw.Forum;
 import xyz.edmw.notification.Notifications;
 import xyz.edmw.subscription.Subscriptions;
 import xyz.edmw.thread.Thread;
+import xyz.edmw.topic.RecentPosts;
 import xyz.edmw.topic.TopicForm;
 
 public class ConverterFactory extends Converter.Factory {
@@ -28,6 +29,8 @@ public class ConverterFactory extends Converter.Factory {
             return new NotificationsResponseBodyConverter();
         } else if (type == Subscriptions.class) {
             return new SubscriptionsResponseBodyConverter();
+        } else if (type == RecentPosts.class) {
+            return new RecentPostsResponseBodyConverter();
         } else {
             return super.fromResponseBody(type, annotations);
         }

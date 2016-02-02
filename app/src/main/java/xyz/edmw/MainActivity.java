@@ -30,13 +30,14 @@ import retrofit.Callback;
 import retrofit.Response;
 import retrofit.Retrofit;
 import xyz.edmw.navigation.NavViewHolder;
-import xyz.edmw.notification.NotificationActivity;
+import xyz.edmw.notification.NotificationsActivity;
 import xyz.edmw.recyclerview.RecyclerViewDisabler;
 import xyz.edmw.rest.RestClient;
 import xyz.edmw.settings.MainSharedPreferences;
 import xyz.edmw.settings.SettingsActivity;
-import xyz.edmw.subscription.SubscriptionActivity;
-import xyz.edmw.topic.TopicActivity;
+import xyz.edmw.subscription.SubscriptionsActivity;
+import xyz.edmw.topic.NewTopicActivity;
+import xyz.edmw.topic.RecentPostsActivity;
 import xyz.edmw.topic.TopicAdapter;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, UltimateRecyclerView.OnLoadMoreListener, SwipeRefreshLayout.OnRefreshListener {
@@ -66,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private NavViewHolder navViewHolder;
     private boolean isLoadingNextForum;
     private boolean loadMore;
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), TopicActivity.class);
+                Intent intent = new Intent(getApplicationContext(), NewTopicActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 getApplicationContext().startActivity(intent);
             }
@@ -158,11 +160,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     });
                 break;
             case (R.id.nav_messages):
-                startActivity(new Intent(MainActivity.this, NotificationActivity.class));
+                startActivity(new Intent(MainActivity.this, NotificationsActivity.class));
                 break;
             case (R.id.nav_subscriptions):
-                startActivity(new Intent(MainActivity.this, SubscriptionActivity.class));
+                startActivity(new Intent(MainActivity.this, SubscriptionsActivity.class));
                 break;
+            /*case (R.id.nav_recent_posts):
+                RecentPostsActivity.startInstance(MainActivity.this, user.getRecentPosts());
+                break;*/
             case (R.id.nav_edmw):
                 forum = Forum.edmw;
                 forum.setPageNum(1);
@@ -254,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             loadNextForum();
         }
 
-        User user = forum.getUser();
+        user = forum.getUser();
         navViewHolder.setUser(user);
         int visibility = user == null ? View.GONE : View.VISIBLE;
         fab.setVisibility(visibility);

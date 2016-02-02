@@ -30,4 +30,5 @@
     <string name="pref_downloadImages_default">Only on WiFi</string>
     <string name="title_activity_notifications">Notifications</string>
     <string name="title_activity_subscriptions">Subscriptions</string>
+    <string name="title_activity_recent_posts">Recent Posts</string>
 </resources>
