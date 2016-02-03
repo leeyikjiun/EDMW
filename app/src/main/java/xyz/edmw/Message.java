@@ -9,7 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.text.util.Linkify;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -116,10 +115,13 @@ public class Message {
                     View view = LayoutInflater.from(context).inflate(R.layout.view_quote, null);
                     QuoteViewHolder viewHolder = new QuoteViewHolder(context, view);
 
+                    String id = null;
                     String postedBy = null;
                     String message;
                     Element postedByElement = element.select("div.bbcode_postedby").first();
                     if (postedByElement != null) {
+                        id = postedByElement.select("a").attr("href");
+                        id = id.substring(id.lastIndexOf("#post") + 5);
                         postedBy = postedByElement.text().trim();
                         message = element.select("div.message").first().html();
                     } else {
@@ -134,7 +136,7 @@ public class Message {
                         }
                     }
 
-                    Quote quote = new Quote(postedBy, message);
+                    Quote quote = new Quote(id, postedBy, message);
                     viewHolder.setQuote(quote);
 
                     this.message.addView(view);

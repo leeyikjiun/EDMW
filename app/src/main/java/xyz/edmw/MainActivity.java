@@ -37,7 +37,6 @@ import xyz.edmw.settings.MainSharedPreferences;
 import xyz.edmw.settings.SettingsActivity;
 import xyz.edmw.subscription.SubscriptionsActivity;
 import xyz.edmw.topic.NewTopicActivity;
-import xyz.edmw.topic.RecentPostsActivity;
 import xyz.edmw.topic.TopicAdapter;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, UltimateRecyclerView.OnLoadMoreListener, SwipeRefreshLayout.OnRefreshListener {

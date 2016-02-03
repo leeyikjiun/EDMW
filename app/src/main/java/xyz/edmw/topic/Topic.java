@@ -170,16 +170,19 @@ public class Topic implements Parcelable {
         }
 
         public static Builder from(Element topicItem) {
+            int baseUrlLen = RestClient.baseUrl.length();
+
             String id = topicItem.attr("data-node-id");
             boolean isSticky = topicItem.hasClass("sticky");
             String avatar = topicItem.select("div.topic-avatar img").attr("src").replace("thumb=1", "thumb=0");
 
             Element anchor = topicItem.select("a.topic-title").first();
             String title = anchor.text().trim();
-            String path = anchor.attr("href").substring(RestClient.baseUrl.length());
+            String path = anchor.attr("href").substring(baseUrlLen);
 
             Element cell = topicItem.select("td.cell-lastpost").first();
             String lastPost = cell.text().trim();
+            String lastPostPath = cell.select("div.lastpost-by a").attr("href").substring(baseUrlLen);
 //            String avatar = cell.select("a.avatar img").attr("src").replace("thumb=1", "thumb=0");
             String startedBy = topicItem.select("div.topic-info").first().text().trim();
 

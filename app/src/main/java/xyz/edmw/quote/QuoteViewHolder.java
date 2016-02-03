@@ -2,6 +2,7 @@ package xyz.edmw.quote;
 
 import android.content.Context;
 import android.text.Html;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -10,6 +11,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import xyz.edmw.Message;
 import xyz.edmw.R;
+import xyz.edmw.thread.ThreadActivity;
 
 public class QuoteViewHolder {
     @Bind(R.id.quote_posted_by)
@@ -32,5 +34,15 @@ public class QuoteViewHolder {
         }
         Message message = new Message(context, this.message);
         message.setMessage(quote.getMessage());
+
+        final String id = quote.getId();
+        if (!TextUtils.isEmpty(id)) {
+            postedBy.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ((ThreadActivity) context).onPostSelected(id);
+                }
+            });
+        }
     }
 }

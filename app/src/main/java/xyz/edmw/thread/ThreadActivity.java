@@ -89,6 +89,11 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         context.startActivity(intent);
     }
 
+    public static void startInstance(Context context, Topic topic) {
+        Intent intent = newInstance(context, topic.getTitle(), topic.getPath());
+        context.startActivity(intent);
+    }
+
     public static void startInstance(Context context, Topic topic, int pageNum) {
         Intent intent = newInstance(context, topic.getTitle(), topic.getPath());
         intent.putExtra(ARG_PAGE_NUM, pageNum);
@@ -135,6 +140,24 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         ApiService service = RestClient.getService();
         Call<Thread> call = pageNum == -1 ? service.getThread(path) : service.getThread(path, pageNum);
         call.enqueue(new LoadThreadCallback(insert));
+    }
+
+    private void onThreadSelected(String path) {
+        ultimateRecyclerView.showEmptyView();
+        Call<Thread> call = RestClient.getService().getThread(path);
+        call.enqueue(new LoadThreadCallback(Insert.Before));
+    }
+
+    public void onPostSelected(String id) {
+        List<Post> posts = adapter.getPosts();
+        for (int i = posts.size()-1; i>=0;--i) {
+            if (id.equals(posts.get(i).getId())) {
+                llm.scrollToPosition(i);
+                return;
+            }
+        }
+        String path = String.format("%s?p=%s#%s", this.path, id, id);
+        onThreadSelected(path);
     }
 
     @Override
