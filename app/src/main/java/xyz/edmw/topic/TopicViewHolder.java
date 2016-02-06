@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.support.v7.widget.CardView;
 import android.text.Html;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -65,7 +66,12 @@ public class TopicViewHolder extends UltimateRecyclerviewViewHolder {
         title.setText(topic.getTitle());
         startedBy.setText(topic.getStartedBy());
         lastPost.setText(Html.fromHtml(topic.getLastPost()));
-        setAvatar(topic.getThreadstarterAvatar());
+        String avatar = topic.getThreadstarterAvatar();
+        if (!TextUtils.isEmpty(avatar)) {
+            setAvatar(avatar);
+        } else {
+            threadstarterAvatar.setVisibility(View.GONE);
+        }
 
         if(!topic.isSticky()) {
             stickyLabel.setVisibility(View.GONE);

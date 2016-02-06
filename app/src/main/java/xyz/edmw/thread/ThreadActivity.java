@@ -153,6 +153,10 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
     }
 
     public void onPostSelected(String id) {
+        if (TextUtils.isEmpty(id)) {
+            return;
+        }
+
         List<Post> posts = adapter.getPosts();
         for (int i = posts.size()-1; i>=0;--i) {
             if (id.equals(posts.get(i).getId())) {
@@ -248,19 +252,14 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
                 adapter.setCustomLoadMoreView(footer);
                 ultimateRecyclerView.setAdapter(adapter);
                 String id = null;
-                if (path.contains("?p=")) {
+                if (path.contains("#post")) {
+                    id = path.substring(path.lastIndexOf("#post") + 5);
+                } else if (path.contains("?p=")) {
                     id = path.substring(path.lastIndexOf("?p=") + 3);
                 } else if (path.contains("/node/")) {
                     id = path.substring(6);
                 }
-                if (!TextUtils.isEmpty(id)) {
-                    for (int i = posts.size()-1; i >= 0; --i) {
-                        if (id.equals(posts.get(i).getId())) {
-                            llm.scrollToPosition(i);
-                            break;
-                        }
-                    }
-                }
+                onPostSelected(id);
                 break;
             case After:
                 List<Post> adapterPosts = adapter.getPosts();

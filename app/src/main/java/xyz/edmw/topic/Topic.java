@@ -2,6 +2,7 @@ package xyz.edmw.topic;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import org.jsoup.nodes.Element;
 
@@ -210,7 +211,6 @@ public class Topic implements Parcelable {
 
             Element cell = topicItem.select("td.cell-lastpost").first();
             String lastPost = cell.text().trim();
-            String lastPostPath = cell.select("a.go-to-last-post").attr("href").substring(baseUrlLen);
 //            String avatar = cell.select("a.avatar img").attr("src").replace("thumb=1", "thumb=0");
             String startedBy = topicItem.select("div.topic-info").first().text().trim();
 
@@ -219,10 +219,21 @@ public class Topic implements Parcelable {
                     .title(title)
                     .path(path)
                     .lastPost(lastPost)
-                    .lastPostPath(lastPostPath)
                     .threadstarterAvatar(avatar)
                     .startedBy(startedBy)
                     .isSticky(isSticky);
+
+            String lastPostPath;
+            Element gotoLastPost = cell.select("a.go-to-last-post").first();
+            if (gotoLastPost != null) {
+                lastPostPath = gotoLastPost.attr("href");
+            } else {
+                lastPostPath = topicItem.select("td.cell-gotopost a").attr("href");
+            }
+            if (TextUtils.isEmpty(lastPostPath)) {
+                return builder;
+            }
+            builder = builder.lastPostPath(lastPostPath.substring(baseUrlLen));
 
             Element e = topicItem.select("a.go-to-first-unread").first();
             if (e == null) {

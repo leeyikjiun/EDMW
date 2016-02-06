@@ -19,6 +19,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.facebook.common.executors.CallerThreadExecutor;
 import com.facebook.common.references.CloseableReference;
@@ -110,7 +111,7 @@ public class ImageActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.image_dialog, menu);
+        getMenuInflater().inflate(R.menu.activity_image, menu);
         return true;
     }
 
@@ -135,6 +136,7 @@ public class ImageActivity extends AppCompatActivity {
                 Uri contentUri = Uri.parse(path);
                 intent.setData(contentUri);
                 sendBroadcast(intent);
+                Toast.makeText(ImageActivity.this, "Image saved", Toast.LENGTH_SHORT).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
