@@ -12,6 +12,7 @@ public class Topic implements Parcelable {
     private String title;
     private  String path;
     private  String startedBy;
+    private String firstUnread;
     private  String lastPost;
     private  String threadstarterAvatar;
     private  boolean isSticky;
@@ -27,10 +28,12 @@ public class Topic implements Parcelable {
         title = in.readString();
         path = in.readString();
         startedBy = in.readString();
+        firstUnread = in.readString();
         lastPost = in.readString();
         threadstarterAvatar = in.readString();
         isSticky = in.readByte() != 0;
         numPages = in.readInt();
+        lastPostPath = in.readString();
     }
 
     public static final Creator<Topic> CREATOR = new Creator<Topic>() {
@@ -76,14 +79,17 @@ public class Topic implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+
         dest.writeString(id);
         dest.writeString(title);
         dest.writeString(path);
         dest.writeString(startedBy);
+        dest.writeString(firstUnread);
         dest.writeString(lastPost);
         dest.writeString(threadstarterAvatar);
         dest.writeByte((byte) (isSticky ? 1 : 0));
         dest.writeInt(numPages);
+        dest.writeString(lastPostPath);
     }
 
     @Override
@@ -106,6 +112,14 @@ public class Topic implements Parcelable {
         return numPages;
     }
 
+    public String getLastPostPath() {
+        return lastPostPath;
+    }
+
+    public String getFirstUnread() {
+        return firstUnread;
+    }
+
     public static class Builder {
         private String id;
         private  String title;
@@ -115,6 +129,8 @@ public class Topic implements Parcelable {
         private  String threadstarterAvatar;
         private  boolean isSticky;
         private int numPages;
+        private String lastPostPath;
+        private String firstUnread;
 
         public Builder id(String id) {
             this.id = id;
@@ -141,6 +157,11 @@ public class Topic implements Parcelable {
             return this;
         }
 
+        private Builder lastPostPath(String lastPostPath) {
+            this.lastPostPath = lastPostPath;
+            return this;
+        }
+
         public Builder threadstarterAvatar(String threadstarterAvatar) {
             this.threadstarterAvatar = threadstarterAvatar;
             return this;
@@ -156,13 +177,20 @@ public class Topic implements Parcelable {
             return this;
         }
 
+        private Builder firstUnread(String firstUnread) {
+            this.firstUnread = firstUnread;
+            return this;
+        }
+
         public Topic build() {
             Topic topic = new Topic();
             topic.id = id;
             topic.title = title;
             topic.path = path;
             topic.startedBy = startedBy;
+            topic.firstUnread = firstUnread;
             topic.lastPost = lastPost;
+            topic.lastPostPath = lastPostPath;
             topic.threadstarterAvatar = threadstarterAvatar;
             topic.isSticky = isSticky;
             topic.numPages = numPages;
@@ -182,18 +210,27 @@ public class Topic implements Parcelable {
 
             Element cell = topicItem.select("td.cell-lastpost").first();
             String lastPost = cell.text().trim();
-            String lastPostPath = cell.select("div.lastpost-by a").attr("href").substring(baseUrlLen);
+            String lastPostPath = cell.select("a.go-to-last-post").attr("href").substring(baseUrlLen);
 //            String avatar = cell.select("a.avatar img").attr("src").replace("thumb=1", "thumb=0");
             String startedBy = topicItem.select("div.topic-info").first().text().trim();
 
-            return new Topic.Builder()
+            Topic.Builder builder = new Topic.Builder()
                     .id(id)
                     .title(title)
                     .path(path)
                     .lastPost(lastPost)
+                    .lastPostPath(lastPostPath)
                     .threadstarterAvatar(avatar)
                     .startedBy(startedBy)
                     .isSticky(isSticky);
+
+            Element e = topicItem.select("a.go-to-first-unread").first();
+            if (e == null) {
+                return builder;
+            }
+
+            String firstUnread = e.attr("href").substring(baseUrlLen);
+            return builder.firstUnread(firstUnread);
         }
     }
 }

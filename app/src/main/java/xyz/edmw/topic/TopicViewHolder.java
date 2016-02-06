@@ -36,6 +36,8 @@ public class TopicViewHolder extends UltimateRecyclerviewViewHolder {
     SimpleDraweeView threadstarterAvatar;
     @Bind(R.id.sticky_label)
     TextView stickyLabel;
+    @Bind(R.id.goto_first_unread)
+    ImageButton gotoFirstUnread;
     @Bind(R.id.goto_last_post)
     ImageButton gotoLastPost;
 
@@ -71,14 +73,24 @@ public class TopicViewHolder extends UltimateRecyclerviewViewHolder {
             stickyLabel.setVisibility(View.VISIBLE);
         }
 
-        View.OnClickListener listener = new View.OnClickListener() {
+        /*if (TextUtils.isEmpty(topic.getFirstUnread())) {
+            gotoFirstUnread.setVisibility(View.GONE);
+        } else {
+            Log.d("firstUnread", topic.getFirstUnread());
+            gotoFirstUnread.setVisibility(View.VISIBLE);
+            gotoFirstUnread.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ThreadActivity.startInstance(context, topic.getTitle(), topic.getFirstUnread());
+                }
+            });
+        }*/
+        gotoLastPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ThreadActivity.startInstance(context, topic, topic.getNumPages());
+                ThreadActivity.startInstance(context, topic.getTitle(), topic.getLastPostPath());
             }
-        };
-        lastPost.setOnClickListener(listener);
-        gotoLastPost.setOnClickListener(listener);
+        });
     }
 
     private void setAvatar(String source) {

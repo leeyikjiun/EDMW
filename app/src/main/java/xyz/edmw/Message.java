@@ -123,8 +123,13 @@ public class Message {
                     Element postedByElement = element.select("div.bbcode_postedby").first();
                     if (postedByElement != null) {
                         id = postedByElement.select("a").attr("href");
-                        id = id.substring(id.lastIndexOf("#post") + 5);
-                        postedBy = postedByElement.text().trim();
+                        int index = id.lastIndexOf("#post");
+                        if (index >= 0) {
+                            id = id.substring(index + 5);
+                            postedBy = postedByElement.text().trim();
+                        } else {
+                            Log.w(tag, id + " does not contain #post");
+                        }
                         message = element.select("div.message").first().html();
                     } else {
                         Element div = element.select("div.quote_container").first();

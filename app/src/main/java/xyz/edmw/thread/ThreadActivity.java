@@ -89,8 +89,8 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         context.startActivity(intent);
     }
 
-    public static void startInstance(Context context, Topic topic) {
-        Intent intent = newInstance(context, topic.getTitle(), topic.getPath());
+    public static void startInstance(Context context, String title, String path) {
+        Intent intent = newInstance(context, title, path);
         context.startActivity(intent);
     }
 
@@ -130,9 +130,13 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         Intent i = getIntent();
         String title = i.getStringExtra(ARG_TITLE);
         path = i.getStringExtra(ARG_PATH);
-        int pageNum = i.getIntExtra(ARG_PAGE_NUM, -1);
         getSupportActionBar().setTitle(title);
-        onThreadSelected(path, pageNum, Insert.New);
+        int pageNum = i.getIntExtra(ARG_PAGE_NUM, -1);
+        if (pageNum == -1) {
+            onThreadSelected(path, Insert.New);
+        } else {
+            onThreadSelected(path, pageNum, Insert.New);
+        }
     }
 
     private void onThreadSelected(String path, int pageNum, Insert insert) {
@@ -142,10 +146,10 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         call.enqueue(new LoadThreadCallback(insert));
     }
 
-    private void onThreadSelected(String path) {
+    private void onThreadSelected(String path, Insert insert) {
         ultimateRecyclerView.showEmptyView();
         Call<Thread> call = RestClient.getService().getThread(path);
-        call.enqueue(new LoadThreadCallback(Insert.Before));
+        call.enqueue(new LoadThreadCallback(insert));
     }
 
     public void onPostSelected(String id) {
@@ -157,7 +161,7 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
             }
         }
         String path = String.format("%s?p=%s#%s", this.path, id, id);
-        onThreadSelected(path);
+        onThreadSelected(path, Insert.Before);
     }
 
     @Override
@@ -228,9 +232,6 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
 
     private void onThreadLoaded(Thread thread, Insert insert) {
         toolbar.setSubtitle("Page " + thread.getPageNum());
-        path = thread.getPath();
-        id = thread.getId();
-        isSubscribed = thread.isSubscribed();
 
         int visibility = (replyForm = thread.getReplyForm()) == null ? View.GONE : View.VISIBLE;
         replyLayout.setVisibility(visibility);
@@ -246,6 +247,20 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
                 adapter = new PostAdapter(ThreadActivity.this, posts);
                 adapter.setCustomLoadMoreView(footer);
                 ultimateRecyclerView.setAdapter(adapter);
+                String id = null;
+                if (path.contains("?p=")) {
+                    id = path.substring(path.lastIndexOf("?p=") + 3);
+                } else if (path.contains("/node/")) {
+                    id = path.substring(6);
+                }
+                if (!TextUtils.isEmpty(id)) {
+                    for (int i = posts.size()-1; i >= 0; --i) {
+                        if (id.equals(posts.get(i).getId())) {
+                            llm.scrollToPosition(i);
+                            break;
+                        }
+                    }
+                }
                 break;
             case After:
                 List<Post> adapterPosts = adapter.getPosts();
@@ -260,6 +275,9 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
                 adapter.notifyItemRangeInserted(positionStart, itemCount);
                 break;
         }
+        path = thread.getPath();
+        id = thread.getId();
+        isSubscribed = thread.isSubscribed();
         loadPrev = loadMore = false;
 
         if ((insert.equals(Insert.Before) || insert.equals(Insert.New))
