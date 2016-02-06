@@ -179,30 +179,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 adapter = null;
                 onForumSelected(forum);
                 break;
-            case R.id.nav_moneytalk:
-                forum = Forum.money_talk;
-                forum.setPageNum(1);
-                adapter = null;
-                onForumSelected(forum);
-                break;
-            case R.id.nav_metaphysics:
-                forum = Forum.metaphysics;
-                forum.setPageNum(1);
-                adapter = null;
-                onForumSelected(forum);
-                break;
-            case R.id.nav_stylegrooming:
-                forum = Forum.style_grooming;
-                forum.setPageNum(1);
-                adapter = null;
-                onForumSelected(forum);
-                break;
-            case R.id.nav_technology:
-                forum = Forum.technology;
-                forum.setPageNum(1);
-                adapter = null;
-                onForumSelected(forum);
-                break;
             case R.id.nav_music_entertainment:
                 forum = Forum.music_entertainment;
                 forum.setPageNum(1);

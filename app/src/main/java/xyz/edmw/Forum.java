@@ -19,30 +19,6 @@ public class Forum {
             .pageNum(1)
             .hasNextPage(false)
             .build();
-    public static final Forum money_talk = new Builder()
-            .title("Money Talk")
-            .path("money-talk")
-            .pageNum(1)
-            .hasNextPage(false)
-            .build();
-    public static final Forum metaphysics = new Builder()
-            .title("Metaphysics")
-            .path("metaphysics")
-            .pageNum(1)
-            .hasNextPage(false)
-            .build();
-    public static final Forum style_grooming = new Builder()
-            .title("Style & Grooming")
-            .path("style-grooming")
-            .pageNum(1)
-            .hasNextPage(false)
-            .build();
-    public static final Forum technology = new Builder()
-            .title("Technology")
-            .path("technology")
-            .pageNum(1)
-            .hasNextPage(false)
-            .build();
     public static final Forum music_entertainment = new Builder()
             .title("Entertainment")
             .path("music-entertainment")
