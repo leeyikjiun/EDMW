@@ -50,4 +50,10 @@
     <style name="CardView.PrimaryLight">
         <item name="cardBackgroundColor">@color/colorPrimaryLight</item>
     </style>
+
+    <style name="TransparentToolBar" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="windowActionBarOverlay">true</item>
+    </style>
+
 </resources>

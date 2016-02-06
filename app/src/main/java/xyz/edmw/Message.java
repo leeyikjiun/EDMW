@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.net.Uri;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.TextUtils;
@@ -25,6 +24,9 @@ import com.facebook.drawee.generic.GenericDraweeHierarchy;
 import com.facebook.drawee.generic.GenericDraweeHierarchyBuilder;
 import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.facebook.imagepipeline.request.ImageRequest;
+import com.facebook.imagepipeline.request.ImageRequest.RequestLevel;
+import com.facebook.imagepipeline.request.ImageRequestBuilder;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerSupportFragment;
@@ -37,7 +39,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 
-import xyz.edmw.image.ImageDialogFragment;
+import xyz.edmw.image.ImageActivity;
 import xyz.edmw.post.Post;
 import xyz.edmw.quote.Quote;
 import xyz.edmw.quote.QuoteViewHolder;
@@ -166,14 +168,15 @@ public class Message {
     }
 
     private void setImage(final String source) {
-        if (!preferences.canDownloadImage()) {
-            return;
-        }
+        boolean canDownloadImage = preferences.canDownloadImage();
 
         if (source.contains("www.edmw.xyz/core/images/smilies")
                 || source.contains("www.hardwarezone.com.sg/img/forums/hwz/smilies")
                 || source.contains("forum.lowyat.net/style_emoticons/")
                 || source.contains("illiweb.com/fa/i/smiles")) {
+            if (!canDownloadImage) {
+                return;
+            }
             final ImageView imageView = new ImageView(context);
             Ion.with(imageView)
                     .animateGif(AnimateGifMode.ANIMATE)
@@ -203,12 +206,11 @@ public class Message {
             imageView.setAdjustViewBounds(true);
             message.addView(imageView);
 
-            DraweeController controller = Fresco.newDraweeControllerBuilder()
-                    .setUri(Uri.parse(source))
-                    .setTapToRetryEnabled(true)
-                    .setAutoPlayAnimations(true)
+            RequestLevel level = canDownloadImage ? RequestLevel.FULL_FETCH : RequestLevel.DISK_CACHE;
+            ImageRequest request = ImageRequestBuilder
+                    .newBuilderWithSource(Uri.parse(source))
+                    .setLowestPermittedRequestLevel(level)
                     .build();
-            imageView.setController(controller);
 
             GenericDraweeHierarchy hierarchy = new GenericDraweeHierarchyBuilder(context.getResources())
                     .setRetryImage(tapToRetry)
@@ -217,12 +219,17 @@ public class Message {
                     .build();
             imageView.setHierarchy(hierarchy);
 
+            DraweeController controller = Fresco.newDraweeControllerBuilder()
+                    .setImageRequest(request)
+                    .setTapToRetryEnabled(true)
+                    .setAutoPlayAnimations(true)
+                    .build();
+            imageView.setController(controller);
+
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    FragmentManager fm = ((ThreadActivity) context).getSupportFragmentManager();
-                    ImageDialogFragment a = ImageDialogFragment.newInstance(source);
-                    a.show(fm, "dialog_image");
+                    ImageActivity.startInstance(context, source);
                 }
             });
         }

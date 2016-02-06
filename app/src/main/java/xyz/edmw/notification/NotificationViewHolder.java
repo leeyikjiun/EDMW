@@ -1,12 +1,16 @@
 package xyz.edmw.notification;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.v7.widget.CardView;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.koushikdutta.ion.Ion;
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.interfaces.DraweeController;
+import com.facebook.drawee.view.SimpleDraweeView;
+import com.facebook.imagepipeline.request.ImageRequest;
+import com.facebook.imagepipeline.request.ImageRequestBuilder;
 import com.marshalchen.ultimaterecyclerview.UltimateRecyclerviewViewHolder;
 
 import butterknife.Bind;
@@ -26,7 +30,7 @@ public class NotificationViewHolder extends UltimateRecyclerviewViewHolder {
     @Bind(R.id.notification_postDate)
     TextView postDate;
     @Bind(R.id.notification_avatar)
-    ImageView authorAvatar;
+    SimpleDraweeView authorAvatar;
     @Bind(R.id.notification_type)
     TextView userTitle;
 
@@ -52,12 +56,7 @@ public class NotificationViewHolder extends UltimateRecyclerviewViewHolder {
         postDate.setText(notification.getPostDate());
         title.setText(notification.getTitle());
 
-        if (preferences.canDownloadImage()) {
-            authorAvatar.setVisibility(View.VISIBLE);
-            Ion.with(authorAvatar).load(user.getAvatar());
-        } else {
-            authorAvatar.setVisibility(View.GONE);
-        }
+        setAvatar(user.getAvatar());
 
         cardView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,5 +64,19 @@ public class NotificationViewHolder extends UltimateRecyclerviewViewHolder {
                 ThreadActivity.startInstance(context, notification);
             }
         });
+    }
+
+    private void setAvatar(String source) {
+        ImageRequest.RequestLevel level = preferences.canDownloadImage() ? ImageRequest.RequestLevel.FULL_FETCH : ImageRequest.RequestLevel.DISK_CACHE;
+        ImageRequest request = ImageRequestBuilder
+                .newBuilderWithSource(Uri.parse(source))
+                .setLowestPermittedRequestLevel(level)
+                .build();
+
+        DraweeController controller = Fresco.newDraweeControllerBuilder()
+                .setImageRequest(request)
+                .setAutoPlayAnimations(true)
+                .build();
+        authorAvatar.setController(controller);
     }
 }

@@ -8,6 +8,8 @@ import android.widget.TextView;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.facebook.imagepipeline.request.ImageRequest;
+import com.facebook.imagepipeline.request.ImageRequestBuilder;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -35,22 +37,24 @@ public class NavHeaderViewHolder {
     }
 
     public void setUser(User user) {
-        if (user == null) {
-
-        } else {
+        if (user != null) {
             name.setText(user.getName());
-
-            if (preferences.canDownloadImage()) {
-                avatar.setVisibility(View.VISIBLE);
-                DraweeController controller = Fresco.newDraweeControllerBuilder()
-                        .setUri(Uri.parse(user.getAvatar()))
-                        .setAutoPlayAnimations(true)
-                        .build();
-                avatar.setController(controller);
-            } else {
-                avatar.setVisibility(View.GONE);
-            }
+            setAvatar(user.getAvatar());
         }
         title.setVisibility(View.GONE);
+    }
+
+    private void setAvatar(String source) {
+        ImageRequest.RequestLevel level = preferences.canDownloadImage() ? ImageRequest.RequestLevel.FULL_FETCH : ImageRequest.RequestLevel.DISK_CACHE;
+        ImageRequest request = ImageRequestBuilder
+                .newBuilderWithSource(Uri.parse(source))
+                .setLowestPermittedRequestLevel(level)
+                .build();
+
+        DraweeController controller = Fresco.newDraweeControllerBuilder()
+                .setImageRequest(request)
+                .setAutoPlayAnimations(true)
+                .build();
+        avatar.setController(controller);
     }
 }
