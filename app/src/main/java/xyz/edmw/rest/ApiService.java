@@ -29,6 +29,10 @@ public interface ApiService {
     @POST("/create-content/text/")
     Call<Void> reply(@Part("securitytoken") String securityToken, @Part("channelid") int channelId, @Part("parentid") int parentId, @Part("text") String text);
 
+    @Multipart
+    @POST("/create-content/text/")
+    Call<Void> edit(@Part("securitytoken") String securityToken, @Part("nodeid") String nodeId, @Part("parentid") int parentId, @Part("text") String text);
+
     @GET("/forum/{forum}/page{page}")
     Call<Forum> getForum(@Path("forum") String forum, @Path("page") int page);
 

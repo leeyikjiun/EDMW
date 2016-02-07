@@ -374,6 +374,10 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         message.append(quote + System.getProperty("line.separator"));
     }
 
+    public ReplyForm getReplyForm() {
+        return replyForm;
+    }
+
     private class LoadThreadCallback implements Callback<Thread> {
         private final Insert insert;
 

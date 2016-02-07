@@ -42,6 +42,9 @@ public class ThreadResponseBodyConverter implements Converter<ResponseBody, Thre
             String userTitle = row.select("div.usertitle").first().text().trim();
             String id = row.attr("data-node-id");
 
+            Element footer = row.select("div.b-post__footer").first();
+            boolean hasFooter = footer != null;
+
             Post.Builder postBuilder = new Post.Builder()
                     .id(id)
                     .author(author)
@@ -50,7 +53,13 @@ public class ThreadResponseBodyConverter implements Converter<ResponseBody, Thre
                     .userTitle(userTitle)
                     .authorAvatar(authorAvatar)
                     .message(message)
-                    .path(path);
+                    .path(path)
+                    .hasFooter(hasFooter);
+
+            if (hasFooter) {
+                boolean canEdit = footer.select("li[id^=edit-]").first() != null;
+                postBuilder = postBuilder.canEdit(canEdit);
+            }
 
             Elements imgs = row.select("img.b-gallery-thumbnail-list__thumbnail");
             if (imgs != null) {

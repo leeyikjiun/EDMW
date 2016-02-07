@@ -12,6 +12,8 @@ public class Post {
     private String postNum;
     private String message;
     private String path;
+    private boolean hasFooter;
+    private boolean canEdit;
     private List<String> photos;
 
     private Post() {
@@ -70,6 +72,14 @@ public class Post {
         return path;
     }
 
+    public boolean canEdit() {
+        return canEdit;
+    }
+
+    public boolean hasFooter() {
+        return hasFooter;
+    }
+
     public static class Builder {
         private String id;
         private String author;
@@ -79,6 +89,8 @@ public class Post {
         private String postNum;
         private String message;
         private String path;
+        private boolean hasFooter;
+        private boolean canEdit;
         private List<String> photos;
 
         public Builder id(String id) {
@@ -121,6 +133,16 @@ public class Post {
             return this;
         }
 
+        public Builder hasFooter(boolean hasFooter) {
+            this.hasFooter = hasFooter;
+            return this;
+        }
+
+        public Builder canEdit(boolean canEdit) {
+            this.canEdit = canEdit;
+            return this;
+        }
+
         public Builder photos(List<String> photos) {
             this.photos = photos;
             return this;
@@ -136,6 +158,8 @@ public class Post {
             post.userTitle = userTitle;
             post.authorAvatar = authorAvatar;
             post.path = path;
+            post.hasFooter = hasFooter;
+            post.canEdit = canEdit;
             post.photos = photos;
             return post;
         }

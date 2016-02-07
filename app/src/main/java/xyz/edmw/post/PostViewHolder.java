@@ -7,6 +7,7 @@ import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.TextUtils;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -45,8 +46,8 @@ public class PostViewHolder extends RecyclerView.ViewHolder implements PopupMenu
     SimpleDraweeView authorAvatar;
     @Bind(R.id.post_user_title)
     TextView userTitle;
-    private final Context context;
 
+    private final Context context;
     private final MainSharedPreferences preferences;
     private PopupMenu popup;
     private Post post;
@@ -60,8 +61,6 @@ public class PostViewHolder extends RecyclerView.ViewHolder implements PopupMenu
             ButterKnife.bind(this, view);
             popup = new PopupMenu(context, postNum);
             popup.setOnMenuItemClickListener(PostViewHolder.this);
-            MenuInflater inflater = popup.getMenuInflater();
-            inflater.inflate(R.menu.post, popup.getMenu());
         }
     }
 
@@ -84,6 +83,17 @@ public class PostViewHolder extends RecyclerView.ViewHolder implements PopupMenu
                 popup.show();
             }
         });
+
+        Menu menu = popup.getMenu();
+        menu.clear();
+        MenuInflater inflater = popup.getMenuInflater();
+        inflater.inflate(R.menu.post_guest, popup.getMenu());
+        if (post.hasFooter()) {
+            inflater.inflate(R.menu.post_member, menu);
+            if (!post.canEdit()) {
+                menu.removeItem(R.id.action_edit);
+            }
+        }
     }
 
     private void setAvatar(String source) {
@@ -103,6 +113,11 @@ public class PostViewHolder extends RecyclerView.ViewHolder implements PopupMenu
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.action_edit:
+                EditPostDialog dialog = new EditPostDialog(context, post.getId());
+                dialog.setText(getBBCode(post.getMessage()));
+                dialog.show();
+                return true;
             case R.id.action_quote:
                 String message = getBBCode(post.getMessage());
                 String quote = String.format("[QUOTE=%s;n%s]%s[/QUOTE]", post.getAuthor(), post.getId(), message);
