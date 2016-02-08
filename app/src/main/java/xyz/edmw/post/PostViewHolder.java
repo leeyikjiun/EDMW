@@ -7,6 +7,7 @@ import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -152,24 +153,29 @@ public class PostViewHolder extends RecyclerView.ViewHolder implements PopupMenu
     private String getBBCode(Element element) {
         switch (element.tagName()) {
             case "a":
-                return String.format("[url=%s]%s[/url]", element.attr("href"), element.text().trim());
+                String text = element.text().trim();
+                if (element.hasClass("b-bbcode-user")) {
+                    return String.format("[user=\"%s\"]%s[/user]", element.attr("data-userid"), text);
+                } else {
+                    return String.format("[url=%s]%s[/url]", element.attr("href"), text);
+                }
             case "b":
                 return String.format("[b]%s[/b]", element.text().trim());
             case "i":
                 return String.format("[i]%s[/i]", element.text().trim());
             case "img":
-                return String.format("[img]%s[/img]", element.attr("src"));
+                return getImage(element.attr("src"));
             case "br":
                 return System.getProperty("line.separator");
             case "font":
                 String face = element.attr("face");
                 if (!TextUtils.isEmpty(face)) {
-                    String text = element.children().isEmpty() ? element.text().trim() : getBBCode(element.child(0));
+                    text = element.children().isEmpty() ? element.text().trim() : getBBCode(element.child(0));
                     return String.format("[font=%s]%s[/font]", face, text);
                 }
                 String color = element.attr("color");
                 if (!TextUtils.isEmpty(color)) {
-                    String text = element.children().isEmpty() ? element.text().trim() : getBBCode(element.child(0));
+                    text = element.children().isEmpty() ? element.text().trim() : getBBCode(element.child(0));
                     return String.format("[color=%s]%s[/color]", color, text);
                 }
             case "span":
@@ -180,13 +186,30 @@ public class PostViewHolder extends RecyclerView.ViewHolder implements PopupMenu
 
                 String[] tokens = style.split(":");
                 if (tokens.length == 2 && tokens[0].equals("font-size")) {
-                    String text = element.children().isEmpty() ? element.text().trim() : getBBCode(element.child(0));
+                    text = element.children().isEmpty() ? element.text().trim() : getBBCode(element.child(0));
                     return String.format("[size=%s]%s[/size]", tokens[1], text);
                 }
             case "div":
                 // fall through
             default:
                 return "";
+        }
+    }
+
+    private String getImage(String source) {
+        if (source.startsWith("http://www.edmw.xyz/core/images/smilies/")) {
+            String name = source.substring(source.lastIndexOf("/") + 1, source.lastIndexOf("."));
+            if (name.equals("smile")) {
+                return ":)";
+            } else if (name.equals("mad")) {
+                return ":mad2:";
+            } else if (name.equals("redface")) {
+                return ":o";
+            } else {
+                return String.format(":%s:", name);
+            }
+        } else {
+            return String.format("[img]%s[/img]", source);
         }
     }
 }
