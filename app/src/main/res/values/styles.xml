@@ -3,12 +3,16 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
-        <item name="android:textColor">@color/font_color_black</item>
+        <item name="android:textColor">@android:color/black</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorTitle">@color/thread_text_color</item>
+        <item name="cardBackgroundColor">@color/cardview_light_background</item>
+        <item name="cardBackgroundColorDark">#EFEBE9</item>
+        <item name="indeterminateTint">@color/colorPrimaryDark</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
-        <item name="cardStyleQuote">@style/CardView.PrimaryLight</item>
+        <item name="popupOverlay">@style/AppTheme.PopupOverlay</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -20,16 +24,20 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    <style name="AppTheme.Black" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="cardStyle">@style/CardView.Black</item>
-        <item name="cardStyleQuote">@style/CardView.Grey</item>
-        <item name="android:background">@color/black</item>
-        <item name="colorPrimary">@color/black</item>
-        <item name="android:textColor">@color/font_color_white</item>
-        <item name="android:textColorHint">@color/font_color_white</item>
-        <item name="android:textColorPrimary">@color/font_color_white</item>
-        <item name="android:textColorSecondary">@color/font_color_gray</item>
+    <style name="AppTheme.Black" parent="Theme.AppCompat">
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="colorPrimary">@android:color/black</item>
+        <item name="colorPrimaryDark">@android:color/black</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textColorHint">@android:color/white</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="android:textColorSecondary">@android:color/darker_gray</item>
+        <item name="colorTitle">#4096b6</item>
+        <item name="android:listDivider">@android:color/darker_gray</item>
+        <item name="cardBackgroundColor">@android:color/black</item>
+        <item name="cardBackgroundColorDark">#2c2c2c</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+        <item name="popupOverlay">@style/AppTheme.Black.PopupOverlay</item>
     </style>
 
     <style name="AppTheme.Black.NoActionBar">
@@ -39,16 +47,8 @@
 
     <style name="AppTheme.Black.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
-    <style name="AppTheme.Black.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
-
-    <style name="CardView.Grey">
-        <item name="cardBackgroundColor">#60000000</item>
-    </style>
-    <style name="CardView.Black">
-        <item name="cardBackgroundColor">@color/black</item>
-    </style>
-    <style name="CardView.PrimaryLight">
-        <item name="cardBackgroundColor">@color/colorPrimaryLight</item>
+    <style name="AppTheme.Black.PopupOverlay" parent="ThemeOverlay.AppCompat">
+        <item name="android:colorBackground">@android:color/black</item>
     </style>
 
     <style name="TransparentToolBar" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">

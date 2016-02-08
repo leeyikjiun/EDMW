@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/card_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    style="?attr/cardStyle">
+    app:cardBackgroundColor="?attr/cardBackgroundColor">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
@@ -46,7 +47,7 @@
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
                 android:textSize="16sp"
-                android:textColor="@color/thread_text_color"
+                android:textColor="?attr/colorTitle"
                 android:layout_below="@+id/notification_type"
                 android:layout_alignLeft="@+id/notification_type"
                 android:layout_alignStart="@+id/notification_type" />

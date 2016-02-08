@@ -3,12 +3,6 @@
     <color name="colorPrimary">#9a3a2e</color>
     <color name="colorPrimaryDark">#8a3329</color>
     <color name="colorAccent">#D7CCC8</color>
-    <color name="colorPrimaryLight">#EFEBE9</color>
     <color name="thread_text_color">#cf5324</color>
     <color name="font_color_gray">#6B7E8B</color>
-    <color name="font_color_black">#000000</color>
-
-    <color name="font_color_white">#FFFFFF</color>
-    <color name="white">#FFFFFF</color>
-    <color name="black">#000000</color>
 </resources>

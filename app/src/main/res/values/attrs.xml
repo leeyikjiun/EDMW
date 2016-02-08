@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name = "cardStyle">
-        <attr name="cardStyle" format="reference" />
-    </declare-styleable>
-    <declare-styleable name = "cardStyleInvert">
-        <attr name="cardStyleQuote" format="reference" />
+    <declare-styleable name="Theme">
+        <attr name="cardBackgroundColorDark" format="color" />
+        <attr name="colorTitle" format="color" />
+        <attr name="indeterminateTint" format="color" />
+        <attr name="popupOverlay" format="reference" />
     </declare-styleable>
 </resources>
