@@ -18,18 +18,6 @@
                 android:id="@+id/nav_nsfw"
                 android:title="NSFW" />
             <item
-                android:id="@+id/nav_moneytalk"
-                android:title="Money Talk" />
-            <item
-                android:id="@+id/nav_metaphysics"
-                android:title="Metaphysics" />
-            <item
-                android:id="@+id/nav_stylegrooming"
-                android:title="Style &amp; Grooming" />
-            <item
-                android:id="@+id/nav_technology"
-                android:title="Technology" />
-            <item
                 android:id="@+id/nav_music_entertainment"
                 android:title="Entertainment" />
             <item
