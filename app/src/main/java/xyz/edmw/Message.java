@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
@@ -27,9 +26,6 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequest.RequestLevel;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
-import com.google.android.youtube.player.YouTubeInitializationResult;
-import com.google.android.youtube.player.YouTubePlayer;
-import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.builder.AnimateGifMode;
@@ -44,7 +40,7 @@ import xyz.edmw.post.Post;
 import xyz.edmw.quote.Quote;
 import xyz.edmw.quote.QuoteViewHolder;
 import xyz.edmw.settings.MainSharedPreferences;
-import xyz.edmw.thread.ThreadActivity;
+import xyz.edmw.youtube.YouTubeThumbnailViewHolder;
 
 public class Message {
     private static final String tag = "Message";
@@ -112,8 +108,7 @@ public class Message {
                 setYoutube(videoId);
                 break;
             case "div":
-                String className = element.className();
-                if (className.equals("bbcode_container")) {
+                if (element.hasClass("bbcode_container")) {
                     View view = LayoutInflater.from(context).inflate(R.layout.view_quote, null);
                     QuoteViewHolder viewHolder = new QuoteViewHolder(context, view);
 
@@ -148,7 +143,7 @@ public class Message {
 
                     this.message.addView(view);
                     break;
-                } else if (className.equals("videocontainer")) {
+                } else if (element.hasClass("videocontainer")) {
                     videoId = element.select("a.video-frame").first().attr("data-vcode");
                     setYoutube(videoId);
                     break;
@@ -240,38 +235,10 @@ public class Message {
         }
     }
 
-    // TODO replace with developer key
-    private static final String DeveloperKey = null;
     private void setYoutube(final String videoID) {
-        YouTubePlayerSupportFragment youTubePlayerSupportFragment = YouTubePlayerSupportFragment.newInstance();
-        youTubePlayerSupportFragment.initialize(DeveloperKey, new YouTubePlayer.OnInitializedListener() {
-            @Override
-            public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean wasRestored) {
-                youTubePlayer.addFullscreenControlFlag(YouTubePlayer.FULLSCREEN_FLAG_ALWAYS_FULLSCREEN_IN_LANDSCAPE);
-                youTubePlayer.addFullscreenControlFlag(YouTubePlayer.FULLSCREEN_FLAG_CONTROL_ORIENTATION);
-                youTubePlayer.addFullscreenControlFlag(YouTubePlayer.FULLSCREEN_FLAG_CONTROL_SYSTEM_UI);
-
-                if (!wasRestored) {
-                    ThreadActivity.youTubePlayer = youTubePlayer;
-
-                    youTubePlayer.setOnFullscreenListener(new YouTubePlayer.OnFullscreenListener() {
-
-                        @Override
-                        public void onFullscreen(boolean isFullScreen) {
-                            ThreadActivity.isFullscreen = isFullScreen;
-                        }
-                    });
-                    ThreadActivity.youTubePlayer.cueVideo(videoID);
-                }
-            }
-
-            @Override
-            public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult youTubeInitializationResult) {
-
-            }
-        });
-        ((AppCompatActivity) context).getSupportFragmentManager().beginTransaction()
-                .add(message.getId(), youTubePlayerSupportFragment)
-                .commit();
+        View view = LayoutInflater.from(context).inflate(R.layout.youtube_thumbnail, null, false);
+        YouTubeThumbnailViewHolder viewHolder = new YouTubeThumbnailViewHolder(context, view);
+        viewHolder.setVideoId(videoID);
+        message.addView(view);
     }
 }
