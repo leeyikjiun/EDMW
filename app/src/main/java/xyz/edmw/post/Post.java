@@ -14,6 +14,7 @@ public class Post {
     private String path;
     private boolean hasFooter;
     private boolean canEdit;
+    private String threadID;
     private List<String> photos;
 
     private Post() {
@@ -46,6 +47,10 @@ public class Post {
 
     public List<String> getPhotos() {
         return photos == null ? Collections.<String>emptyList() : photos;
+    }
+
+    public String getThreadID() {
+        return threadID;
     }
 
     @Override
@@ -91,6 +96,7 @@ public class Post {
         private String path;
         private boolean hasFooter;
         private boolean canEdit;
+        private String threadID;
         private List<String> photos;
 
         public Builder id(String id) {
@@ -148,6 +154,11 @@ public class Post {
             return this;
         }
 
+        public Builder threadID(String threadID) {
+            this.threadID = threadID;
+            return this;
+        }
+
         public Post build() {
             Post post = new Post();
             post.id = id;
@@ -161,6 +172,7 @@ public class Post {
             post.hasFooter = hasFooter;
             post.canEdit = canEdit;
             post.photos = photos;
+            post.threadID = threadID;
             return post;
         }
     }

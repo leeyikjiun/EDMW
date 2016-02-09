@@ -18,7 +18,9 @@ import com.marshalchen.ultimaterecyclerview.UltimateRecyclerviewViewHolder;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import xyz.edmw.MainActivity;
 import xyz.edmw.R;
+import xyz.edmw.notification.Notification;
 import xyz.edmw.settings.MainSharedPreferences;
 import xyz.edmw.thread.ThreadActivity;
 
@@ -60,7 +62,23 @@ public class TopicViewHolder extends UltimateRecyclerviewViewHolder {
         cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ThreadActivity.startInstance(context, topic, 1);
+                String lastRead = MainActivity.preferences.getLastRead(topic.getId());
+                if(lastRead.isEmpty()) {
+                    System.out.println("No last read");
+                    ThreadActivity.startInstance(context, topic, 1);
+                } else {
+                    String path = "/node/"+lastRead;
+
+                    System.out.println("Continue last read: " + path);
+                    Notification lastReadInstance = new Notification.Builder()
+                            .id(topic.getId())
+                            .path(path)
+                            .title(topic.getTitle())
+                            .build();
+
+                    ThreadActivity.startInstance(context, lastReadInstance);
+
+                }
             }
         });
         title.setText(topic.getTitle());

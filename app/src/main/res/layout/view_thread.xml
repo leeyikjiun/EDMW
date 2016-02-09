@@ -62,15 +62,17 @@
 
         <TextView
             android:id="@+id/sticky_label"
-            android:layout_width="wrap_content"
+            android:layout_width="60dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:background="#42b18f"
             android:text="Sticky"
-            android:gravity="center_vertical"
+            android:textStyle="bold"
+            android:gravity="center_horizontal"
             android:paddingRight="11dp"
             android:paddingLeft="11dp"
             android:textColor="#FFFFFF"
+            android:textSize="13sp"
             android:layout_below="@+id/threadstarter_avatar"/>
 
         <LinearLayout

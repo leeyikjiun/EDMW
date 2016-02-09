@@ -27,6 +27,7 @@ import org.jsoup.nodes.TextNode;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import xyz.edmw.MainActivity;
 import xyz.edmw.Message;
 import xyz.edmw.R;
 import xyz.edmw.rest.RestClient;
@@ -71,6 +72,9 @@ public class PostViewHolder extends RecyclerView.ViewHolder implements PopupMenu
         timestamp.setText(Html.fromHtml(post.getTimestamp()));
         postNum.setText(post.getPostNum());
         userTitle.setText(post.getUserTitle());
+
+        // Save last read
+        MainActivity.preferences.saveLastRead(post.getThreadID(), post.getId());
 
         Message message = new Message(context, this.message);
         message.setPost(post);

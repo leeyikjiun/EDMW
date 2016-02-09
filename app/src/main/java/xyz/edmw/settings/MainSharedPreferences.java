@@ -8,9 +8,6 @@ import android.preference.PreferenceManager;
 
 import xyz.edmw.R;
 
-/**
- * Created by Jun Qin on 10/1/2016.
- */
 public class MainSharedPreferences {
     public static final String PREF_THEME_ID = "pref_themeId";
     public static final String PREF_DOWNLOAD_IMAGE = "pref_downloadImage";
@@ -59,5 +56,24 @@ public class MainSharedPreferences {
             default:
                 return true;
         }
+    }
+
+    public void saveLastRead(String threadID, String postNo) {
+        SharedPreferences.Editor editor = preferences.edit();
+        if(preferences.contains(threadID)) {
+            String lastRead = preferences.getString(threadID, "");
+            if(Integer.parseInt(postNo) > Integer.parseInt(lastRead)) {
+                editor.putString(threadID, postNo);
+                editor.apply();
+            }
+        }
+    }
+
+    public String getLastRead(String threadID) {
+        if(preferences.contains(threadID)) {
+            return preferences.getString(threadID, "");
+        }
+
+        return "";
     }
 }

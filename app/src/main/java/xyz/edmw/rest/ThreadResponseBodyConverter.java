@@ -72,6 +72,8 @@ public class ThreadResponseBodyConverter implements Converter<ResponseBody, Thre
                 postBuilder = postBuilder.photos(photos);
             }
 
+            postBuilder = postBuilder.threadID(thread.getId());
+
             Post post = postBuilder.build();
             thread.addPost(post);
         }
