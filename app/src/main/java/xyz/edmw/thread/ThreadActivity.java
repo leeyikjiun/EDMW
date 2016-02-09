@@ -2,8 +2,10 @@ package xyz.edmw.thread;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -28,6 +30,7 @@ import com.rockerhieu.emojicon.EmojiconGridFragment;
 import com.rockerhieu.emojicon.EmojiconsFragment;
 import com.rockerhieu.emojicon.emoji.Emojicon;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
@@ -149,11 +152,17 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
                 .hide(emojicons)
                 .commit();
 
-        Intent i = getIntent();
-        String title = i.getStringExtra(ARG_TITLE);
-        path = i.getStringExtra(ARG_PATH);
+        Intent intent = getIntent();
+        String url = intent.getDataString();
+        if (!TextUtils.isEmpty(url)) {
+            path = url.substring(RestClient.baseUrl.length());
+            onThreadSelected(path, Insert.New);
+            return;
+        }
+        String title = intent.getStringExtra(ARG_TITLE);
+        path = intent.getStringExtra(ARG_PATH);
         getSupportActionBar().setTitle(title);
-        int pageNum = i.getIntExtra(ARG_PAGE_NUM, -1);
+        int pageNum = intent.getIntExtra(ARG_PAGE_NUM, -1);
         if (pageNum == -1) {
             onThreadSelected(path, Insert.New);
         } else {
@@ -250,7 +259,22 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
                 startActivity(Intent.createChooser(intent, "Share Thread"));
                 return true;
             case (R.id.action_open_browser):
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                List<Intent> targetIntents = new ArrayList<>();
+                List<ResolveInfo> resolveInfos = getPackageManager().queryIntentActivities(intent, 0);
+                for (ResolveInfo resolveInfo : resolveInfos) {
+                    String packageName = resolveInfo.activityInfo.packageName;
+                    if (!packageName.equals("xyz.edmw")) {
+                        Intent targetIntent = new Intent(intent)
+                                .setPackage(packageName);
+                        targetIntents.add(targetIntent);
+                    }
+                }
+                Intent chooserIntent = Intent.createChooser(targetIntents.remove(0), "Open with");
+                if (!targetIntents.isEmpty()) {
+                    chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, targetIntents.toArray(new Parcelable[targetIntents.size()]));
+                }
+                startActivity(chooserIntent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
