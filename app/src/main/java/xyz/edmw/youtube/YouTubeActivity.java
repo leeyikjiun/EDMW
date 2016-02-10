@@ -22,7 +22,7 @@ public class YouTubeActivity extends YouTubeBaseActivity implements YouTubePlaye
     YouTubePlayerView playerView;
 
     // TODO replace with developer key
-    private static final String DeveloperKey = null;
+    private static final String DeveloperKey = "AIzaSyBLNaMGJ_BSO_agGM7VzHAMvqfx91PNcgY";
     private static final String ARG_VIDEO_ID = "arg_video_id";
     private String videoId;
     private YouTubePlayer player;

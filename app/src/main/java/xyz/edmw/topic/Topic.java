@@ -6,6 +6,9 @@ import android.text.TextUtils;
 
 import org.jsoup.nodes.Element;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import xyz.edmw.rest.RestClient;
 
 public class Topic implements Parcelable {
@@ -208,6 +211,16 @@ public class Topic implements Parcelable {
             String id = topicItem.attr("data-node-id");
             boolean isSticky = topicItem.hasClass("sticky");
             String avatar = topicItem.select("div.topic-avatar img").attr("src").replace("thumb=1", "thumb=0");
+
+            // Get avatar for subscriptions
+            if(avatar.isEmpty()) {
+                String userURL = topicItem.select("div.topic-info").first().select("a").get(1).attr("href");
+                Pattern p = Pattern.compile("/(\\d+)-");
+                Matcher m = p.matcher(userURL);
+                if (m.find( )) {
+                    avatar = "http://www.edmw.xyz/core/image.php?userid=" + m.group(1) + "&thumb=0";
+                }
+            }
 
             Element anchor = topicItem.select("a.topic-title").first();
             String title = anchor.text().trim();
