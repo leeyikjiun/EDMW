@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
@@ -69,7 +70,7 @@ public class TopicViewHolder extends UltimateRecyclerviewViewHolder {
                 } else {
                     String path = "/node/"+lastRead;
 
-                    System.out.println("Continue last read: " + path);
+                    Toast.makeText(context, "Resuming last read", Toast.LENGTH_SHORT).show();
                     Notification lastReadInstance = new Notification.Builder()
                             .id(topic.getId())
                             .path(path)

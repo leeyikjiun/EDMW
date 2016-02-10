@@ -66,6 +66,9 @@ public class MainSharedPreferences {
                 editor.putString(threadID, postNo);
                 editor.apply();
             }
+        } else {
+            editor.putString(threadID, postNo);
+            editor.apply();
         }
     }
 
