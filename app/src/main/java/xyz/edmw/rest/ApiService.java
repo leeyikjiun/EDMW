@@ -68,4 +68,8 @@ public interface ApiService {
 
     @GET("/search?searchJson={searchJson}")
     Call<Void> search(@Path("searchJson") String searchJson);
+
+    @Multipart
+    @POST("/ajax/api/reputation/{action}")
+    Call<Void> reputation(@Path("action") String action, @Part("nodeid") String nodeId, @Part("securitytoken") String securityToken);
 }

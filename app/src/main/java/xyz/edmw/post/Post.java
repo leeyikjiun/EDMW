@@ -14,6 +14,8 @@ public class Post {
     private String path;
     private boolean hasFooter;
     private boolean canEdit;
+    private boolean hasLike;
+    private int numLikes;
     private String threadID;
     private List<String> photos;
 
@@ -85,6 +87,22 @@ public class Post {
         return hasFooter;
     }
 
+    public boolean hasLike() {
+        return hasLike;
+    }
+
+    public void setHasLike(boolean hasLike) {
+        this.hasLike = hasLike;
+    }
+
+    public int getNumLikes() {
+        return numLikes;
+    }
+
+    public void setNumLikes(int numLikes) {
+        this.numLikes = numLikes;
+    }
+
     public static class Builder {
         private String id;
         private String author;
@@ -96,6 +114,8 @@ public class Post {
         private String path;
         private boolean hasFooter;
         private boolean canEdit;
+        private boolean hasLike;
+        private int numLikes;
         private String threadID;
         private List<String> photos;
 
@@ -149,6 +169,16 @@ public class Post {
             return this;
         }
 
+        public Builder hasLike(boolean hasLike) {
+            this.hasLike = hasLike;
+            return this;
+        }
+
+        public Builder numLikes(int numLikes) {
+            this.numLikes = numLikes;
+            return this;
+        }
+
         public Builder photos(List<String> photos) {
             this.photos = photos;
             return this;
@@ -171,6 +201,8 @@ public class Post {
             post.path = path;
             post.hasFooter = hasFooter;
             post.canEdit = canEdit;
+            post.hasLike = hasLike;
+            post.numLikes = numLikes;
             post.photos = photos;
             post.threadID = threadID;
             return post;

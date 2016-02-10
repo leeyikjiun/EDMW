@@ -57,8 +57,14 @@ public class ThreadResponseBodyConverter implements Converter<ResponseBody, Thre
                     .hasFooter(hasFooter);
 
             if (hasFooter) {
-                boolean canEdit = footer.select("li[id^=edit-]").first() != null;
-                postBuilder = postBuilder.canEdit(canEdit);
+                boolean canEdit = footer.getElementById("edit-" + id) != null;
+                Element vote = footer.getElementById("vote-" + id);
+                boolean hasLike = vote.hasClass("voted");
+                String numLikes = vote.select("span.votecount").text().trim();
+                postBuilder = postBuilder
+                        .canEdit(canEdit)
+                        .hasLike(hasLike)
+                        .numLikes(Integer.parseInt(numLikes));
             }
 
             Elements imgs = row.select("img.b-gallery-thumbnail-list__thumbnail");

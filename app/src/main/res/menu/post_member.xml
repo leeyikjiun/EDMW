@@ -4,4 +4,6 @@
         android:title="Edit"/>
     <item android:id="@+id/action_quote"
         android:title="Quote"/>
+    <item android:id="@+id/action_like"
+        android:title="Like" />
 </menu>

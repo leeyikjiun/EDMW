@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
@@ -27,11 +28,16 @@ import org.jsoup.nodes.TextNode;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import retrofit.Call;
+import retrofit.Callback;
+import retrofit.Response;
+import retrofit.Retrofit;
 import xyz.edmw.MainActivity;
 import xyz.edmw.Message;
 import xyz.edmw.R;
 import xyz.edmw.rest.RestClient;
 import xyz.edmw.settings.MainSharedPreferences;
+import xyz.edmw.thread.ReplyForm;
 import xyz.edmw.thread.ThreadActivity;
 
 public class PostViewHolder extends RecyclerView.ViewHolder implements PopupMenu.OnMenuItemClickListener {
@@ -81,14 +87,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder implements PopupMenu
 
         setAvatar(post.getAuthorAvatar());
 
-        postNum.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                popup.show();
-            }
-        });
-
-        Menu menu = popup.getMenu();
+        final Menu menu = popup.getMenu();
         menu.clear();
         MenuInflater inflater = popup.getMenuInflater();
         inflater.inflate(R.menu.post_guest, popup.getMenu());
@@ -98,6 +97,16 @@ public class PostViewHolder extends RecyclerView.ViewHolder implements PopupMenu
                 menu.removeItem(R.id.action_edit);
             }
         }
+
+        postNum.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String title = post.hasLike() ? "Unlike" : "Like";
+                title += " (" + post.getNumLikes() + ")";
+                menu.findItem(R.id.action_like).setTitle(title);
+                popup.show();
+            }
+        });
     }
 
     private void setAvatar(String source) {
@@ -134,6 +143,31 @@ public class PostViewHolder extends RecyclerView.ViewHolder implements PopupMenu
                 intent.putExtra(Intent.EXTRA_TEXT, url);
                 intent.setType("text/plain");
                 context.startActivity(Intent.createChooser(intent, "Share Post"));
+                return true;
+            case R.id.action_like:
+                final boolean hasLike = post.hasLike();
+                final String action = hasLike ? "unvote" : "vote";
+                final String err = hasLike ? "unlike" : "like";
+                ReplyForm replyForm = ((ThreadActivity) context).getReplyForm();
+                Call<Void> call = RestClient.getService().reputation(action, post.getId(), replyForm.getSecurityToken());
+                call.enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(Response<Void> response, Retrofit retrofit) {
+                        if (response.isSuccess()) {
+                            int numLikes = post.getNumLikes();
+                            numLikes = post.hasLike() ? numLikes - 1 : numLikes + 1;
+                            post.setNumLikes(numLikes);
+                            post.setHasLike(!hasLike);
+                        } else {
+                            Toast.makeText(context, "Failed to " + err, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        Toast.makeText(context, "Failed to " + err, Toast.LENGTH_SHORT).show();
+                    }
+                });
                 return true;
             default:
                 return false;

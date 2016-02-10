@@ -52,7 +52,6 @@ public class EditPostDialog implements View.OnClickListener {
 
         // prevent people from sending multiple times when network is slow
         v.setEnabled(false);
-        Toast.makeText(context, "Editing...", Toast.LENGTH_SHORT).show();
 
         final ThreadActivity activity = (ThreadActivity) context;
         ReplyForm replyForm = activity.getReplyForm();
