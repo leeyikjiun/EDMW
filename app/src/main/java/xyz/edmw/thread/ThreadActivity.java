@@ -270,10 +270,13 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
                         targetIntents.add(targetIntent);
                     }
                 }
-                Intent chooserIntent = Intent.createChooser(targetIntents.remove(0), "Open with");
-                if (!targetIntents.isEmpty()) {
-                    chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, targetIntents.toArray(new Parcelable[targetIntents.size()]));
+                Intent firstIntent = targetIntents.remove(0);
+                if (targetIntents.isEmpty()) {
+                    startActivity(firstIntent);
+                    return true;
                 }
+                Intent chooserIntent = Intent.createChooser(firstIntent, "Open with");
+                chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, targetIntents.toArray(new Parcelable[targetIntents.size()]));
                 startActivity(chooserIntent);
                 return true;
             default:

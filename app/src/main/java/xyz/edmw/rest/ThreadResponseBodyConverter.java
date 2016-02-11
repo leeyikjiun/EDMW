@@ -42,8 +42,8 @@ public class ThreadResponseBodyConverter implements Converter<ResponseBody, Thre
             String userTitle = row.select("div.usertitle").first().text().trim();
             String id = row.attr("data-node-id");
 
-            Element footer = row.select("div.b-post__footer").first();
-            boolean hasFooter = footer != null;
+            Element footer = row.select("div.b-post__footer ul.js-post-controls").first();
+            boolean hasFooter = footer.children().size() > 1;
 
             Post.Builder postBuilder = new Post.Builder()
                     .id(id)

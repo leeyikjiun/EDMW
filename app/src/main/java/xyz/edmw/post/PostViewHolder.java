@@ -101,9 +101,12 @@ public class PostViewHolder extends RecyclerView.ViewHolder implements PopupMenu
         postNum.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String title = post.hasLike() ? "Unlike" : "Like";
-                title += " (" + post.getNumLikes() + ")";
-                menu.findItem(R.id.action_like).setTitle(title);
+                MenuItem item = menu.findItem(R.id.action_like);
+                if (item != null) {
+                    String title = post.hasLike() ? "Unlike" : "Like";
+                    title += " (" + post.getNumLikes() + ")";
+                    item.setTitle(title);
+                }
                 popup.show();
             }
         });
