@@ -62,7 +62,7 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
     public static YouTubePlayer youTubePlayer;
     public static boolean isFullscreen;
 
-    private final int numPosts = 15;
+    private final int numPostsPerPage = 15;
     private PostAdapter adapter;
     private LinearLayoutManager llm;
     private Thread prevThread, nextThread;
@@ -116,6 +116,12 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         ultimateRecyclerView.enableLoadmore();
         ultimateRecyclerView.setOnLoadMoreListener(this);
         ultimateRecyclerView.setDefaultOnRefreshListener(this);
+        ultimateRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                toolbar.setSubtitle("Page " + getPageNum());
+            }
+        });
 
         footer = getLayoutInflater().inflate(R.layout.view_footer, ultimateRecyclerView, false);
         footer.setOnClickListener(new View.OnClickListener() {
@@ -193,8 +199,7 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // TODO fix exact page
-        String url = RestClient.baseUrl + path;
+        String url = RestClient.baseUrl + path + "/page" + getPageNum();
         switch (item.getItemId()) {
             case R.id.action_refresh:
                 onThreadSelected(path, 1, Insert.New);
@@ -235,8 +240,6 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
     }
 
     private void onThreadLoaded(Thread thread, Insert insert) {
-        toolbar.setSubtitle("Page " + thread.getPageNum());
-
         int visibility = (replyForm = thread.getReplyForm()) == null ? View.GONE : View.VISIBLE;
         replyLayout.setVisibility(visibility);
 
@@ -455,4 +458,10 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
             isLoadingNextThread = false;
         }
     };
+
+    private int getPageNum() {
+        int position = llm.findFirstVisibleItemPosition();
+        int pageNum = position / numPostsPerPage;
+        return firstPage + pageNum;
+    }
 }
