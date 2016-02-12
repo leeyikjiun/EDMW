@@ -14,6 +14,7 @@ public class Thread implements Parcelable {
     private String path;
     private String title;
     private int pageNum;
+    private int numPages = 1;
     private boolean hasNextPage;
     private List<Post> posts;
     private ReplyForm replyForm;
@@ -108,11 +109,16 @@ public class Thread implements Parcelable {
         return isSubscribed;
     }
 
+    public int getNumPages() {
+        return numPages;
+    }
+
     public static class Builder {
         private String id;
         private String path;
         private String title;
         private int pageNum = 1;
+        private int numPages = 1;
         private boolean hasNextPage;
         private ReplyForm replyForm;
         private boolean isSubscribed;
@@ -142,6 +148,11 @@ public class Thread implements Parcelable {
             return this;
         }
 
+        public Builder numPages(int numPages) {
+            this.numPages = numPages;
+            return this;
+        }
+
         public Builder hasNextPage(boolean hasNextPage) {
             this.hasNextPage = hasNextPage;
             return this;
@@ -158,6 +169,7 @@ public class Thread implements Parcelable {
             thread.path = path;
             thread.title = title;
             thread.pageNum = pageNum;
+            thread.numPages = numPages;
             thread.hasNextPage = hasNextPage;
             thread.replyForm = replyForm;
             thread.isSubscribed = isSubscribed;

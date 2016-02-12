@@ -82,6 +82,7 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
     private Thread prevThread, nextThread;
     private View footer;
     private int firstPage, lastPage;
+    private int numPages;
     private boolean hasNextPage;
     private boolean isLoadingPrevThread, isLoadingNextThread;
     private boolean loadPrev, loadMore;
@@ -135,7 +136,7 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         ultimateRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                toolbar.setSubtitle("Page " + getPageNum());
+                toolbar.setSubtitle("Page " + getPageNum() + " of " + numPages);
             }
         });
 
@@ -285,6 +286,7 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
     }
 
     private void onThreadLoaded(Thread thread, Insert insert) {
+        numPages = thread.getNumPages();
         int visibility = (replyForm = thread.getReplyForm()) == null ? View.GONE : View.VISIBLE;
         replyLayout.setVisibility(visibility);
 

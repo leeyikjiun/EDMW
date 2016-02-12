@@ -1,5 +1,7 @@
 package xyz.edmw.rest;
 
+import android.util.Log;
+
 import com.squareup.okhttp.ResponseBody;
 
 import org.jsoup.Jsoup;
@@ -108,6 +110,13 @@ public class ThreadResponseBodyConverter implements Converter<ResponseBody, Thre
             threadBuilder = threadBuilder
                     .pageNum(pageNum)
                     .hasNextPage(hasNextPage);
+        }
+
+        Elements pages = threadViewTab.select("a.js-pagenav-button");
+        int size = pages.size();
+        if (size > 2) {
+            int numPages = Integer.parseInt(pages.get(size - 2).text().trim());
+            threadBuilder.numPages(numPages);
         }
 
         String title = doc.select("h1.main-title").first().text().trim();
