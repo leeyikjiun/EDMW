@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:emojicon="http://schemas.android.com/tools"
     android:fitsSystemWindows="true">
 
     <android.support.design.widget.AppBarLayout
@@ -51,23 +52,55 @@
                     android:background="@color/font_color_gray"
                     android:id="@+id/line"/>
 
-                <EditText
+                <ViewSwitcher
+                    android:id="@+id/keyboard_switcher"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageButton
+                        android:id="@+id/reply_emoticon"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:src="@drawable/ic_emoticon"
+                        android:scaleType="fitCenter"
+                        android:background="@android:color/transparent" />
+
+                    <ImageButton
+                        android:id="@+id/reply_keyboard"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:src="@drawable/ic_keyboard"
+                        android:scaleType="fitCenter"
+                        android:background="@android:color/transparent" />
+                </ViewSwitcher>
+
+                <com.rockerhieu.emojicon.EmojiconEditText
                     android:id="@+id/reply_message"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textMultiLine"
                     android:hint="Write something..."
+                    android:layout_toRightOf="@+id/keyboard_switcher"
+                    android:layout_toEndOf="@+id/keyboard_switcher"
                     android:layout_toLeftOf="@+id/reply"
-                    android:layout_toStartOf="@+id/reply" />
+                    android:layout_toStartOf="@+id/reply"
+                    emojicon:emojiconSize="28sp" />
 
                 <ImageButton
                     android:id="@+id/reply"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_menu_send"
-                    android:layout_centerVertical="true"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:src="@drawable/ic_send"
+                    android:scaleType="fitCenter"
+                    android:background="@android:color/transparent"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentEnd="true" />
+
+                <fragment class="com.rockerhieu.emojicon.EmojiconsFragment"
+                    android:id="@+id/emojicons"
+                    android:layout_width="match_parent"
+                    android:layout_height="220dp"
+                    android:layout_below="@id/reply_message" />
             </RelativeLayout>
         </RelativeLayout>
     </FrameLayout>

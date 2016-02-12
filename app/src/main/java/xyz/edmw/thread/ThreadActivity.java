@@ -1,27 +1,32 @@
 package xyz.edmw.thread;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+import android.widget.ViewSwitcher;
 
 import com.google.android.youtube.player.YouTubePlayer;
 import com.marshalchen.ultimaterecyclerview.UltimateRecyclerView;
+import com.rockerhieu.emojicon.EmojiconEditText;
+import com.rockerhieu.emojicon.EmojiconGridFragment;
+import com.rockerhieu.emojicon.EmojiconsFragment;
+import com.rockerhieu.emojicon.emoji.Emojicon;
 
 import java.util.List;
 
@@ -42,7 +47,7 @@ import xyz.edmw.rest.RestClient;
 import xyz.edmw.settings.MainSharedPreferences;
 import xyz.edmw.topic.Topic;
 
-public class ThreadActivity extends AppCompatActivity implements UltimateRecyclerView.OnLoadMoreListener, View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class ThreadActivity extends AppCompatActivity implements UltimateRecyclerView.OnLoadMoreListener, View.OnClickListener, SwipeRefreshLayout.OnRefreshListener, EmojiconsFragment.OnEmojiconBackspaceClickedListener, EmojiconGridFragment.OnEmojiconClickedListener {
     @Bind(R.id.toolbar)
     Toolbar toolbar;
     @Bind(R.id.list)
@@ -50,9 +55,15 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
     @Bind(R.id.reply_bar)
     RelativeLayout replyLayout;
     @Bind(R.id.reply_message)
-    EditText message;
+    EmojiconEditText message;
     @Bind(R.id.reply)
     ImageButton reply;
+    @Bind(R.id.keyboard_switcher)
+    ViewSwitcher keyboardSwitcher;
+    @Bind(R.id.reply_emoticon)
+    ImageButton emoticon;
+    @Bind(R.id.reply_keyboard)
+    ImageButton keyboard;
 
     private static final String tag = "ThreadActivity";
     private static final String ARG_TITLE = "arg_title";
@@ -75,6 +86,8 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
     private ReplyForm replyForm;
     private String id;
     private boolean isSubscribed;
+    private EmojiconsFragment emojicons;
+    private boolean hasEmojiKeyboard;
 
     public static Intent newInstance(Context context, String title, String path) {
         Intent intent = new Intent(context, ThreadActivity.class);
@@ -124,14 +137,17 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         });
 
         footer = getLayoutInflater().inflate(R.layout.view_footer, ultimateRecyclerView, false);
-        footer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onThreadSelected(path, lastPage, Insert.After);
-            }
-        });
-
+        footer.setOnClickListener(this);
         reply.setOnClickListener(this);
+        emoticon.setOnClickListener(this);
+        keyboard.setOnClickListener(this);
+        message.setOnClickListener(this);
+
+        FragmentManager fm = getSupportFragmentManager();
+        emojicons = (EmojiconsFragment) fm.findFragmentById(R.id.emojicons);
+        fm.beginTransaction()
+                .hide(emojicons)
+                .commit();
 
         Intent i = getIntent();
         String title = i.getStringExtra(ARG_TITLE);
@@ -164,7 +180,7 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         }
 
         List<Post> posts = adapter.getPosts();
-        for (int i = posts.size()-1; i>=0;--i) {
+        for (int i = posts.size() - 1; i >= 0; --i) {
             if (id.equals(posts.get(i).getId())) {
                 llm.scrollToPosition(i);
                 return;
@@ -182,9 +198,11 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
 
     @Override
     public void onBackPressed() {
-        if (isFullscreen){
+        if (isFullscreen) {
             youTubePlayer.setFullscreen(false);
-        } else{
+        } else if (hasEmojiKeyboard) {
+            hideEmojiKeyboard();
+        } else {
             super.onBackPressed();
         }
     }
@@ -283,8 +301,8 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         loadPrev = loadMore = false;
 
         if ((insert.equals(Insert.Before) || insert.equals(Insert.New))
-            && (firstPage = thread.getPageNum()) > 1) {
-                loadPrevThread();
+                && (firstPage = thread.getPageNum()) > 1) {
+            loadPrevThread();
         }
         if (insert.equals(Insert.New) || insert.equals(Insert.After)) {
             lastPage = thread.getPageNum();
@@ -311,7 +329,23 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
     }
 
     @Override
-    public void onClick(final View v) {
+    public void onClick(View v) {
+        if (v.equals(footer)) {
+            onThreadSelected(path, lastPage, Insert.After);
+        } else if (v.equals(emoticon)) {
+            hideKeyboard();
+            showEmojiKeyboard();
+        } else if (v.equals(keyboard)) {
+            hideEmojiKeyboard();
+            showKeyboard();
+        } else if (v.equals(reply)) {
+            onReply();
+        } else if (v.equals(message)) {
+            hideEmojiKeyboard();
+        }
+    }
+
+    private void onReply() {
         String message = this.message.getText().toString().trim();
         if (TextUtils.isEmpty(message)) {
             Toast.makeText(ThreadActivity.this, "Please write something", Toast.LENGTH_SHORT).show();
@@ -319,10 +353,9 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         }
 
         // prevent people from sending multiple times when network is slow
-        v.setEnabled(false);
+        reply.setEnabled(false);
         Toast.makeText(ThreadActivity.this, "Sending...", Toast.LENGTH_SHORT).show();
-        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        hideKeyboard();
 
         message = message.replace(System.getProperty("line.separator"), "<br />");
         Call<Void> call = RestClient.getService().reply(
@@ -340,16 +373,44 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
                 } else {
                     Toast.makeText(ThreadActivity.this, "Failed to send reply", Toast.LENGTH_SHORT).show();
                 }
-                v.setEnabled(true);
+                reply.setEnabled(true);
             }
 
             @Override
             public void onFailure(Throwable t) {
                 t.printStackTrace();
                 Toast.makeText(ThreadActivity.this, "Failed to send reply", Toast.LENGTH_SHORT).show();
-                v.setEnabled(true);
+                reply.setEnabled(true);
             }
         });
+    }
+
+    private void hideEmojiKeyboard() {
+        hasEmojiKeyboard = false;
+        keyboardSwitcher.setDisplayedChild(0);
+        FragmentManager fm = getSupportFragmentManager();
+        fm.beginTransaction()
+                .hide(emojicons)
+                .commit();
+    }
+
+    private void showEmojiKeyboard() {
+        hasEmojiKeyboard = true;
+        FragmentManager fm = getSupportFragmentManager();
+        fm.beginTransaction()
+                .show(emojicons)
+                .commit();
+    }
+
+    private void hideKeyboard() {
+        keyboardSwitcher.setDisplayedChild(1);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+    }
+
+    private void showKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
     }
 
     @Override
@@ -379,6 +440,18 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
 
     public ReplyForm getReplyForm() {
         return replyForm;
+    }
+
+    @Override
+    public void onEmojiconBackspaceClicked(View v) {
+        message.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
+    }
+
+    @Override
+    public void onEmojiconClicked(Emojicon emojicon) {
+        String text = message.getText() + emojicon.getEmoji();
+        message.setText(text);
+        message.setSelection(text.length());
     }
 
     private class LoadThreadCallback implements Callback<Thread> {
