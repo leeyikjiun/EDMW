@@ -75,6 +75,19 @@
             android:textSize="13sp"
             android:layout_below="@+id/threadstarter_avatar"/>
 
+        <TextView
+            android:id="@+id/topic_tag"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:background="#42b18f"
+            android:textStyle="bold"
+            android:gravity="center_horizontal"
+            android:textColor="#FFFFFF"
+            android:visibility="gone"
+            android:textSize="12sp"
+            android:layout_below="@+id/sticky_label"/>
+
         <LinearLayout
             android:id="@+id/goto_buttons"
             android:layout_width="wrap_content"

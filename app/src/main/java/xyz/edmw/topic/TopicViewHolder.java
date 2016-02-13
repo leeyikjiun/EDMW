@@ -39,6 +39,8 @@ public class TopicViewHolder extends UltimateRecyclerviewViewHolder implements V
     SimpleDraweeView threadstarterAvatar;
     @Bind(R.id.sticky_label)
     TextView stickyLabel;
+    @Bind(R.id.topic_tag)
+    TextView tag;
     @Bind(R.id.goto_first_unread)
     ImageButton gotoFirstUnread;
     @Bind(R.id.goto_last_post)
@@ -73,6 +75,12 @@ public class TopicViewHolder extends UltimateRecyclerviewViewHolder implements V
 
         int visibility = topic.isSticky() ? View.VISIBLE : View.GONE;
         stickyLabel.setVisibility(visibility);
+
+        String tag = topic.getTag();
+        if (!TextUtils.isEmpty(tag)) {
+            this.tag.setText(tag);
+            this.tag.setVisibility(View.VISIBLE);
+        }
 
         /*if (TextUtils.isEmpty(topic.getFirstUnread())) {
             gotoFirstUnread.setVisibility(View.GONE);

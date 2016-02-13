@@ -20,6 +20,7 @@ public class Topic implements Parcelable {
     private  String lastPost;
     private  String threadstarterAvatar;
     private  boolean isSticky;
+    private String tag;
     private int numPages;
     private String lastPostPath;
 
@@ -128,6 +129,10 @@ public class Topic implements Parcelable {
         return firstUnread;
     }
 
+    public String getTag() {
+        return tag;
+    }
+
     public static class Builder {
         private String id;
         private  String title;
@@ -136,6 +141,7 @@ public class Topic implements Parcelable {
         private  String lastPost;
         private  String threadstarterAvatar;
         private  boolean isSticky;
+        private String tag;
         private int numPages;
         private String lastPostPath;
         private String firstUnread;
@@ -180,6 +186,11 @@ public class Topic implements Parcelable {
             return this;
         }
 
+        public Builder tag(String tag) {
+            this.tag = tag;
+            return this;
+        }
+
         public Builder numPages(int numPages) {
             this.numPages = numPages;
             return this;
@@ -201,6 +212,7 @@ public class Topic implements Parcelable {
             topic.lastPostPath = lastPostPath;
             topic.threadstarterAvatar = threadstarterAvatar;
             topic.isSticky = isSticky;
+            topic.tag = tag;
             topic.numPages = numPages;
             return topic;
         }
@@ -210,11 +222,15 @@ public class Topic implements Parcelable {
 
             String id = topicItem.attr("data-node-id");
             boolean isSticky = topicItem.hasClass("sticky");
+            String tag = topicItem.select("a.js-topic-prefix").text().trim();
+            if (!TextUtils.isEmpty(tag)) {
+                tag = tag.substring(1, tag.length() - 1);
+            }
             String avatar = topicItem.select("div.topic-avatar img").attr("src").replace("thumb=1", "thumb=0");
 
             // Get avatar for subscriptions
             if(avatar.isEmpty()) {
-                String userURL = topicItem.select("div.topic-info").first().select("a").get(1).attr("href");
+                String userURL = topicItem.select("div.topic-info").select("a").get(1).attr("href");
                 Pattern p = Pattern.compile("/(\\d+)-");
                 Matcher m = p.matcher(userURL);
                 if (m.find( )) {
@@ -238,7 +254,8 @@ public class Topic implements Parcelable {
                     .lastPost(lastPost)
                     .threadstarterAvatar(avatar)
                     .startedBy(startedBy)
-                    .isSticky(isSticky);
+                    .isSticky(isSticky)
+                    .tag(tag);
 
             String lastPostPath;
             Element gotoLastPost = cell.select("a.go-to-last-post").first();
