@@ -80,6 +80,8 @@ public class TopicViewHolder extends UltimateRecyclerviewViewHolder implements V
         if (!TextUtils.isEmpty(tag)) {
             this.tag.setText(tag);
             this.tag.setVisibility(View.VISIBLE);
+        } else {
+            this.tag.setVisibility(View.GONE);
         }
 
         /*if (TextUtils.isEmpty(topic.getFirstUnread())) {

@@ -84,7 +84,6 @@
             android:textStyle="bold"
             android:gravity="center_horizontal"
             android:textColor="#FFFFFF"
-            android:visibility="gone"
             android:textSize="12sp"
             android:layout_below="@+id/sticky_label"/>
 
