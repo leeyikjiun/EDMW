@@ -23,7 +23,7 @@ public class MainSharedPreferences {
 
     public MainSharedPreferences(Context context) {
         this.context = context;
-        preferences =PreferenceManager.getDefaultSharedPreferences(context);
+        preferences = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
     public int getThemeId() {
@@ -58,25 +58,13 @@ public class MainSharedPreferences {
         }
     }
 
-    public void saveLastRead(String threadID, String postNo) {
+    public void saveLastRead(String threadID, String postID) {
         SharedPreferences.Editor editor = preferences.edit();
-        if(preferences.contains(threadID)) {
-            String lastRead = preferences.getString(threadID, "");
-            if(Integer.parseInt(postNo) > Integer.parseInt(lastRead)) {
-                editor.putString(threadID, postNo);
-                editor.apply();
-            }
-        } else {
-            editor.putString(threadID, postNo);
-            editor.apply();
-        }
+        editor.putString(threadID, postID);
+        editor.apply();
     }
 
     public String getLastRead(String threadID) {
-        if(preferences.contains(threadID)) {
-            return preferences.getString(threadID, "");
-        }
-
-        return "";
+        return preferences.getString(threadID, "");
     }
 }

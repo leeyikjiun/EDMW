@@ -1,7 +1,5 @@
 package xyz.edmw.rest;
 
-import android.util.Log;
-
 import com.squareup.okhttp.ResponseBody;
 
 import org.jsoup.Jsoup;
@@ -79,8 +77,6 @@ public class ThreadResponseBodyConverter implements Converter<ResponseBody, Thre
                 }
                 postBuilder = postBuilder.photos(photos);
             }
-
-            postBuilder = postBuilder.threadID(thread.getId());
 
             Post post = postBuilder.build();
             thread.addPost(post);

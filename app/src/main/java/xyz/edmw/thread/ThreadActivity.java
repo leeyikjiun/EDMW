@@ -92,6 +92,8 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
     private boolean isSubscribed;
     private EmojiconsFragment emojicons;
     private boolean hasEmojiKeyboard;
+    private int lastReadID;
+    private MainSharedPreferences preferences;
 
     public static Intent newInstance(Context context, String title, String path) {
         Intent intent = new Intent(context, ThreadActivity.class);
@@ -119,7 +121,8 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(new MainSharedPreferences(this).getThemeId());
+        preferences = new MainSharedPreferences(this);
+        setTheme(preferences.getThemeId());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_thread);
         ButterKnife.bind(this);
@@ -133,12 +136,7 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         ultimateRecyclerView.enableLoadmore();
         ultimateRecyclerView.setOnLoadMoreListener(this);
         ultimateRecyclerView.setDefaultOnRefreshListener(this);
-        ultimateRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                toolbar.setSubtitle("Page " + getPageNum() + " of " + numPages);
-            }
-        });
+        ultimateRecyclerView.addOnScrollListener(onScrollListener);
 
         footer = getLayoutInflater().inflate(R.layout.view_footer, ultimateRecyclerView, false);
         footer.setOnClickListener(this);
@@ -169,6 +167,12 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         } else {
             onThreadSelected(path, pageNum, Insert.New);
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        preferences.saveLastRead(id, String.valueOf(lastReadID));
     }
 
     private void onThreadSelected(String path, int pageNum, Insert insert) {
@@ -234,21 +238,22 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
                 return true;
             case R.id.action_subscribe:
                 final String action = isSubscribed ? "delete" : "add";
-                final String err = isSubscribed ? "unsubscribe" : "subscribe";
+                final String actionName = isSubscribed ? "unsubscribe" : "subscribe";
                 Call<Void> call = RestClient.getService().follow(action, id, "follow_contents", replyForm.getSecurityToken());
                 call.enqueue(new Callback<Void>() {
                     @Override
                     public void onResponse(Response<Void> response, Retrofit retrofit) {
                         if (response.isSuccess()) {
                             isSubscribed = !isSubscribed;
+                            Toast.makeText(ThreadActivity.this, "Thread " + actionName + "d", Toast.LENGTH_SHORT).show();
                         } else {
-                            Toast.makeText(ThreadActivity.this, "Failed to " + err, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(ThreadActivity.this, "Failed to " + actionName, Toast.LENGTH_SHORT).show();
                         }
                     }
 
                     @Override
                     public void onFailure(Throwable t) {
-                        Toast.makeText(ThreadActivity.this, "Failed to " + err, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ThreadActivity.this, "Failed to " + actionName, Toast.LENGTH_SHORT).show();
                     }
                 });
                 return true;
@@ -373,6 +378,20 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
             hideEmojiKeyboard();
         }
     }
+
+    private final RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            int pageNum = getPageNum();
+            toolbar.setSubtitle("Page " + pageNum + " of " + numPages);
+            int position = llm.findFirstVisibleItemPosition();
+            Post post = adapter.getPosts().get(position);
+            int lastReadID = Integer.parseInt(post.getId());
+            if (lastReadID > ThreadActivity.this.lastReadID) {
+                ThreadActivity.this.lastReadID = lastReadID;
+            }
+        }
+    };
 
     private void onReply() {
         String message = this.message.getText().toString().trim();

@@ -17,9 +17,10 @@ import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
 import com.marshalchen.ultimaterecyclerview.UltimateRecyclerviewViewHolder;
 
+import org.w3c.dom.Text;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import xyz.edmw.MainActivity;
 import xyz.edmw.R;
 import xyz.edmw.notification.Notification;
 import xyz.edmw.settings.MainSharedPreferences;
@@ -27,7 +28,7 @@ import xyz.edmw.thread.ThreadActivity;
 
 import static com.facebook.imagepipeline.request.ImageRequest.RequestLevel;
 
-public class TopicViewHolder extends UltimateRecyclerviewViewHolder {
+public class TopicViewHolder extends UltimateRecyclerviewViewHolder implements View.OnClickListener {
     @Bind(R.id.card_view)
     CardView cardView;
     @Bind(R.id.thread_title)
@@ -47,6 +48,7 @@ public class TopicViewHolder extends UltimateRecyclerviewViewHolder {
 
     private final Context context;
     private final MainSharedPreferences preferences;
+    private Topic topic;
 
     public TopicViewHolder(Context context, View view, boolean isItem) {
         super(view);
@@ -56,32 +58,11 @@ public class TopicViewHolder extends UltimateRecyclerviewViewHolder {
         if (isItem) {
             ButterKnife.bind(this, view);
         }
-
     }
 
     public void setTopic(final Topic topic) {
-        cardView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String lastRead = MainActivity.preferences.getLastRead(topic.getId());
-                if(lastRead.isEmpty()) {
-                    System.out.println("No last read");
-                    ThreadActivity.startInstance(context, topic, 1);
-                } else {
-                    String path = "/node/"+lastRead;
-
-                    Toast.makeText(context, "Resuming last read", Toast.LENGTH_SHORT).show();
-                    Notification lastReadInstance = new Notification.Builder()
-                            .id(topic.getId())
-                            .path(path)
-                            .title(topic.getTitle())
-                            .build();
-
-                    ThreadActivity.startInstance(context, lastReadInstance);
-
-                }
-            }
-        });
+        this.topic = topic;
+        cardView.setOnClickListener(this);
         title.setText(topic.getTitle());
         startedBy.setText(topic.getStartedBy());
         lastPost.setText(Html.fromHtml(topic.getLastPost()));
@@ -92,11 +73,8 @@ public class TopicViewHolder extends UltimateRecyclerviewViewHolder {
             threadstarterAvatar.setVisibility(View.GONE);
         }
 
-        if(!topic.isSticky()) {
-            stickyLabel.setVisibility(View.GONE);
-        } else {
-            stickyLabel.setVisibility(View.VISIBLE);
-        }
+        int visibility = topic.isSticky() ? View.VISIBLE : View.GONE;
+        stickyLabel.setVisibility(visibility);
 
         /*if (TextUtils.isEmpty(topic.getFirstUnread())) {
             gotoFirstUnread.setVisibility(View.GONE);
@@ -110,12 +88,7 @@ public class TopicViewHolder extends UltimateRecyclerviewViewHolder {
                 }
             });
         }*/
-        gotoLastPost.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ThreadActivity.startInstance(context, topic.getTitle(), topic.getLastPostPath());
-            }
-        });
+        gotoLastPost.setOnClickListener(this);
     }
 
     private void setAvatar(String source) {
@@ -130,5 +103,28 @@ public class TopicViewHolder extends UltimateRecyclerviewViewHolder {
                 .setAutoPlayAnimations(true)
                 .build();
         threadstarterAvatar.setController(controller);
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.equals(cardView)) {
+            String lastRead = preferences.getLastRead(topic.getId());
+            if (TextUtils.isEmpty(lastRead)) {
+                ThreadActivity.startInstance(context, topic, 1);
+                return;
+            }
+
+            String path = "/node/" + lastRead;
+            Notification lastReadInstance = new Notification.Builder()
+                    .id(topic.getId())
+                    .path(path)
+                    .title(topic.getTitle())
+                    .build();
+
+            Toast.makeText(context, "Resuming last read", Toast.LENGTH_SHORT).show();
+            ThreadActivity.startInstance(context, lastReadInstance);
+        } else if (v.equals(gotoLastPost)) {
+            ThreadActivity.startInstance(context, topic.getTitle(), topic.getLastPostPath());
+        }
     }
 }

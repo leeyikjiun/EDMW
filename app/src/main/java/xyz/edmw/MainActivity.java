@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final RecyclerView.OnItemTouchListener disabler = new RecyclerViewDisabler();
 
     // SharedPreferences
-    public static MainSharedPreferences preferences;
+    private MainSharedPreferences preferences;
 
     private String title;
     private Forum forum;

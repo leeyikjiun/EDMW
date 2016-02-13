@@ -16,7 +16,6 @@ public class Post {
     private boolean canEdit;
     private boolean hasLike;
     private int numLikes;
-    private String threadID;
     private List<String> photos;
 
     private Post() {
@@ -49,10 +48,6 @@ public class Post {
 
     public List<String> getPhotos() {
         return photos == null ? Collections.<String>emptyList() : photos;
-    }
-
-    public String getThreadID() {
-        return threadID;
     }
 
     @Override
@@ -184,11 +179,6 @@ public class Post {
             return this;
         }
 
-        public Builder threadID(String threadID) {
-            this.threadID = threadID;
-            return this;
-        }
-
         public Post build() {
             Post post = new Post();
             post.id = id;
@@ -204,7 +194,6 @@ public class Post {
             post.hasLike = hasLike;
             post.numLikes = numLikes;
             post.photos = photos;
-            post.threadID = threadID;
             return post;
         }
     }
