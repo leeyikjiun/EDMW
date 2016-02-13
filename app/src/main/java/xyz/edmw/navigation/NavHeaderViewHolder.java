@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.view.View;
 import android.widget.TextView;
 
+import com.facebook.common.util.UriUtil;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -40,8 +41,19 @@ public class NavHeaderViewHolder {
         if (user != null) {
             name.setText(user.getName());
             setAvatar(user.getAvatar());
+        } else {
+            name.setText(context.getResources().getText(R.string.login));
+            setAvatar(R.drawable.temp_avatar);
         }
         title.setVisibility(View.GONE);
+    }
+
+    private void setAvatar(int resource) {
+        Uri uri = new Uri.Builder()
+                .scheme(UriUtil.LOCAL_RESOURCE_SCHEME)
+                .path(String.valueOf(resource))
+                .build();
+        avatar.setImageURI(uri);
     }
 
     private void setAvatar(String source) {
