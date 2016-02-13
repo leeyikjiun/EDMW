@@ -6,6 +6,8 @@
         android:icon="@drawable/ic_refresh_white_48dp"
         android:title="@string/action_refresh"
         app:showAsAction="ifRoom" />
+    <item android:id="@+id/action_goto_page"
+        android:title="Go to page" />
     <item android:id="@+id/action_subscribe"
         android:title="Subscribe" />
     <item android:id="@+id/action_share"

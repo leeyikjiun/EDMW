@@ -50,7 +50,7 @@ import xyz.edmw.rest.RestClient;
 import xyz.edmw.settings.MainSharedPreferences;
 import xyz.edmw.topic.Topic;
 
-public class ThreadActivity extends AppCompatActivity implements UltimateRecyclerView.OnLoadMoreListener, View.OnClickListener, SwipeRefreshLayout.OnRefreshListener, EmojiconsFragment.OnEmojiconBackspaceClickedListener, EmojiconGridFragment.OnEmojiconClickedListener {
+public class ThreadActivity extends AppCompatActivity implements UltimateRecyclerView.OnLoadMoreListener, View.OnClickListener, SwipeRefreshLayout.OnRefreshListener, EmojiconsFragment.OnEmojiconBackspaceClickedListener, EmojiconGridFragment.OnEmojiconClickedListener, GotoPageDialog.OnPageSelectedListener {
     @Bind(R.id.toolbar)
     Toolbar toolbar;
     @Bind(R.id.list)
@@ -235,6 +235,10 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         switch (item.getItemId()) {
             case R.id.action_refresh:
                 onThreadSelected(path, 1, Insert.New);
+                return true;
+            case R.id.action_goto_page:
+                GotoPageDialog dialog = new GotoPageDialog(this, numPages, this);
+                dialog.show();
                 return true;
             case R.id.action_subscribe:
                 final String action = isSubscribed ? "delete" : "add";
@@ -500,6 +504,11 @@ public class ThreadActivity extends AppCompatActivity implements UltimateRecycle
         String text = message.getText() + emojicon.getEmoji();
         message.setText(text);
         message.setSelection(text.length());
+    }
+
+    @Override
+    public void onPageSelected(int pageNum) {
+        onThreadSelected(path, pageNum, Insert.New);
     }
 
     private class LoadThreadCallback implements Callback<Thread> {
