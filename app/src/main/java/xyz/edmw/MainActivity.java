@@ -151,6 +151,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         public void onResponse(Response<Void> response, Retrofit retrofit) {
                             if (response.isSuccess()) {
                                 Toast.makeText(MainActivity.this, "Logging out...", Toast.LENGTH_SHORT).show();
+                                onLogout();
                                 return;
                             }
                             Toast.makeText(MainActivity.this, "Log out failed", Toast.LENGTH_SHORT).show();
@@ -279,6 +280,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return;
         }
         onForumLoaded(nextForum, Insert.After);
+    }
+
+    public void onLogout() {
+        forum = Forum.edmw;
+        forum.clear();
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
+        onForumSelected(forum);
     }
 
     public void onLogin() {
