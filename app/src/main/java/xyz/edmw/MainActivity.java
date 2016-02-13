@@ -112,6 +112,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Toast.makeText(getApplicationContext(), "No network connected", Toast.LENGTH_SHORT).show();
         }
 
+        if(preferences.getThemeId() == R.style.AppTheme_Black) {
+            fab.setBackgroundTintList(getResources().getColorStateList(R.color.font_color_gray));
+        } else if(preferences.getThemeId() == R.style.AppTheme) {
+            fab.setBackgroundTintList(getResources().getColorStateList(R.color.colorPrimary));
+        }
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

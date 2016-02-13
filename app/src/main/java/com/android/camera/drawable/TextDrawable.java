@@ -26,7 +26,7 @@ import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
 
 public class TextDrawable extends Drawable {
-    private static final int DEFAULT_COLOR = Color.BLACK;
+    private static final int DEFAULT_COLOR = Color.WHITE;
     private static final int DEFAULT_TEXTSIZE = 15;
     protected Paint mPaint;
     protected CharSequence mText;
