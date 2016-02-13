@@ -5,7 +5,7 @@ public class User {
     private String avatar;
     private String profile;
     private String recentPosts;
-    private String messages;
+    private int numNotifications;
 
     private User() {
 
@@ -23,8 +23,8 @@ public class User {
         return recentPosts;
     }
 
-    public String getMessages() {
-        return messages;
+    public int getNumNotifications() {
+        return numNotifications;
     }
 
     public static class Builder {
@@ -32,7 +32,7 @@ public class User {
         private String avatar;
         private String profile;
         private String recentPosts;
-        private String messages;
+        private int numNotifications;
 
         public Builder name(String name) {
             this.name = name;
@@ -54,8 +54,8 @@ public class User {
             return this;
         }
 
-        public Builder messages(String messages) {
-            this.messages = messages;
+        public Builder numNotifications(int numNotifications) {
+            this.numNotifications = numNotifications;
             return this;
         }
 
@@ -65,7 +65,7 @@ public class User {
             user.avatar = avatar;
             user.profile = profile;
             user.recentPosts = recentPosts;
-            user.messages = messages;
+            user.numNotifications = numNotifications;
             return user;
         }
     }

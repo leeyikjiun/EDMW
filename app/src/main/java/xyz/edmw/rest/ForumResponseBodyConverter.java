@@ -61,13 +61,13 @@ public class ForumResponseBodyConverter implements Converter<ResponseBody, Forum
             Elements anchors = doc.select("ul.submenu a");
             String profile = anchors.get(0).attr("href");
             String recentPosts = anchors.get(1).attr("href");
-            String messages = String.format("Messages (%s)", mainNavBar.select("span.notifications-count").first().text().trim());
+            String numNotifications = mainNavBar.select("span.notifications-count").text().trim();
             forum.setUser(new User.Builder()
                     .name(username)
                     .avatar(avatar)
                     .profile(profile)
                     .recentPosts(recentPosts)
-                    .messages(messages)
+                    .numNotifications(Integer.parseInt(numNotifications))
                     .build()
             );
         }

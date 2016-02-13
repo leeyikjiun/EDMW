@@ -3,6 +3,9 @@ package xyz.edmw;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -17,10 +20,12 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.android.camera.drawable.TextDrawable;
 import com.marshalchen.ultimaterecyclerview.UltimateRecyclerView;
 
 import butterknife.Bind;
@@ -67,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private boolean isLoadingNextForum;
     private boolean loadMore;
     private User user;
+    private Menu menu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,16 +115,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), NewTopicActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                getApplicationContext().startActivity(intent);
+                startActivity(new Intent(MainActivity.this, NotificationsActivity.class));
             }
         });
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
+        this.menu = menu;
+        getMenuInflater().inflate(R.menu.main_guest, menu);
         return true;
     }
 
@@ -241,8 +246,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         user = forum.getUser();
         navViewHolder.setUser(user);
-        int visibility = user == null ? View.GONE : View.VISIBLE;
-        fab.setVisibility(visibility);
+
+        if (user == null) {
+            fab.setVisibility(View.GONE);
+        } else {
+            int numNotifications = user.getNumNotifications();
+            int visibility = numNotifications == 0 ? View.GONE : View.VISIBLE;
+            fab.setVisibility(visibility);
+            fab.setImageDrawable(new FabDrawable(getResources(), numNotifications));
+        }
+
+        menu.clear();
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.main_guest, menu);
+        if (user != null) {
+            menuInflater.inflate(R.menu.main_member, menu);
+        }
     }
 
     @Override
@@ -296,6 +315,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch (item.getItemId()) {
             case R.id.action_refresh:
                 onRefresh();
+                return true;
+            case R.id.action_new_topic:
+                Intent intent = new Intent(getApplicationContext(), NewTopicActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -374,4 +398,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             isLoadingNextForum = false;
         }
     };
+
+    private class FabDrawable extends TextDrawable {
+        public FabDrawable(Resources res, int numNotifications) {
+            super(res, String.valueOf(numNotifications));
+        }
+
+        @Override
+        public void draw(Canvas canvas) {
+            Rect bounds = getBounds();
+            canvas.drawText(mText, 0, mText.length(),
+                    bounds.centerX(), bounds.centerY() + 12, mPaint);
+        }
+    }
 }

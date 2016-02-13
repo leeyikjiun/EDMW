@@ -33,7 +33,7 @@ public class NavViewHolder {
         } else {
             view.inflateMenu(R.menu.activity_main_drawer_member);
             MenuItem messages = menu.findItem(R.id.nav_messages);
-            messages.setTitle(user.getMessages());
+            messages.setTitle(String.format("Messages (%d)", user.getNumNotifications()));
         }
     }
 }

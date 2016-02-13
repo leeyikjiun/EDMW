@@ -17,8 +17,6 @@ import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
 import com.marshalchen.ultimaterecyclerview.UltimateRecyclerviewViewHolder;
 
-import org.w3c.dom.Text;
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import xyz.edmw.R;

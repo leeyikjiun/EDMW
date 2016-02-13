@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.android.camera.drawable;
+
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -23,11 +24,12 @@ import android.graphics.Paint.Align;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
+
 public class TextDrawable extends Drawable {
     private static final int DEFAULT_COLOR = Color.BLACK;
     private static final int DEFAULT_TEXTSIZE = 15;
-    private Paint mPaint;
-    private CharSequence mText;
+    protected Paint mPaint;
+    protected CharSequence mText;
     private int mIntrinsicWidth;
     private int mIntrinsicHeight;
     public TextDrawable(Resources res, CharSequence text) {
